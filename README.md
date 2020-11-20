@@ -1,2 +1,2 @@
-# course-work-TP-Pylenkov
+# course-work-TP-BaranovPylenkov
 Курсовая работа по дисциплине "Технологии программирования" (5 семестр)
