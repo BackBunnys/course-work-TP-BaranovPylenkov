@@ -75,6 +75,7 @@ namespace BestStudentCafedra.Controllers
                     User user = await _userManager.FindByNameAsync(model.Email);
                     if ((await _userManager.GetRolesAsync(user)).Count == 0)
                     {
+                        await _signInManager.SignOutAsync();
                         return View("WaitConfirmation");
                     }
                     // проверяем, принадлежит ли URL приложению
