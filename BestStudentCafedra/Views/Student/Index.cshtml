@@ -1,17 +1,20 @@
 ﻿@model IEnumerable<BestStudentCafedra.Models.Student>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Студенты";
 }
 
-<h1>Index</h1>
+<h1>Студенты</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Добавить</a>
 </p>
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.GradebookNumber)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.FullName)
             </th>
@@ -28,6 +31,9 @@
 @foreach (var item in Model) {
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.GradebookNumber)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.FullName)
             </td>
             <td>
@@ -37,9 +43,9 @@
                 @Html.DisplayFor(modelItem => item.Group.Name)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.GradebookNumber">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.GradebookNumber">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.GradebookNumber">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.GradebookNumber">Изменить</a> |
+                <a asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a> |
+                <a asp-action="Delete" asp-route-id="@item.GradebookNumber">Удалить</a>
             </td>
         </tr>
 }
