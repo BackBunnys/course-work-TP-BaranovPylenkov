@@ -1,0 +1,47 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.Teacher>
+
+@{
+    ViewData["Title"] = "Преподаватели";
+}
+
+<h1>Преподаватели</h1>
+
+<p>
+    <a asp-action="Create">Добавить</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Post)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AcademicDegree)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Post)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AcademicDegree)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
