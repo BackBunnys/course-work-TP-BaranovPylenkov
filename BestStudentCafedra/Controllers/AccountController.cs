@@ -41,7 +41,7 @@ namespace BestStudentCafedra.Controllers
                 if (result.Succeeded)
                 {
                     // установка куки
-                    await _signInManager.SignInAsync(user, false);
+                    //await _signInManager.SignInAsync(user, false);
                     return View("WaitConfirmation");
                 }
                 else
@@ -71,6 +71,12 @@ namespace BestStudentCafedra.Controllers
                     await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
+                    // проверяем, подтверждён ли пользователь (присутствуют ли роли)
+                    User user = await _userManager.FindByNameAsync(model.Email);
+                    if ((await _userManager.GetRolesAsync(user)).Count == 0)
+                    {
+                        return View("WaitConfirmation");
+                    }
                     // проверяем, принадлежит ли URL приложению
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                     {
