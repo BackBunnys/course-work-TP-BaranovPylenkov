@@ -8,6 +8,7 @@ namespace BestStudentCafedra.Models
 {
     public class User: IdentityUser
     {
+        public bool IsConfirmed { get; set; }
         public int? SubjectAreaId { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
