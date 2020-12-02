@@ -54,7 +54,7 @@ namespace BestStudentCafedra.Controllers
             return View(userViewModels);
         }
         [HttpGet]
-        public async Task<IActionResult> Confirmation(string email) 
+        public async Task<IActionResult> Confirm(string email) 
         {
             if (email == null) return NotFound();
             User user = await _userManager.FindByEmailAsync(email);
@@ -68,7 +68,8 @@ namespace BestStudentCafedra.Controllers
             return View(viewModel);
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Confirm")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Confirm(UserConfirmationViewModel viewModel)
         {
             if (viewModel.Email == null) return NotFound();
@@ -77,14 +78,14 @@ namespace BestStudentCafedra.Controllers
             if (viewModel.Roles.Contains("teacher") && viewModel.Roles.Contains("student"))
             {
                 ModelState.AddModelError("AllRoles", "Пользователь не может одновременно иметь роль ученика и учителя");
-                return View("Confirmation", FillByRoles(viewModel));
+                return View(FillByRoles(viewModel));
             }
             if(viewModel.Roles.Contains("teacher"))
             {
                 if (_subjectAreaContext.Teachers.FirstOrDefault(t => t.Id == viewModel.SubjectAreaId) == null)
                 {
                     ModelState.AddModelError("SubjectAreaId", "Преподавателя с таким id нет в системе");
-                    return View("Confirmation", FillByRoles(viewModel));
+                    return View(FillByRoles(viewModel));
                 }
                 else
                     user.SubjectAreaId = viewModel.SubjectAreaId;
@@ -94,7 +95,7 @@ namespace BestStudentCafedra.Controllers
                 if (_subjectAreaContext.Students.FirstOrDefault(s => s.GradebookNumber == viewModel.SubjectAreaId) == null)
                 {
                     ModelState.AddModelError("SubjectAreaId", "Студента с таким id нет в системе");
-                    return View("Confirmation", FillByRoles(viewModel));
+                    return View(FillByRoles(viewModel));
                 }
                 else
                     user.SubjectAreaId = viewModel.SubjectAreaId;
@@ -110,6 +111,40 @@ namespace BestStudentCafedra.Controllers
             viewModel.AllRoles = _roleManager.Roles.ToList();
             return viewModel;
         }
+
+        public async Task<IActionResult> Delete(string email)
+        {
+            if (email == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return View(new UserViewModel
+            {
+                Email = user.Email,
+                FullName = user.SecondName + " " + user.FirstName + " " + user.MiddleName,
+                IsConfirmed = user.IsConfirmed,
+                Roles = await _userManager.GetRolesAsync(user)
+            });
+        }
+
+        // POST: Students/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string email)
+        {
+            if (email == null) return NotFound();
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return NotFound();
+            await _userManager.DeleteAsync(user);
+            return RedirectToAction(nameof(Index));
+        }
+
         /*
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
