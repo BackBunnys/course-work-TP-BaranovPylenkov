@@ -1,0 +1,72 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.ViewModels.UserViewModel>
+
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+<h1>Пользователи</h1>
+
+<h4>
+    @if (ViewData.ContainsKey("Type")) {
+        @ViewData["Type"]
+        <a asp-action="Index">Показать всех</a>
+    }
+    else { 
+        <span>Все пользователи </span>
+        <a asp-action = "Index" asp-route-onlyUnconfirmed ="true" > Только неподтверждённые </a>
+    }
+</h4>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsConfirmed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Roles)
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsConfirmed)
+            </td>
+            <td>
+                @{ String roles = String.Join(", ", item.Roles); }
+                @Html.DisplayFor(modelItem => roles)
+            </td>
+            <td>
+                @if (!item.IsConfirmed)
+                {
+                    <a asp-action="Confirm" asp-route-email="@item.Email">Подтвердить</a>
+                }
+            </td>
+            <td>
+                <a asp-action="ChangeRoles" asp-route-email="@item.Email">Изменить роли</a>
+            </td>
+            <td>
+                <a asp-action="Delete" asp-route-email="@item.Email">Удалить</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
