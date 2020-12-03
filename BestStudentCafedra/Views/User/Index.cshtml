@@ -35,7 +35,6 @@
             </th>
             <th></th>
             <th></th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -45,7 +44,11 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FullName)
+                @if (item.Roles.Contains("teacher"))
+                    @Html.ActionLink(item.FullName, "Details", "Teacher", new { id = item.SubjectAreaId })
+                else if (item.Roles.Contains("student"))
+                    @Html.ActionLink(item.FullName, "Details", "Student", new { id = item.SubjectAreaId })
+                else @Html.DisplayFor(modelItem => item.FullName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.IsConfirmed)
@@ -55,16 +58,17 @@
                 @Html.DisplayFor(modelItem => roles)
             </td>
             <td>
-                @if (!item.IsConfirmed)
+                @if (item.Roles.Count == 0)
                 {
-                    <a asp-action="Confirm" asp-route-email="@item.Email">Подтвердить</a>
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-email="@item.Email">Подтвердить</a>
+                }
+                else
+                {
+                    <a class="btn btn-secondary" asp-action="Edit" asp-route-email="@item.Email">Изменить роли</a>
                 }
             </td>
             <td>
-                <a asp-action="ChangeRoles" asp-route-email="@item.Email">Изменить роли</a>
-            </td>
-            <td>
-                <a asp-action="Delete" asp-route-email="@item.Email">Удалить</a>
+                <a class="btn btn-danger" asp-action="Delete" asp-route-email="@item.Email">Удалить</a>
             </td>
         </tr>
 }

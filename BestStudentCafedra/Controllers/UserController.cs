@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,104 +34,75 @@ namespace BestStudentCafedra.Controllers
             if (onlyUnconfirmed)
             {
                 ViewData["type"] = "Неподтверждённые пользователи";
-                users = _userManager.Users.Where(u => !u.IsConfirmed).ToList();
+                users = _userManager.Users.Where(u => !u.IsConfirmed).OrderBy(u => u.SecondName).ToList();
             }
             else
             {
-                users = _userManager.Users.ToList();
+                users = _userManager.Users.OrderBy(u => u.SecondName).ToList();
             }
 
             foreach (User user in users)
-            {
-                IList<String> roles = await _userManager.GetRolesAsync(user);
-                userViewModels.Add(new UserViewModel
-                {
-                    Email = user.Email,
-                    FullName = user.SecondName + " " + user.FirstName + " " + user.MiddleName,
-                    IsConfirmed = user.IsConfirmed,
-                    Roles = roles
-                });
-            }
+                userViewModels.Add(new UserViewModel(user, (await _userManager.GetRolesAsync(user)).ToList()));
+
             return View(userViewModels);
         }
         [HttpGet]
-        public async Task<IActionResult> Confirm(string email) 
+        public async Task<IActionResult> Edit(string email) 
         {
-            if (email == null) return NotFound();
-            User user = await _userManager.FindByEmailAsync(email);
+            User user = await GetUser(email);
             if (user == null) return NotFound();
-            UserConfirmationViewModel viewModel = new UserConfirmationViewModel()
-            {
-                Email = user.Email,
-                FullName = user.SecondName + " " + user.FirstName + " " + user.MiddleName,
-                AllRoles = _roleManager.Roles.ToList()
-            };
-            return View(viewModel);
+            ViewData["AllRoles"] = _roleManager.Roles.Select(r => r.Name).ToList();
+
+            return View(new UserViewModel(user, (await _userManager.GetRolesAsync(user)).ToList()));
         }
 
-        [HttpPost, ActionName("Confirm")]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Confirm(UserConfirmationViewModel viewModel)
+        public async Task<IActionResult> Edit(UserViewModel viewModel)
         {
-            if (viewModel.Email == null) return NotFound();
-            User user = await _userManager.FindByEmailAsync(viewModel.Email);
+            User user = await GetUser(viewModel.Email);
             if (user == null) return NotFound();
-            if (viewModel.Roles.Contains("teacher") && viewModel.Roles.Contains("student"))
-            {
-                ModelState.AddModelError("AllRoles", "Пользователь не может одновременно иметь роль ученика и учителя");
-                return View(FillByRoles(viewModel));
-            }
-            if(viewModel.Roles.Contains("teacher"))
-            {
-                if (_subjectAreaContext.Teachers.FirstOrDefault(t => t.Id == viewModel.SubjectAreaId) == null)
-                {
-                    ModelState.AddModelError("SubjectAreaId", "Преподавателя с таким id нет в системе");
-                    return View(FillByRoles(viewModel));
-                }
-                else
-                    user.SubjectAreaId = viewModel.SubjectAreaId;
-            }
-            if (viewModel.Roles.Contains("student"))
-            {
-                if (_subjectAreaContext.Students.FirstOrDefault(s => s.GradebookNumber == viewModel.SubjectAreaId) == null)
-                {
-                    ModelState.AddModelError("SubjectAreaId", "Студента с таким id нет в системе");
-                    return View(FillByRoles(viewModel));
-                }
-                else
-                    user.SubjectAreaId = viewModel.SubjectAreaId;
-            }
-            user.IsConfirmed = true;
-            await _userManager.UpdateAsync(user);
-            await _userManager.AddToRolesAsync(user, viewModel.Roles);
-            return RedirectToAction("Index");
-        }
 
-        private object FillByRoles(UserConfirmationViewModel viewModel)
-        {
-            viewModel.AllRoles = _roleManager.Roles.ToList();
-            return viewModel;
+            bool isSubjectExists = true;
+            if (ModelState.IsValid)
+            {
+                if (viewModel.Roles.Contains("teacher"))
+                {
+                    if (_subjectAreaContext.Teachers.FirstOrDefault(t => t.Id == viewModel.SubjectAreaId) == null)
+                    {
+                        ModelState.AddModelError("", "Преподавателя с таким id нет в системе");
+                        isSubjectExists = false;
+                    }
+                }
+                if (viewModel.Roles.Contains("student"))
+                {
+                    if (_subjectAreaContext.Students.FirstOrDefault(s => s.GradebookNumber == viewModel.SubjectAreaId) == null)
+                    {
+                        ModelState.AddModelError("", "Студента с таким id нет в системе");
+                        isSubjectExists = false;
+                    }
+                }
+                if (isSubjectExists)
+                {
+                    user.SubjectAreaId = viewModel.SubjectAreaId;
+                    user.IsConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                    await _userManager.RemoveFromRolesAsync(user, await _userManager.GetRolesAsync(user));
+                    await _userManager.AddToRolesAsync(user, viewModel.Roles);
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            ViewData["AllRoles"] = _roleManager.Roles.Select(r => r.Name).ToList();
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Delete(string email)
         {
-            if (email == null)
-            {
-                return NotFound();
-            }
+            User user = await GetUser(email);
+            if (user == null) return NotFound();
 
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return View(new UserViewModel
-            {
-                Email = user.Email,
-                FullName = user.SecondName + " " + user.FirstName + " " + user.MiddleName,
-                IsConfirmed = user.IsConfirmed,
-                Roles = await _userManager.GetRolesAsync(user)
-            });
+            return View(new UserViewModel(user, (await _userManager.GetRolesAsync(user)).ToList()));
         }
 
         // POST: Students/Delete/5
@@ -138,72 +110,36 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string email)
         {
-            if (email == null) return NotFound();
-            var user = await _userManager.FindByEmailAsync(email);
+            User user = await GetUser(email);
             if (user == null) return NotFound();
+
             await _userManager.DeleteAsync(user);
             return RedirectToAction(nameof(Index));
         }
 
-        /*
-        [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        private async Task<User> GetUser(string email)
         {
-            IdentityRole role = await _roleManager.FindByIdAsync(id);
-            if (role != null)
+            if (email != null)
             {
-                IdentityResult result = await _roleManager.DeleteAsync(role);
+                User foundedUser = await _userManager.FindByEmailAsync(email);
+                if (foundedUser != null) return foundedUser;
             }
-            return RedirectToAction("Index");
+            return null;
         }
 
-        public IActionResult UserList() => View(_userManager.Users.ToList());
-
-        public async Task<IActionResult> Edit(string userId)
+        public IActionResult TeacherSelect()
         {
-            // получаем пользователя
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                // получем список ролей пользователя
-                var userRoles = await _userManager.GetRolesAsync(user);
-                var allRoles = _roleManager.Roles.ToList();
-                ChangeRoleViewModel model = new ChangeRoleViewModel
-                {
-                    UserId = user.Id,
-                    UserEmail = user.Email,
-                    UserRoles = userRoles,
-                    AllRoles = allRoles
-                };
-                return View(model);
-            }
-
-            return NotFound();
+            List<Teacher> teachers = _subjectAreaContext.Teachers.OrderBy(t => t.FullName).ToList();
+            teachers.Insert(0, new Teacher { Id =  int.MinValue, FullName = "Выберите преподавателя..."});
+            ViewData["SubjectId"] = new SelectList(teachers, "Id", "FullName");
+            return PartialView("_ChooseView");
         }
-        [HttpPost]
-        public async Task<IActionResult> Edit(string userId, List<string> roles)
+        public IActionResult StudentSelect()
         {
-            // получаем пользователя
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                // получем список ролей пользователя
-                var userRoles = await _userManager.GetRolesAsync(user);
-                // получаем все роли
-                var allRoles = _roleManager.Roles.ToList();
-                // получаем список ролей, которые были добавлены
-                var addedRoles = roles.Except(userRoles);
-                // получаем роли, которые были удалены
-                var removedRoles = userRoles.Except(roles);
-
-                await _userManager.AddToRolesAsync(user, addedRoles);
-
-                await _userManager.RemoveFromRolesAsync(user, removedRoles);
-
-                return RedirectToAction("UserList");
-            }
-
-            return NotFound();
-        }*/
+            List<Student> students = _subjectAreaContext.Students.OrderBy(s => s.FullName).ToList();
+            students.Insert(0, new Student { GradebookNumber = int.MinValue, FullName = "Выберите студента..." });
+            ViewData["SubjectId"] = new SelectList(students, "GradebookNumber", "FullName");
+            return PartialView("_ChooseView");
+        }
     }
 }
