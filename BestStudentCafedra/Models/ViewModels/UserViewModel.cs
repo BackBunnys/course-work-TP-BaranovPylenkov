@@ -16,9 +16,9 @@ namespace BestStudentCafedra.Models.ViewModels
         public bool IsConfirmed { get; set; }
 
         [Display(Name = "Роли")]
-        [Required(ErrorMessage = "Укажите роли")]
         [RolesValidation("student", ErrorMessage = "Студент не может содержать больше ролей")]
-        public List<string> Roles { get; set; }
+        [MinLength(1, ErrorMessage = "Укажите роли")]
+        public List<string> Roles { get; set; } = new List<string>();
 
         [Display(Name = "Имя")]
         public string FullName { get; set; }
