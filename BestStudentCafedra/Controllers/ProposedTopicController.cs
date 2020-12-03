@@ -36,7 +36,7 @@ namespace BestStudentCafedra.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ModelState.AddModelError("", "Длина темы должна быть больше 10 символов");
+            ModelState.AddModelError("", "Тема должна быть длиной от 10 до 100 символов");
             ViewData["topics"] = await _context.ProposedTopics.ToListAsync();
             return View("Index", proposedTopic);
         }
