@@ -1,4 +1,4 @@
-﻿@model BestStudentCafedra.Models.Teacher 
+﻿@model BestStudentCafedra.Models.Teacher
 
 @{
     ViewData["Title"] = "Подробности о преподавателе";
@@ -9,72 +9,27 @@
 <div>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.FullName)
         </dt>
-        <dd class="col-sm-10">
+        <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.FullName)
         </dd>
-        <dt class="col-sm-2">
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Post)
         </dt>
-        <dd class="col-sm-10">
+        <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Post)
         </dd>
-        <dt class="col-sm-2">
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.AcademicDegree)
         </dt>
-        <dd class="col-sm-10">
+        <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.AcademicDegree)
         </dd>
     </dl>
-
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
-        <a asp-action="Index">Вернуться</a>
-    </div>
-
-    </br>
-    <h4>Дисциплины:</h4>
-    <p>Список дисциплин, которые ведет преподаватель по основным образовательным программам</p>
-    <p>
-        <a asp-action="AddDiscipline" asp-route-id="@Model.Id">Добавить</a>
-    </p>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Year)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Semester)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (TeacherDiscipline item in Model.TeacherDisciplines)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Discipline.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Discipline.Year)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Discipline.Semester)
-                    </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
-                        <a asp-action="DeleteDiscipline" asp-route-id="@item.Id">Удалить</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Index">Вернуться</a>
 </div>

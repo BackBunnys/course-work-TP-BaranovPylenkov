@@ -36,7 +36,7 @@ namespace BestStudentCafedra.Controllers
             var teacher = await _context.Teachers
                 .Include(e => e.TeacherDisciplines)
                 .ThenInclude(sc => sc.Discipline)
-                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (teacher == null)
             {
                 return NotFound();
@@ -98,7 +98,7 @@ namespace BestStudentCafedra.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = teacherId });
         }
-
+        
         // GET: Teachers/Create
         public IActionResult Create()
         {
