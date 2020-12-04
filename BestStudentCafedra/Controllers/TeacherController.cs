@@ -89,6 +89,16 @@ namespace BestStudentCafedra.Controllers
             return RedirectToAction(nameof(Details), new { id = id });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DeleteDiscipline(int id)
+        {
+            var teacherDiscipline = await _context.TeacherDisciplines.FirstOrDefaultAsync(x => x.Id == id);
+            var teacherId = teacherDiscipline.TeacherId;
+            _context.TeacherDisciplines.Remove(teacherDiscipline);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = teacherId });
+        }
+
         // GET: Teachers/Create
         public IActionResult Create()
         {
