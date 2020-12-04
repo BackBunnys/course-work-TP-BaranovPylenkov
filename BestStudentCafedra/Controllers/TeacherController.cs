@@ -36,6 +36,7 @@ namespace BestStudentCafedra.Controllers
             var teacher = await _context.Teachers
                 .Include(e => e.TeacherDisciplines)
                 .ThenInclude(sc => sc.Discipline)
+                .FirstOrDefaultAsync(m => m.Id == id); ;
 
             if (teacher == null)
             {
@@ -68,14 +69,9 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDiscipline(int? id, int DisciplineId)
+        public async Task<IActionResult> AddDiscipline(int id, int DisciplineId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            if(_context.TeacherDisciplines.Where(x => x.TeacherId == id).Count() > 0)
+            if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Count() > 0)
             {
                 return Conflict();
             }
