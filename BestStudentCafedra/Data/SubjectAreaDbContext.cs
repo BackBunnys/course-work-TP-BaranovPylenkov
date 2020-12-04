@@ -33,6 +33,7 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<Specialty> Specialties { get; set; }
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
+        public virtual DbSet<TeacherDiscipline> TeacherDisciplines { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
         { 
@@ -442,6 +443,33 @@ namespace BestStudentCafedra.Data
                     .HasColumnName("post")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
+            });
+
+            modelBuilder.Entity<TeacherDiscipline>(entity =>
+            {
+                entity.ToTable("teacher_disciplines");
+
+                entity.HasIndex(e => e.DisciplineId, "discipline_id");
+
+                entity.HasIndex(e => e.TeacherId, "teacher_id");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.DisciplineId).HasColumnName("discipline_id");
+
+                entity.Property(e => e.TeacherId).HasColumnName("teacher_id");
+
+                entity.HasOne(d => d.Discipline)
+                    .WithMany(p => p.TeacherDisciplines)
+                    .HasForeignKey(d => d.DisciplineId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("activity_ibfk_2");
+
+                entity.HasOne(d => d.Teacher)
+                    .WithMany(p => p.TeacherDisciplines)
+                    .HasForeignKey(d => d.TeacherId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("activity_ibfk_1");
             });
 
             OnModelCreatingPartial(modelBuilder);

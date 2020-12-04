@@ -11,6 +11,7 @@ namespace BestStudentCafedra.Models
         public Teacher()
         {
             AssignedStaffs = new HashSet<AssignedStaff>();
+            TeacherDisciplines = new HashSet<TeacherDiscipline>();
             SchedulePlans = new HashSet<SchedulePlan>();
         }
         public int Id { get; set; }
@@ -27,5 +28,6 @@ namespace BestStudentCafedra.Models
 
         public virtual ICollection<AssignedStaff> AssignedStaffs { get; set; }
         public virtual ICollection<SchedulePlan> SchedulePlans { get; set; }
+        public virtual ICollection<TeacherDiscipline> TeacherDisciplines { get; set; }
     }
 }
