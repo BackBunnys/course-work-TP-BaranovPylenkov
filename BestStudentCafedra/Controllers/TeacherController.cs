@@ -34,7 +34,9 @@ namespace BestStudentCafedra.Controllers
             }
 
             var teacher = await _context.Teachers
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(e => e.TeacherDisciplines)
+                .ThenInclude(sc => sc.Discipline)
+
             if (teacher == null)
             {
                 return NotFound();
@@ -43,6 +45,60 @@ namespace BestStudentCafedra.Controllers
             return View(teacher);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> AddDiscipline(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["TeacherId"] = id;
+            List<Discipline> teacherDisciplines = await _context.TeacherDisciplines
+                .Where(x => x.TeacherId == id)
+                .Select(x => x.Discipline)
+                .ToListAsync();
+
+            List<Discipline> disciplines = await _context.Disciplines.ToListAsync();
+            disciplines.RemoveAll(x => teacherDisciplines.Any(y => y.Id == x.Id));
+
+            ViewData["DisciplinesId"] = new SelectList(disciplines, "Id", "Name");
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddDiscipline(int? id, int DisciplineId)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            if(_context.TeacherDisciplines.Where(x => x.TeacherId == id).Count() > 0)
+            {
+                return Conflict();
+            }
+
+            var newTeacherDisp = new TeacherDiscipline();
+            newTeacherDisp.TeacherId = (int)id;
+            newTeacherDisp.DisciplineId = DisciplineId;
+
+            _context.Add(newTeacherDisp);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteDiscipline(int id)
+        {
+            var teacherDiscipline = await _context.TeacherDisciplines.FirstOrDefaultAsync(x => x.Id == id);
+            var teacherId = teacherDiscipline.TeacherId;
+            _context.TeacherDisciplines.Remove(teacherDiscipline);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = teacherId });
+        }
+        
         // GET: Teachers/Create
         public IActionResult Create()
         {

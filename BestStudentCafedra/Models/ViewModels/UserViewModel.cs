@@ -11,7 +11,6 @@ namespace BestStudentCafedra.Models.ViewModels
     {
         [Display(Name = "Почта")]
         public string Email { get; set; }
-
         [Display(Name = "Подтверждён")]
         public bool IsConfirmed { get; set; }
 
