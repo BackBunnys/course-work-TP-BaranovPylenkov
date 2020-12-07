@@ -19,7 +19,7 @@ namespace BestStudentCafedra.Models
         public string Title { get; set; }
         public int? MaxPoints { get; set; }
 
-        public virtual Discipline Discipline { get; set; }
+        public virtual SemesterDiscipline SemesterDiscipline { get; set; }
         public virtual ActivityType Type { get; set; }
         public virtual ICollection<ActivityProtection> ActivityProtections { get; set; }
     }

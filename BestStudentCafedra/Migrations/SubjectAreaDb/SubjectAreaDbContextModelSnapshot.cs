@@ -177,27 +177,12 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<string>("ControlType")
-                        .IsRequired()
-                        .HasColumnType("enum('exam','differential credit','credit')")
-                        .HasColumnName("control_type")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(50)")
                         .HasColumnName("name")
                         .UseCollation("utf8mb4_0900_ai_ci")
                         .HasCharSet("utf8mb4");
-
-                    b.Property<int>("Semester")
-                        .HasColumnType("int")
-                        .HasColumnName("semester");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int")
-                        .HasColumnName("year");
 
                     b.HasKey("Id");
 
@@ -383,6 +368,40 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.ToTable("schedule_plan_event");
                 });
 
+            modelBuilder.Entity("BestStudentCafedra.Models.SemesterDiscipline", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ControlType")
+                        .IsRequired()
+                        .HasColumnType("enum('exam','differential credit','credit')")
+                        .HasColumnName("control_type")
+                        .UseCollation("utf8mb4_0900_ai_ci")
+                        .HasCharSet("utf8mb4");
+
+                    b.Property<int>("DisciplineId")
+                        .HasColumnType("int")
+                        .HasColumnName("discipline_id");
+
+                    b.Property<int>("Semester")
+                        .HasColumnType("int")
+                        .HasColumnName("semester");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "DisciplineId" }, "discipline_id")
+                        .HasDatabaseName("discipline_id1");
+
+                    b.ToTable("semester_discipline");
+                });
+
             modelBuilder.Entity("BestStudentCafedra.Models.Specialty", b =>
                 {
                     b.Property<string>("Code")
@@ -496,7 +515,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "DisciplineId" }, "discipline_id")
-                        .HasDatabaseName("discipline_id1");
+                        .HasDatabaseName("discipline_id2");
 
                     b.HasIndex(new[] { "TeacherId" }, "teacher_id")
                         .HasDatabaseName("teacher_id1");
@@ -517,7 +536,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
             modelBuilder.Entity("BestStudentCafedra.Models.Activity", b =>
                 {
-                    b.HasOne("BestStudentCafedra.Models.Discipline", "Discipline")
+                    b.HasOne("BestStudentCafedra.Models.SemesterDiscipline", "SemesterDiscipline")
                         .WithMany("Activities")
                         .HasForeignKey("DisciplineId")
                         .HasConstraintName("activity_ibfk_2")
@@ -528,7 +547,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasForeignKey("TypeId")
                         .HasConstraintName("activity_ibfk_1");
 
-                    b.Navigation("Discipline");
+                    b.Navigation("SemesterDiscipline");
 
                     b.Navigation("Type");
                 });
@@ -638,6 +657,18 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.Navigation("SchedulePlan");
                 });
 
+            modelBuilder.Entity("BestStudentCafedra.Models.SemesterDiscipline", b =>
+                {
+                    b.HasOne("BestStudentCafedra.Models.Discipline", "Discipline")
+                        .WithMany("SemesterDisciplines")
+                        .HasForeignKey("DisciplineId")
+                        .HasConstraintName("semester_discipline_ibfk_1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discipline");
+                });
+
             modelBuilder.Entity("BestStudentCafedra.Models.Student", b =>
                 {
                     b.HasOne("BestStudentCafedra.Models.AcademicGroup", "Group")
@@ -687,7 +718,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
             modelBuilder.Entity("BestStudentCafedra.Models.Discipline", b =>
                 {
-                    b.Navigation("Activities");
+                    b.Navigation("SemesterDisciplines");
 
                     b.Navigation("TeacherDisciplines");
                 });
@@ -712,6 +743,11 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
             modelBuilder.Entity("BestStudentCafedra.Models.SchedulePlanEvent", b =>
                 {
                     b.Navigation("EventLogs");
+                });
+
+            modelBuilder.Entity("BestStudentCafedra.Models.SemesterDiscipline", b =>
+                {
+                    b.Navigation("Activities");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.Specialty", b =>

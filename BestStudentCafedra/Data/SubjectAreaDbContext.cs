@@ -97,7 +97,7 @@ namespace BestStudentCafedra.Data
 
                 entity.Property(e => e.TypeId).HasColumnName("type_id");
 
-                entity.HasOne(d => d.Discipline)
+                entity.HasOne(d => d.SemesterDiscipline)
                     .WithMany(p => p.Activities)
                     .HasForeignKey(d => d.DisciplineId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
@@ -196,6 +196,24 @@ namespace BestStudentCafedra.Data
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnType("varchar(50)")
+                    .HasColumnName("name")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+            });
+
+            modelBuilder.Entity<SemesterDiscipline>(entity =>
+            {
+                entity.ToTable("semester_discipline");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.DisciplineId).HasColumnName("discipline_id");
+
+                entity.HasIndex(e => e.DisciplineId, "discipline_id");
+
                 entity.Property(e => e.ControlType)
                     .IsRequired()
                     .HasColumnType("enum('exam','differential credit','credit')")
@@ -203,16 +221,15 @@ namespace BestStudentCafedra.Data
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasColumnType("varchar(50)")
-                    .HasColumnName("name")
-                    .HasCharSet("utf8mb4")
-                    .HasCollation("utf8mb4_0900_ai_ci");
-
                 entity.Property(e => e.Semester).HasColumnName("semester");
 
                 entity.Property(e => e.Year).HasColumnName("year");
+
+                entity.HasOne(d => d.Discipline)
+                    .WithMany(p => p.SemesterDisciplines)
+                    .HasForeignKey(d => d.DisciplineId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("semester_discipline_ibfk_1");
             });
 
             modelBuilder.Entity<Event>(entity =>
