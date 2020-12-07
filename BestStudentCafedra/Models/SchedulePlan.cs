@@ -1,27 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#nullable disable
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BestStudentCafedra.Models
 {
-    public partial class SchedulePlan
+    public class SchedulePlan
     {
         public SchedulePlan()
         {
-            EventLogs = new HashSet<EventLog>();
+            SchedulePlanEvents = new HashSet<SchedulePlanEvent>();
         }
-
         public int Id { get; set; }
         public int GroupId { get; set; }
-        public int EventId { get; set; }
-        public DateTime? Date { get; set; }
-        public string Class { get; set; }
-        public int? ResponsibleTeacherId { get; set; }
+        public DateTime? ApprovedDate { get; set; }
+        public DateTime? LastChangedDate { get; set; }
+        public string ApprovingOfficerName { get; set; }
 
-        public virtual Event Event { get; set; }
         public virtual AcademicGroup Group { get; set; }
-        public virtual Teacher ResponsibleTeacher { get; set; }
-        public virtual ICollection<EventLog> EventLogs { get; set; }
+        public virtual ICollection<SchedulePlanEvent> SchedulePlanEvents { get; set; }
     }
 }
