@@ -30,6 +30,7 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
         public virtual DbSet<SchedulePlanEvent> SchedulePlans { get; set; }
+        public virtual DbSet<SemesterDiscipline> SemesterDisciplines { get; set; }
         public virtual DbSet<Specialty> Specialties { get; set; }
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
@@ -216,7 +217,7 @@ namespace BestStudentCafedra.Data
 
                 entity.Property(e => e.ControlType)
                     .IsRequired()
-                    .HasColumnType("enum('exam','differential credit','credit')")
+                    .HasColumnType("enum('Exam','DifferentialCredit','Credit')")
                     .HasColumnName("control_type")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
