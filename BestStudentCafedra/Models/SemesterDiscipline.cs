@@ -19,10 +19,23 @@ namespace BestStudentCafedra.Models
         public int Year { get; set; }
         [Display(Name = "Семестр")]
         public int Semester { get; set; }
+        [UIHint("Enum")]
+        [EnumDataType(typeof(ControlType))]
+        [Required(ErrorMessage = "Please select supporter tier")]
         [Display(Name = "Тип контроля")]
-        public string ControlType { get; set; }
+        public ControlType ControlType { get; set; }
 
         public virtual Discipline Discipline { get; set; }
         public virtual ICollection<Activity> Activities { get; set; }
+    }
+
+    public enum ControlType
+    {
+        [Display(Name = "Экзамен")]
+        Exam,
+        [Display(Name = "Дифференцированный зачет")]
+        DifferentialCredit,
+        [Display(Name = "Зачет")]
+        Credit
     }
 }
