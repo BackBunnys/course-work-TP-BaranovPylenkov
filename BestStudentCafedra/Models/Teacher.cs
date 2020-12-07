@@ -12,7 +12,7 @@ namespace BestStudentCafedra.Models
         {
             AssignedStaffs = new HashSet<AssignedStaff>();
             TeacherDisciplines = new HashSet<TeacherDiscipline>();
-            SchedulePlans = new HashSet<SchedulePlan>();
+            SchedulePlans = new HashSet<SchedulePlanEvent>();
         }
         public int Id { get; set; }
         [Required(ErrorMessage = "Не указано имя")]
@@ -27,7 +27,7 @@ namespace BestStudentCafedra.Models
         public string AcademicDegree { get; set; }
 
         public virtual ICollection<AssignedStaff> AssignedStaffs { get; set; }
-        public virtual ICollection<SchedulePlan> SchedulePlans { get; set; }
+        public virtual ICollection<SchedulePlanEvent> SchedulePlans { get; set; }
         public virtual ICollection<TeacherDiscipline> TeacherDisciplines { get; set; }
     }
 }

@@ -9,13 +9,13 @@ namespace BestStudentCafedra.Models
     {
         public Event()
         {
-            SchedulePlans = new HashSet<SchedulePlan>();
+            SchedulePlans = new HashSet<SchedulePlanEvent>();
         }
 
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public virtual ICollection<SchedulePlan> SchedulePlans { get; set; }
+        public virtual ICollection<SchedulePlanEvent> SchedulePlans { get; set; }
     }
 }

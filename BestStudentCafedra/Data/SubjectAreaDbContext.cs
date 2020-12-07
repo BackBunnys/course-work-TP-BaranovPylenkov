@@ -29,7 +29,7 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<EventLog> EventLogs { get; set; }
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
-        public virtual DbSet<SchedulePlan> SchedulePlans { get; set; }
+        public virtual DbSet<SchedulePlanEvent> SchedulePlans { get; set; }
         public virtual DbSet<Specialty> Specialties { get; set; }
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
@@ -241,7 +241,7 @@ namespace BestStudentCafedra.Data
 
                 entity.HasIndex(e => e.GraduationWorkId, "graduation_work_id");
 
-                entity.HasIndex(e => e.SchedulePlanId, "schedule_plan_id");
+                entity.HasIndex(e => e.SchedulePlanEventId, "schedule_plan_event_id");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
@@ -249,7 +249,7 @@ namespace BestStudentCafedra.Data
 
                 entity.Property(e => e.Mark).HasColumnName("mark");
 
-                entity.Property(e => e.SchedulePlanId).HasColumnName("schedule_plan_id");
+                entity.Property(e => e.SchedulePlanEventId).HasColumnName("schedule_plan_event_id");
 
                 entity.HasOne(d => d.GraduationWork)
                     .WithMany(p => p.EventLogs)
@@ -257,9 +257,9 @@ namespace BestStudentCafedra.Data
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("event_log_ibfk_1");
 
-                entity.HasOne(d => d.SchedulePlan)
+                entity.HasOne(d => d.SchedulePlanEvent)
                     .WithMany(p => p.EventLogs)
-                    .HasForeignKey(d => d.SchedulePlanId)
+                    .HasForeignKey(d => d.SchedulePlanEventId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("event_log_ibfk_2");
             });
@@ -307,17 +307,23 @@ namespace BestStudentCafedra.Data
                     .HasCollation("utf8mb4_0900_ai_ci");
             });
 
-            modelBuilder.Entity<SchedulePlan>(entity =>
+            modelBuilder.Entity<SchedulePlanEvent>(entity =>
             {
-                entity.ToTable("schedule_plan");
+                entity.ToTable("schedule_plan_event");
+
+                entity.HasIndex(e => e.SchedulePlanId, "schedule_plan_id");
 
                 entity.HasIndex(e => e.EventId, "event_id");
-
-                entity.HasIndex(e => e.GroupId, "group_id");
 
                 entity.HasIndex(e => e.ResponsibleTeacherId, "responsible_teacher_id");
 
                 entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.SchedulePlanId).HasColumnName("schedule_plan_id");
+
+                entity.Property(e => e.EventId).HasColumnName("event_id");
+
+                entity.Property(e => e.ResponsibleTeacherId).HasColumnName("responsible_teacher_id");
 
                 entity.Property(e => e.Class)
                     .HasColumnType("varchar(7)")
@@ -331,26 +337,55 @@ namespace BestStudentCafedra.Data
 
                 entity.Property(e => e.EventId).HasColumnName("event_id");
 
-                entity.Property(e => e.GroupId).HasColumnName("group_id");
-
                 entity.Property(e => e.ResponsibleTeacherId).HasColumnName("responsible_teacher_id");
+
+                entity.HasOne(d => d.SchedulePlan)
+                    .WithMany(p => p.SchedulePlanEvents)
+                    .HasForeignKey(d => d.SchedulePlanId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("schedule_plan_event_ibfk_1");
 
                 entity.HasOne(d => d.Event)
                     .WithMany(p => p.SchedulePlans)
                     .HasForeignKey(d => d.EventId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("schedule_plan_ibfk_2");
+                    .HasConstraintName("schedule_plan_event_ibfk_2");
+
+                entity.HasOne(d => d.ResponsibleTeacher)
+                    .WithMany(p => p.SchedulePlans)
+                    .HasForeignKey(d => d.ResponsibleTeacherId)
+                    .HasConstraintName("schedule_plan_event_ibfk_3");
+            });
+
+            modelBuilder.Entity<SchedulePlan>(entity =>
+            {
+                entity.ToTable("schedule_plan");
+
+                entity.HasIndex(e => e.GroupId, "group_id");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.GroupId).HasColumnName("group_id");
+
+                entity.Property(e => e.ApprovingOfficerName)
+                    .HasColumnType("varchar(70)")
+                    .HasColumnName("approving_officer_name")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.ApprovedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("approved_date");
+
+                entity.Property(e => e.LastChangedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("last_changed_date");
 
                 entity.HasOne(d => d.Group)
                     .WithMany(p => p.SchedulePlans)
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("schedule_plan_ibfk_1");
-
-                entity.HasOne(d => d.ResponsibleTeacher)
-                    .WithMany(p => p.SchedulePlans)
-                    .HasForeignKey(d => d.ResponsibleTeacherId)
-                    .HasConstraintName("schedule_plan_ibfk_3");
             });
 
             modelBuilder.Entity<Specialty>(entity =>
@@ -463,13 +498,13 @@ namespace BestStudentCafedra.Data
                     .WithMany(p => p.TeacherDisciplines)
                     .HasForeignKey(d => d.DisciplineId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("activity_ibfk_2");
+                    .HasConstraintName("teacher_discipline_ibfk_1");
 
                 entity.HasOne(d => d.Teacher)
                     .WithMany(p => p.TeacherDisciplines)
                     .HasForeignKey(d => d.TeacherId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("activity_ibfk_1");
+                    .HasConstraintName("teacher_discipline_ibfk_2");
             });
 
             OnModelCreatingPartial(modelBuilder);
