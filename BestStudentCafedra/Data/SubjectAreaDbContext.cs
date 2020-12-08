@@ -30,13 +30,12 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<EventLog> EventLogs { get; set; }
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
-        public virtual DbSet<Event> SchedulePlans { get; set; }
         public virtual DbSet<SemesterDiscipline> SemesterDiscipline { get; set; }
         public virtual DbSet<Specialty> Specialties { get; set; }
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
         public virtual DbSet<TeacherDiscipline> TeacherDisciplines { get; set; }
-        public virtual DbSet<SchedulePlan> SchedulePlan { get; set; }
+        public virtual DbSet<SchedulePlan> SchedulePlans { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
         { 

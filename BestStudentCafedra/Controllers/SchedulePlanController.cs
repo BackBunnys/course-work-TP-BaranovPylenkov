@@ -22,8 +22,11 @@ namespace BestStudentCafedra.Controllers
         // GET: SchedulePlan
         public async Task<IActionResult> Index()
         {
-            var subjectAreaDbContext = _context.SchedulePlan.Include(s => s.Group);
-            return View(await subjectAreaDbContext.ToListAsync());
+            List<AcademicGroup> academicGroups = await _context.AcademicGroups.ToListAsync();
+            academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
+            ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
+            ViewData["SchedulePlanes"] = await _context.SchedulePlans.OrderBy(x => x.ApprovedDate).ToListAsync();
+            return View();
         }
 
         // GET: SchedulePlan/Details/5
@@ -34,7 +37,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var schedulePlan = await _context.SchedulePlan
+            var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (schedulePlan == null)
@@ -45,19 +48,10 @@ namespace BestStudentCafedra.Controllers
             return View(schedulePlan);
         }
 
-        // GET: SchedulePlan/Create
-        public IActionResult Create()
-        {
-            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name");
-            return View();
-        }
-
         // POST: SchedulePlan/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,GroupId,ApprovedDate,LastChangedDate,ApprovingOfficerName")] SchedulePlan schedulePlan)
+        public async Task<IActionResult> Create([Bind("GroupId")] SchedulePlan schedulePlan)
         {
             if (ModelState.IsValid)
             {
@@ -65,8 +59,11 @@ namespace BestStudentCafedra.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", schedulePlan.GroupId);
-            return View(schedulePlan);
+            List<AcademicGroup> academicGroups = await _context.AcademicGroups.ToListAsync();
+            academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
+            ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
+            ViewData["SchedulePlanes"] = await _context.SchedulePlans.OrderBy(x => x.ApprovedDate).ToListAsync();
+            return View(nameof(Index), schedulePlan);
         }
 
         // GET: SchedulePlan/Edit/5
@@ -77,18 +74,16 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var schedulePlan = await _context.SchedulePlan.FindAsync(id);
+            var schedulePlan = await _context.SchedulePlans.FindAsync(id);
             if (schedulePlan == null)
             {
                 return NotFound();
             }
-            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", schedulePlan.GroupId);
+            ViewData["GroupId"] = new SelectList(_context.AcademicGroups.ToList(), "Id", "Name");
             return View(schedulePlan);
         }
 
         // POST: SchedulePlan/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,GroupId,ApprovedDate,LastChangedDate,ApprovingOfficerName")] SchedulePlan schedulePlan)
@@ -118,7 +113,9 @@ namespace BestStudentCafedra.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", schedulePlan.GroupId);
+            List<AcademicGroup> academicGroups = await _context.AcademicGroups.ToListAsync();
+            academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
+            ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
             return View(schedulePlan);
         }
 
@@ -130,7 +127,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var schedulePlan = await _context.SchedulePlan
+            var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (schedulePlan == null)
@@ -146,15 +143,15 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var schedulePlan = await _context.SchedulePlan.FindAsync(id);
-            _context.SchedulePlan.Remove(schedulePlan);
+            var schedulePlan = await _context.SchedulePlans.FindAsync(id);
+            _context.SchedulePlans.Remove(schedulePlan);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool SchedulePlanExists(int id)
         {
-            return _context.SchedulePlan.Any(e => e.Id == id);
+            return _context.SchedulePlans.Any(e => e.Id == id);
         }
     }
 }
