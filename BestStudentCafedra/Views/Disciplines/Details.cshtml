@@ -1,0 +1,73 @@
+﻿@model BestStudentCafedra.Models.Discipline
+
+@{
+    ViewData["Title"] = "Подробности о дициплине";
+}
+
+<h1>Подробности о дициплине</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Index">Вернуться</a>
+</div>
+
+</br>
+<h4>Семестры:</h4>
+<p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
+<p>
+    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id" asp-route-returnUrl="@Context.Request.Path">Добавить</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Year)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Semester)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().ControlType)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Year)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Semester)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ControlType)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
+                <a asp-action="DeleteDiscipline" asp-route-id="@item.Id">Удалить</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

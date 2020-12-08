@@ -48,12 +48,6 @@
                 <th>
                     @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Name)
                 </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Year)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Semester)
-                </th>
                 <th></th>
             </tr>
         </thead>
@@ -65,13 +59,7 @@
                         @Html.DisplayFor(modelItem => item.Discipline.Name)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Discipline.Year)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Discipline.Semester)
-                    </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId">Подробнее</a> |
                         <a asp-action="DeleteDiscipline" asp-route-id="@item.Id">Удалить</a>
                     </td>
                 </tr>
