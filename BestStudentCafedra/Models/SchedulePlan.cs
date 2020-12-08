@@ -9,7 +9,7 @@ namespace BestStudentCafedra.Models
     {
         public SchedulePlan()
         {
-            SchedulePlanEvents = new HashSet<SchedulePlanEvent>();
+            Events = new HashSet<Event>();
         }
         public int Id { get; set; }
         public int GroupId { get; set; }
@@ -18,6 +18,6 @@ namespace BestStudentCafedra.Models
         public string ApprovingOfficerName { get; set; }
 
         public virtual AcademicGroup Group { get; set; }
-        public virtual ICollection<SchedulePlanEvent> SchedulePlanEvents { get; set; }
+        public virtual ICollection<Event> Events { get; set; }
     }
 }
