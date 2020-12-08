@@ -26,7 +26,7 @@
 <h4>Семестры:</h4>
 <p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
 <p>
-    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id">Добавить</a>
+    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id" asp-route-returnUrl="@Context.Request.Path">Добавить</a>
 </p>
 
 <table class="table">

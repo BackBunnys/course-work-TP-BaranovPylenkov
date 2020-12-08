@@ -39,8 +39,9 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Create
-        public async Task<IActionResult> Create(int id)
+        public async Task<IActionResult> Create(int id, string returnUrl)
         {
+            ViewData["returnUrl"] = returnUrl;
             Discipline discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == id);
             SemesterDiscipline semesterDiscipline = new SemesterDiscipline() { Discipline = discipline };
             return View(semesterDiscipline);
@@ -51,8 +52,9 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline)
+        public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string returnUrl)
         {
+            ViewData["returnUrl"] = returnUrl;
             semesterDiscipline.Discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == semesterDiscipline.DisciplineId);
 
             if (_context.SemesterDiscipline
@@ -68,7 +70,14 @@ namespace BestStudentCafedra.Controllers
             {
                 _context.Add(semesterDiscipline);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
             }
             return View(semesterDiscipline);
         }
