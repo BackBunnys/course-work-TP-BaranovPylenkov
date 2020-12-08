@@ -38,6 +38,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" value="@ViewBag.returnUrl" name="returnUrl" />
         <input type="submit" value="Удалить" class="btn btn-danger" /> |
         <a asp-action="Index">Вернуться</a>
     </form>

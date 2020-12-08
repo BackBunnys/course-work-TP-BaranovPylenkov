@@ -17,6 +17,7 @@
                 <select asp-for="DisciplineId" class="form-control" asp-items="ViewBag.DisciplineId"></select>
                 <span asp-validation-for="DisciplineId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Year" class="control-label"></label>
                 <input asp-for="Year" class="form-control" />
@@ -40,7 +41,7 @@
 </div>
 
 <div>
-    <a asp-action="Index"/>Вернуться</a>
+    <a href="@ViewBag.returnUrl"/>Вернуться</a>
 </div>
 
 @section Scripts {
