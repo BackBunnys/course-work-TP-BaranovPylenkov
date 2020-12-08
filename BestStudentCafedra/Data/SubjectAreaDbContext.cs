@@ -30,7 +30,7 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
         public virtual DbSet<SchedulePlanEvent> SchedulePlans { get; set; }
-        public virtual DbSet<SemesterDiscipline> SemesterDisciplines { get; set; }
+        public virtual DbSet<SemesterDiscipline> SemesterDiscipline { get; set; }
         public virtual DbSet<Specialty> Specialties { get; set; }
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
