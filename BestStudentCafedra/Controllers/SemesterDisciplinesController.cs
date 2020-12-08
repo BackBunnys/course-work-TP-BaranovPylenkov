@@ -142,6 +142,7 @@ namespace BestStudentCafedra.Controllers
                     return RedirectToAction("Index", "Discipline");
                 }
             }
+            ViewData["returnUrl"] = returnUrl;
             ViewData["DisciplineId"] = new SelectList(_context.Disciplines, "Id", "Name", semesterDiscipline.DisciplineId);
             return View(semesterDiscipline);
         }
