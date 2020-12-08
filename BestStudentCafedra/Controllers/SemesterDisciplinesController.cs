@@ -139,7 +139,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Discipline");
+                    return RedirectToAction("Details", "Disciplines", new { id = semesterDiscipline.DisciplineId });
                 }
             }
             ViewData["returnUrl"] = returnUrl;
