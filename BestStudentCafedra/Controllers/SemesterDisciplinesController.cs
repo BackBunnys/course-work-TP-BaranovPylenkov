@@ -20,7 +20,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -30,11 +30,13 @@ namespace BestStudentCafedra.Controllers
             var semesterDiscipline = await _context.SemesterDiscipline
                 .Include(s => s.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (semesterDiscipline == null)
             {
                 return NotFound();
             }
 
+            ViewData["returnUrl"] = returnUrl;
             return View(semesterDiscipline);
         }
 
@@ -83,7 +85,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -136,7 +138,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -151,18 +153,20 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            ViewData["returnUrl"] = returnUrl;
+
             return View(semesterDiscipline);
         }
 
         // POST: SemesterDisciplines/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl)
         {
             var semesterDiscipline = await _context.SemesterDiscipline.FindAsync(id);
             _context.SemesterDiscipline.Remove(semesterDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Redirect(returnUrl);
         }
 
         private bool SemesterDisciplineExists(int id)

@@ -64,8 +64,8 @@
                 @Html.DisplayFor(modelItem => item.ControlType)
             </td>
             <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
-                <a asp-action="DeleteDiscipline" asp-route-id="@item.Id">Удалить</a>
+                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Подробнее</a> |
+                <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Удалить</a>
             </td>
         </tr>
         }
