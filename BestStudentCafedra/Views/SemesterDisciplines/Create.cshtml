@@ -1,19 +1,17 @@
 ﻿@model BestStudentCafedra.Models.SemesterDiscipline
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Добавление семестра для дисциплины";
 }
 
 <h1>Добавление семестра для дисциплины "@Model.Discipline.Name"</h1>
 
-<h4>SemesterDiscipline</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" value="@Model.Discipline.Id" asp-for="DisciplineId" />
-            <input type="hidden" value="@ViewBag.returnUrl" name="returnUrl" />
             <div class="form-group">
                 <label asp-for="Year" class="control-label"></label>
                 <input asp-for="Year" class="form-control" />
@@ -37,7 +35,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Вернуться</a>
 </div>
 
 @section Scripts {

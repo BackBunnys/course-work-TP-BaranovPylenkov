@@ -1,13 +1,12 @@
 ﻿@model BestStudentCafedra.Models.SemesterDiscipline
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Данные о семестровой дисциплине";
 }
 
-<h1>Details</h1>
+<h1>Данные о семестровой дисциплине</h1>
 
 <div>
-    <h4>SemesterDiscipline</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -37,6 +36,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a href="@ViewBag.returnUrl"/>Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a href="@ViewBag.returnUrl"/>Вернуться</a>
 </div>
