@@ -59,7 +59,8 @@
                         @Html.DisplayFor(modelItem => item.Discipline.Name)
                     </td>
                     <td>
-                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId">Подробнее</a> |
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path">Подробнее</a> |
+                        <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path">Изменить</a> |
                         <a asp-action="DeleteDiscipline" asp-route-id="@item.Id">Удалить</a>
                     </td>
                 </tr>

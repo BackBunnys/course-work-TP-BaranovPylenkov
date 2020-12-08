@@ -19,14 +19,14 @@
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
-    <a asp-action="Index">Вернуться</a>
+    <a href="@ViewBag.returnUrl">Вернуться</a>
 </div>
 
 </br>
 <h4>Семестры:</h4>
 <p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
 <p>
-    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id" asp-route-returnUrl="@Context.Request.Path">Добавить</a>
+    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id">Добавить</a>
 </p>
 
 <table class="table">
@@ -65,6 +65,7 @@
             </td>
             <td>
                 <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Подробнее</a> |
+                <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
                 <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Удалить</a>
             </td>
         </tr>
