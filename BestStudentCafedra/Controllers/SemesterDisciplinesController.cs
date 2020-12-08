@@ -39,10 +39,11 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Create
-        public async Task<IActionResult> Create(int? id)
+        public async Task<IActionResult> Create(int id)
         {
-            ViewData["Discipline"] = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == id);
-            return View();
+            Discipline discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == id);
+            SemesterDiscipline semesterDiscipline = new SemesterDiscipline() { Discipline = discipline };
+            return View(semesterDiscipline);
         }
 
         // POST: SemesterDisciplines/Create
@@ -50,15 +51,25 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline)
+        public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline)
         {
+            semesterDiscipline.Discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == semesterDiscipline.DisciplineId);
+
+            if (_context.SemesterDiscipline
+                .Where(x => x.DisciplineId == semesterDiscipline.DisciplineId && 
+                x.Year == semesterDiscipline.Year &&
+                x.Semester == semesterDiscipline.Semester).Count() > 0)
+            {
+                ModelState.AddModelError("", "Семестровая дисциплина с таким курсом и семестром уже существует!");
+                return View(semesterDiscipline);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(semesterDiscipline);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DisciplineId"] = new SelectList(_context.Disciplines, "Id", "Name", semesterDiscipline.DisciplineId);
             return View(semesterDiscipline);
         }
 
