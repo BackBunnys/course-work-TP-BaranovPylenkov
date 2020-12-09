@@ -31,9 +31,6 @@ namespace BestStudentCafedra
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDbContext<SubjectAreaDbContext>(options => 
-                options.UseMySql(
-                    Configuration.GetConnectionString("SubjectAreaConnection"), ServerVersion.FromString("8.0.22-mysql")));
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
@@ -45,6 +42,7 @@ namespace BestStudentCafedra
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
             }
             else
             {

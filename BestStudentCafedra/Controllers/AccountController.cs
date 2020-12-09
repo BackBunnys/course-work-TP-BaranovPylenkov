@@ -21,12 +21,6 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [HttpGet]
         public IActionResult Register()
         {
             return View();
