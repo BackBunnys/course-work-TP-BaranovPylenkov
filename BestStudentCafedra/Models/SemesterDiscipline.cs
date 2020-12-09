@@ -28,6 +28,7 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Тип контроля")]
         public ControlType ControlType { get; set; }
 
+        [Display(Name = "Дисциплина")]
         public virtual Discipline Discipline { get; set; }
         public virtual ICollection<Activity> Activities { get; set; }
     }
