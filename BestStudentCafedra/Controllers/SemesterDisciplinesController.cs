@@ -20,7 +20,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -30,11 +30,13 @@ namespace BestStudentCafedra.Controllers
             var semesterDiscipline = await _context.SemesterDiscipline
                 .Include(s => s.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (semesterDiscipline == null)
             {
                 return NotFound();
             }
 
+            ViewData["returnUrl"] = returnUrl;
             return View(semesterDiscipline);
         }
 
@@ -76,14 +78,14 @@ namespace BestStudentCafedra.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Discipline");
                 }
             }
             return View(semesterDiscipline);
         }
 
         // GET: SemesterDisciplines/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, int disciplineId, string returnUrl)
         {
             if (id == null)
             {
@@ -95,7 +97,8 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
-            ViewData["DisciplineId"] = new SelectList(_context.Disciplines, "Id", "Name", semesterDiscipline.DisciplineId);
+
+            ViewData["returnUrl"] = returnUrl;
             return View(semesterDiscipline);
         }
 
@@ -104,7 +107,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string returnUrl)
         {
             if (id != semesterDiscipline.Id)
             {
@@ -129,14 +132,23 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+                else
+                {
+                    return RedirectToAction("Details", "Disciplines", new { id = semesterDiscipline.DisciplineId });
+                }
             }
+            ViewData["returnUrl"] = returnUrl;
             ViewData["DisciplineId"] = new SelectList(_context.Disciplines, "Id", "Name", semesterDiscipline.DisciplineId);
             return View(semesterDiscipline);
         }
 
         // GET: SemesterDisciplines/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -151,18 +163,19 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            ViewData["returnUrl"] = returnUrl;
             return View(semesterDiscipline);
         }
 
         // POST: SemesterDisciplines/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl)
         {
             var semesterDiscipline = await _context.SemesterDiscipline.FindAsync(id);
             _context.SemesterDiscipline.Remove(semesterDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Redirect(returnUrl);
         }
 
         private bool SemesterDisciplineExists(int id)

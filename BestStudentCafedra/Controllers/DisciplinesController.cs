@@ -26,7 +26,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Disciplines/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -43,6 +43,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
 
@@ -57,7 +58,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline)
+        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline, string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -65,11 +66,12 @@ namespace BestStudentCafedra.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
 
         // GET: Disciplines/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -81,6 +83,8 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
+
+            ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
 
@@ -89,7 +93,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Discipline discipline)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Discipline discipline, string returnUrl)
         {
             if (id != discipline.Id)
             {
@@ -116,6 +120,8 @@ namespace BestStudentCafedra.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
 
