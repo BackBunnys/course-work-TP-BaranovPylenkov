@@ -70,19 +70,28 @@ namespace BestStudentCafedra.Controllers
             return View(nameof(Index), schedulePlan);
         }
 
+        public async Task<IActionResult> Fill(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var events = await _context.EventTemplates.OrderBy(x => x.SequentialNumber).ToListAsync();
+            ViewData["schedulePlanId"] = id;
+            return PartialView("_Fill", events);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Fill(int schedulePlanId)
+        public async Task<IActionResult> Fill(int id)
         {
-            if (SchedulePlanExists((int)schedulePlanId))
+            if (SchedulePlanExists(id))
             {
                 ICollection<Event> events = new List<Event>();
                 foreach (var eventTemplate in _context.EventTemplates.OrderBy(x => x.SequentialNumber))
-                    events.Add(new Event { EventDescription = eventTemplate.Description, SchedulePlanId = schedulePlanId });
+                    events.Add(new Event { EventDescription = eventTemplate.Description, SchedulePlanId = id });
                 
                 await _context.AddRangeAsync(events);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Form), new { id = schedulePlanId });
+                return RedirectToAction(nameof(Form), new { id = id });
             }
             return NotFound();
         }
@@ -109,7 +118,7 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save(List<Event> events, int schedulePlanId)
         {
-            if (schedulePlanId != null)
+            if (SchedulePlanExists(schedulePlanId))
             {
                 events.ForEach(x => x.ResponsibleTeacherId = x.ResponsibleTeacherId == int.MinValue ? null : x.ResponsibleTeacherId );
                 _context.UpdateRange(events);
