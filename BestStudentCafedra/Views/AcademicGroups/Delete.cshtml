@@ -1,12 +1,12 @@
 ﻿@model BestStudentCafedra.Models.AcademicGroup
 
 @{
-    ViewData["Title"] = "AcademicGroup";
+    ViewData["Title"] = "Удаление данных о группе";
 }
 
-<h1>AcademicGroup</h1>
+<h1>Удаление данных о группе</h1>
 
-<h3>AcademicGroup?</h3>
+<h3>Вы уверены, что хотите удалить данные об этой группе?</h3>
 <div>
     <hr />
     <dl class="row">
@@ -38,7 +38,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to list</a>
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
+        <a asp-action="Index">Вернуться в список групп</a>
     </form>
 </div>
