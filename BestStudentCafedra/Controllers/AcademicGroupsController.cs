@@ -1,0 +1,135 @@
+﻿using BestStudentCafedra.Data;
+using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BestStudentCafedra.Controllers
+{
+    public class AcademicGroupsController : Controller
+    {
+        private readonly SubjectAreaDbContext _context;
+
+        public AcademicGroupsController(SubjectAreaDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: AcademicGroups
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.AcademicGroups.ToListAsync());
+        }
+
+        // GET: AcademicGroups/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var discipline = await _context.AcademicGroups
+                .Include(s => s.Students)
+                .Include(s => s.Specialty)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (discipline == null)
+            {
+                return NotFound();
+            }
+
+            return View(discipline);
+        }
+
+        // GET: AcademicGroups/Create
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: AcademicGroups/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,SpecialtyId,Name,FormationYear")] AcademicGroup group)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(group);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(group);
+        }
+
+        // GET: AcademicGroups/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var discipline = await _context.AcademicGroups.FindAsync(id);
+            if (discipline == null)
+            {
+                return NotFound();
+            }
+
+            return View(discipline);
+        }
+
+        // POST: AcademicGroups/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SpecialtyId,Name,FormationYear")] AcademicGroup group)
+        {
+            if (id != group.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(group);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(group);
+        }
+
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var group = await _context.AcademicGroups
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            return View(group);
+        }
+
+        // POST: AcademicGroups/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var group = await _context.AcademicGroups.FindAsync(id);
+            _context.AcademicGroups.Remove(group);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
