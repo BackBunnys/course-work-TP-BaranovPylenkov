@@ -36,13 +36,12 @@ namespace BestStudentCafedra.Controllers
         // GET: SchedulePlan/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
+            if (id == null || !SchedulePlanExists((int)id))
                 return NotFound();
-            }
 
             var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
+                .Include(s => s.Events)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (schedulePlan == null)
             {
@@ -72,7 +71,8 @@ namespace BestStudentCafedra.Controllers
 
         public async Task<IActionResult> Fill(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null || !SchedulePlanExists((int)id)) 
+                return NotFound();
 
             var events = await _context.EventTemplates.OrderBy(x => x.SequentialNumber).ToListAsync();
             ViewData["schedulePlanId"] = id;
@@ -106,7 +106,7 @@ namespace BestStudentCafedra.Controllers
                 SchedulePlan schedulePlan = await _context.SchedulePlans.FindAsync(schedulePlanId);
                 String name = User.Identity.Name;
                 User user = await _userManager.FindByNameAsync(name);
-                schedulePlan.Approve(user.SecondName + " " + user.FirstName[0] + "." + user.MiddleName?[0] + ".");
+                schedulePlan.Approve(user.SecondName + " " + user.FirstName[0] + "." + user.MiddleName?[0] + ".", DateTime.Now);
                 _context.Update(schedulePlan);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

@@ -31,10 +31,11 @@ namespace BestStudentCafedra.Models
         public virtual AcademicGroup Group { get; set; }
         public virtual ICollection<Event> Events { get; set; }
 
-        public void Approve(string officer)
+        public void Approve(string officer, DateTime time)
         {
             this.ApprovingOfficerName = officer;
-            this.ApprovedDate = DateTime.Now;
+            this.ApprovedDate = time;
+            this.LastChangedDate = time;
         }
     }
 }
