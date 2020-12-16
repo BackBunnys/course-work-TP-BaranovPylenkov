@@ -1,0 +1,114 @@
+﻿@model BestStudentCafedra.Models.Event
+
+@{
+    ViewData["Title"] = "Заполнение плана-графика";
+    var events = ((ICollection<Event>)ViewData["events"]).ToArray();
+    var teachers = (ICollection<Teacher>)ViewData["teachers"];
+}
+
+<h1>Заполнение плана-графика для @ViewData["groupName"]</h1>
+
+<div class="align-items-center">
+    <h2 class="d-inline-block">Мероприятия</h2>
+    <a href="#" onclick="loadAndShowModal('../Fill/@Model.SchedulePlanId')">Заполнить</a>
+</div>
+<hr />
+
+<div id="modDialog" class="modal fade">
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input hidden asp-for="SchedulePlanId" class="form-control" value="@Model.SchedulePlanId" />
+            </div>
+            <div class="form-group">
+                <label asp-for="EventDescription" class="control-label"></label>
+                <input asp-for="EventDescription" class="form-control" value="@Model.EventDescription" />
+                <span asp-validation-for="EventDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Добавить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<form asp-action="Save">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input hidden asp-for="SchedulePlanId" class="form-control" value="@Model.SchedulePlanId" />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.EventDescription)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Date)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Class)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ResponsibleTeacher)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < events.Length; ++i)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => events[i].EventDescription)
+                        <input hidden name="[@i].Id" class="form-control" value="@events[i].Id" />
+                        <input hidden name="[@i].EventDescription" class="form-control" value="@events[i].EventDescription" />
+                        <input hidden name="[@i].SchedulePlanId" class="form-control" value="@events[i].SchedulePlanId" />
+                    </td>
+                    <td>
+                        <input disabled="@(events[i].EventLogs.Count>0)" type="datetime-local" name="[@i].Date" class="form-control" value='@events[i].Date?.ToString("s")' />
+                        <span asp-validation-for="[@i].Date" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input disabled="@(events[i].EventLogs.Count>0)" name="[@i].Class" asp-for="Class" class="form-control" value="@events[i].Class" />
+                        <span asp-validation-for="[@i].Class" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <select disabled="@(events[i].EventLogs.Count>0)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'></select>
+                    </td>
+                    <td>
+                        <input asp-action="DeleteAsd" asp-controller="Event" type="submit" value="X" class="btn btn-danger" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="form-group">
+        <input type="submit" value="Сохранить" class="btn btn-primary" />
+    </div>
+</form>
+
+<hr />
+
+<form asp-action="Approve" class="d-inline">
+    <input hidden asp-for="SchedulePlanId" value="@Model.SchedulePlanId" />
+    <input type="submit" value="Утвердить" class="btn btn-success" />
+</form>
+
+<form asp-action="Delete" class="d-inline">
+    <input hidden asp-for="SchedulePlanId" value="@Model.SchedulePlanId" />
+    <input type="submit" value="Удалить" class="btn btn-danger" />
+</form>
+
+<div>
+    <a asp-action="Index">Вернуться</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/site.js"></script>
+}
