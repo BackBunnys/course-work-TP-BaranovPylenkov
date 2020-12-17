@@ -1,0 +1,27 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.EventTemplate>
+
+<div class="modal-content">
+    <div class="modal-header">
+        <div>
+            <h4>Заполнение план-графика</h4>
+            <a asp-action="Index" asp-controller="EventTemplate">Настроить шаблон</a>
+        </div>
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+    </div>
+    <div class="modal-body">
+        <div>
+            Будут добавлены следующие мероприятия:
+        </div>
+        <ol>
+            @foreach (var item in Model)
+            {
+                <li>@item.Description</li>
+            }
+        </ol>
+
+        <form asp-action="Fill">
+            <input hidden name="id" value='@((int)ViewData["schedulePlanId"])' />
+            <input type="submit" value="Заполнить" class="btn btn-success" />
+        </form>
+    </div>
+</div>

@@ -3,14 +3,16 @@ using System;
 using BestStudentCafedra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BestStudentCafedra.Migrations.SubjectAreaDb
 {
     [DbContext(typeof(SubjectAreaDbContext))]
-    partial class SubjectAreaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201208094453_Event Template")]
+    partial class EventTemplate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -207,8 +209,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnName("date");
 
                     b.Property<string>("EventDescription")
-                        .IsRequired()
-                        .HasMaxLength(150)
                         .HasColumnType("varchar(150)")
                         .HasColumnName("event_description")
                         .UseCollation("utf8mb4_0900_ai_ci")
@@ -240,7 +240,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
                     b.Property<int>("EventId")
                         .HasColumnType("int")
-                        .HasColumnName("event_id");
+                        .HasColumnName("schedule_plan_event_id");
 
                     b.Property<int>("GraduationWorkId")
                         .HasColumnType("int")
@@ -252,10 +252,10 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "EventId" }, "event_id");
-
                     b.HasIndex(new[] { "GraduationWorkId" }, "graduation_work_id")
                         .HasDatabaseName("graduation_work_id1");
+
+                    b.HasIndex(new[] { "EventId" }, "schedule_plan_event_id");
 
                     b.ToTable("event_log");
                 });
@@ -268,7 +268,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnName("id");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("varchar(150)")
                         .HasColumnName("description")
                         .UseCollation("utf8mb4_0900_ai_ci")
@@ -577,14 +576,12 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .WithMany("AssignedStaffs")
                         .HasForeignKey("GraduationWorkId")
                         .HasConstraintName("assigned_staff_ibfk_1")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("BestStudentCafedra.Models.Teacher", "Teacher")
                         .WithMany("AssignedStaff")
                         .HasForeignKey("TeacherId")
                         .HasConstraintName("assigned_staff_ibfk_2")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("GraduationWork");
@@ -603,7 +600,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .WithMany("Events")
                         .HasForeignKey("SchedulePlanId")
                         .HasConstraintName("schedule_plan_event_ibfk_1")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ResponsibleTeacher");
@@ -617,14 +613,12 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .WithMany("EventLogs")
                         .HasForeignKey("EventId")
                         .HasConstraintName("event_log_ibfk_2")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("BestStudentCafedra.Models.GraduationWork", "GraduationWork")
                         .WithMany("EventLogs")
                         .HasForeignKey("GraduationWorkId")
                         .HasConstraintName("event_log_ibfk_1")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Event");
@@ -649,7 +643,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .WithMany("SchedulePlans")
                         .HasForeignKey("GroupId")
                         .HasConstraintName("schedule_plan_ibfk_1")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Group");
@@ -673,7 +666,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .WithMany("Students")
                         .HasForeignKey("GroupId")
                         .HasConstraintName("student_ibfk_1")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Group");
