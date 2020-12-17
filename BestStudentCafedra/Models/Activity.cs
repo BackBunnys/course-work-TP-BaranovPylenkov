@@ -14,7 +14,7 @@ namespace BestStudentCafedra.Models
 
         public int Id { get; set; }
         public int? TypeId { get; set; }
-        public int DisciplineId { get; set; }
+        public int SemesterDisciplineId { get; set; }
         public int Number { get; set; }
         public string Title { get; set; }
         public int? MaxPoints { get; set; }
