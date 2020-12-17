@@ -36,7 +36,7 @@ namespace BestStudentCafedra.Controllers
             var teacher = await _context.Teachers
                 .Include(e => e.TeacherDisciplines)
                 .ThenInclude(sc => sc.Discipline)
-                .FirstOrDefaultAsync(m => m.Id == id); ;
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (teacher == null)
             {
@@ -125,7 +125,10 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var teacher = await _context.Teachers.FindAsync(id);
+            var teacher = await _context.Teachers
+                .Include(e => e.TeacherDisciplines)
+                .ThenInclude(sc => sc.Discipline)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (teacher == null)
             {
                 return NotFound();
