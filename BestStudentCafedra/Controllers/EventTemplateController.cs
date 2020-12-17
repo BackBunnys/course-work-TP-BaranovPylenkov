@@ -20,9 +20,10 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: EventTemplate
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(EventTemplate eventTemplate = null)
         {
-            return View(await _context.EventTemplates.ToListAsync());
+            ViewData["Events"] = await _context.EventTemplates.OrderBy(x => x.SequentialNumber).ToListAsync();
+            return View("Index", eventTemplate == null? new EventTemplate() : eventTemplate);
         }
 
         // POST: EventTemplate/Create
@@ -36,40 +37,52 @@ namespace BestStudentCafedra.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(eventTemplate);
+            ModelState.AddModelError("", "Описание мероприятия должно содержать от 5 до 150 символов");
+            return await Index(eventTemplate);
         }
 
-        // POST: EventTemplate/Edit/5
+        // POST: EventTemplate/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SequentialNumber,Description")] EventTemplate eventTemplate)
+        public async Task<IActionResult> Up(int id)
         {
-            if (id != eventTemplate.Id)
-            {
-                return NotFound();
-            }
+            if (!EventTemplateExists(id)) return NotFound();
 
-            if (ModelState.IsValid)
+            var eventTemplate = await _context.EventTemplates.FindAsync(id);
+            int min = await _context.EventTemplates.MinAsync(x => x.SequentialNumber);
+            if(eventTemplate.SequentialNumber != min)
             {
-                try
-                {
-                    _context.Update(eventTemplate);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EventTemplateExists(eventTemplate.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var eventBefore = await _context.EventTemplates.Where(x => x.SequentialNumber == eventTemplate.SequentialNumber - 1).FirstOrDefaultAsync();
+                ++eventBefore.SequentialNumber;
+                --eventTemplate.SequentialNumber;
+                _context.UpdateRange(eventTemplate, eventBefore);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(eventTemplate);
+            ModelState.AddModelError("", "Выбранное мероприятия и так является самым первым в списке.");
+            return await Index();
+        }
+
+        // POST: EventTemplate/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Down(int id)
+        {
+            if (!EventTemplateExists(id)) return NotFound();
+
+            var eventTemplate = await _context.EventTemplates.FindAsync(id);
+            int max = await _context.EventTemplates.MaxAsync(x => x.SequentialNumber);
+            if (eventTemplate.SequentialNumber != max)
+            {
+                var eventAfter = await _context.EventTemplates.Where(x => x.SequentialNumber == eventTemplate.SequentialNumber + 1).FirstOrDefaultAsync();
+                --eventAfter.SequentialNumber;
+                ++eventTemplate.SequentialNumber;
+                _context.UpdateRange(eventTemplate, eventAfter);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ModelState.AddModelError("", "Выбранное мероприятия и так является самым последним в списке.");
+            return await Index();
         }
 
         // POST: EventTemplate/Delete/5
@@ -77,6 +90,8 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!EventTemplateExists(id)) return NotFound();
+            
             var eventTemplate = await _context.EventTemplates.FindAsync(id);
             _context.EventTemplates.Remove(eventTemplate);
             await _context.SaveChangesAsync();
