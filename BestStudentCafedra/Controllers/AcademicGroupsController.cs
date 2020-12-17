@@ -23,7 +23,11 @@ namespace BestStudentCafedra.Controllers
         // GET: AcademicGroups
         public async Task<IActionResult> Index()
         {
-            return View(await _context.AcademicGroups.ToListAsync());
+            var groups = _context.AcademicGroups
+                .Include(s => s.Students)
+                .Include(s => s.Specialty);
+
+            return View(await groups.ToListAsync());
         }
 
         // GET: AcademicGroups/Details/5
@@ -34,17 +38,17 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var discipline = await _context.AcademicGroups
+            var groups = await _context.AcademicGroups
                 .Include(s => s.Students)
                 .Include(s => s.Specialty)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (discipline == null)
+            if (groups == null)
             {
                 return NotFound();
             }
 
-            return View(discipline);
+            return View(groups);
         }
 
         // GET: AcademicGroups/Create
@@ -100,8 +104,22 @@ namespace BestStudentCafedra.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(group);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Update(group);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!GroupExists(group.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
 
@@ -135,6 +153,11 @@ namespace BestStudentCafedra.Controllers
             _context.AcademicGroups.Remove(group);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool GroupExists(int id)
+        {
+            return _context.AcademicGroups.Any(e => e.Id == id);
         }
     }
 }
