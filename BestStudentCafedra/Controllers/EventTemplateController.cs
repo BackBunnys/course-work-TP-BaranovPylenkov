@@ -33,6 +33,9 @@ namespace BestStudentCafedra.Controllers
         {
             if (ModelState.IsValid)
             {
+                var eventTemplates = await _context.EventTemplates.ToListAsync();
+                eventTemplates.ForEach(x => x.SequentialNumber += x.SequentialNumber >= eventTemplate.SequentialNumber ? +1 : 0);
+                _context.UpdateRange(eventTemplates);
                 _context.Add(eventTemplate);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -86,13 +89,16 @@ namespace BestStudentCafedra.Controllers
         }
 
         // POST: EventTemplate/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (!EventTemplateExists(id)) return NotFound();
-            
-            var eventTemplate = await _context.EventTemplates.FindAsync(id);
+
+            var eventTemplates = await _context.EventTemplates.ToListAsync();
+            var eventTemplate = eventTemplates.FirstOrDefault(x => x.Id == id);
+            eventTemplates.ForEach(x => x.SequentialNumber += x.SequentialNumber >= eventTemplate.SequentialNumber ? -1 : 0);
+            _context.EventTemplates.UpdateRange(eventTemplates);
             _context.EventTemplates.Remove(eventTemplate);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
