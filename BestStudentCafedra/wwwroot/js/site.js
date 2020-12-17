@@ -3,6 +3,10 @@
 
 // Write your JavaScript code.
 
+    function loadAndShowModal(path) {
+        $('#dialogContent').load(path);
+        $('#modDialog').modal('show');
+    }
 
     $(document).ready(function () {
         $(':checkbox').on("change", function (e) {

@@ -25,16 +25,17 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<ActivityType> ActivityTypes { get; set; }
         public virtual DbSet<AssignedStaff> AssignedStaffs { get; set; }
         public virtual DbSet<Discipline> Disciplines { get; set; }
-        public virtual DbSet<EventTemplate> Events { get; set; }
+        public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<EventTemplate> EventTemplates { get; set; }
         public virtual DbSet<EventLog> EventLogs { get; set; }
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
-        public virtual DbSet<Event> SchedulePlans { get; set; }
         public virtual DbSet<SemesterDiscipline> SemesterDiscipline { get; set; }
         public virtual DbSet<Specialty> Specialties { get; set; }
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
         public virtual DbSet<TeacherDiscipline> TeacherDisciplines { get; set; }
+        public virtual DbSet<SchedulePlan> SchedulePlans { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
         { 
@@ -181,13 +182,13 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.GraduationWork)
                     .WithMany(p => p.AssignedStaffs)
                     .HasForeignKey(d => d.GraduationWorkId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("assigned_staff_ibfk_1");
 
                 entity.HasOne(d => d.Teacher)
                     .WithMany(p => p.AssignedStaff)
                     .HasForeignKey(d => d.TeacherId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("assigned_staff_ibfk_2");
             });
 
@@ -268,13 +269,13 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.GraduationWork)
                     .WithMany(p => p.EventLogs)
                     .HasForeignKey(d => d.GraduationWorkId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("event_log_ibfk_1");
 
                 entity.HasOne(d => d.Event)
                     .WithMany(p => p.EventLogs)
                     .HasForeignKey(d => d.EventId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("event_log_ibfk_2");
             });
 
@@ -354,7 +355,7 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.SchedulePlan)
                     .WithMany(p => p.Events)
                     .HasForeignKey(d => d.SchedulePlanId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("schedule_plan_event_ibfk_1");
 
                 entity.HasOne(d => d.ResponsibleTeacher)
@@ -390,7 +391,7 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.Group)
                     .WithMany(p => p.SchedulePlans)
                     .HasForeignKey(d => d.GroupId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("schedule_plan_ibfk_1");
             });
 
@@ -455,7 +456,7 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.Group)
                     .WithMany(p => p.Students)
                     .HasForeignKey(d => d.GroupId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("student_ibfk_1");
             });
 
