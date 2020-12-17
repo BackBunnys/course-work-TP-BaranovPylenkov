@@ -15,6 +15,8 @@ namespace BestStudentCafedra.Models
         }
 
         public int Id { get; set; }
+        [Required(ErrorMessage = "Не указана специальность")]
+        [Display(Name = "Специальность")]
         public string SpecialtyId { get; set; }
         [Required(ErrorMessage = "Не указано название группы")]
         [Display(Name = "Название группы")]

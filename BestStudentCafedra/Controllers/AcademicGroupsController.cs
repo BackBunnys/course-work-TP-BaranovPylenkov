@@ -2,6 +2,7 @@
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,7 @@ namespace BestStudentCafedra.Controllers
         // GET: AcademicGroups/Create
         public ActionResult Create()
         {
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code");
             return View();
         }
 
@@ -64,6 +66,7 @@ namespace BestStudentCafedra.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code");
             return View(group);
         }
 
@@ -75,13 +78,14 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var discipline = await _context.AcademicGroups.FindAsync(id);
-            if (discipline == null)
+            var group = await _context.AcademicGroups.FindAsync(id);
+            if (group == null)
             {
                 return NotFound();
             }
 
-            return View(discipline);
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code", group.SpecialtyId);
+            return View(group);
         }
 
         // POST: AcademicGroups/Edit/5
@@ -101,6 +105,7 @@ namespace BestStudentCafedra.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code", group.SpecialtyId);
             return View(group);
         }
 
