@@ -29,6 +29,8 @@ namespace BestStudentCafedra.Controllers
 
             var semesterDiscipline = await _context.SemesterDiscipline
                 .Include(s => s.Discipline)
+                .Include(a => a.Activities)
+                .ThenInclude(t => t.Type)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (semesterDiscipline == null)
@@ -92,7 +94,12 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var semesterDiscipline = await _context.SemesterDiscipline.FindAsync(id);
+            var semesterDiscipline = await _context.SemesterDiscipline
+                .Include(s => s.Discipline)
+                .Include(a => a.Activities)
+                .ThenInclude(t => t.Type)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (semesterDiscipline == null)
             {
                 return NotFound();
