@@ -24,8 +24,9 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Index()
         {
             var groups = _context.AcademicGroups
-                .Include(s => s.Students)
-                .Include(s => s.Specialty);
+                .Include(s => s.Specialty)
+                .OrderByDescending(y => y.FormationYear)
+                .ThenBy(n => n.Name);
 
             return View(await groups.ToListAsync());
         }
@@ -39,7 +40,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             var groups = await _context.AcademicGroups
-                .Include(s => s.Students)
+                .Include(s => s.Students.OrderBy(n => n.FullName))
                 .Include(s => s.Specialty)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -82,13 +83,17 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var group = await _context.AcademicGroups.FindAsync(id);
+            var group = await _context.AcademicGroups
+                .Include(s => s.Students.OrderBy(n => n.FullName))
+                .Include(s => s.Specialty)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (group == null)
             {
                 return NotFound();
             }
 
-            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code", group.SpecialtyId);
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code");
             return View(group);
         }
 
