@@ -34,7 +34,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             var discipline = await _context.Disciplines
-                .Include(s => s.SemesterDisciplines)
+                .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
                 .ThenInclude(d => d.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -78,7 +78,11 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var discipline = await _context.Disciplines.FindAsync(id);
+            var discipline = await _context.Disciplines
+                .Include(s => s.SemesterDisciplines)
+                .ThenInclude(d => d.Discipline)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (discipline == null)
             {
                 return NotFound();

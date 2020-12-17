@@ -25,9 +25,6 @@
 </br>
 <h4>Семестры:</h4>
 <p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
-<p>
-    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id">Добавить</a>
-</p>
 
 <table class="table">
     <thead>
@@ -64,9 +61,7 @@
                 @Html.DisplayFor(modelItem => item.ControlType)
             </td>
             <td>
-                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Подробнее</a> |
-                <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Изменить</a> |
-                <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Удалить</a>
+                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Подробнее</a>
             </td>
         </tr>
         }
