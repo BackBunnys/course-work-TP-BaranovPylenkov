@@ -1,12 +1,16 @@
 ﻿@model BestStudentCafedra.Models.Event
 
 @{
-    ViewData["Title"] = "Заполнение плана-графика";
-    var events = ((ICollection<Event>)ViewData["events"]).ToArray();
-    var teachers = (ICollection<Teacher>)ViewData["teachers"];
+    SchedulePlan schedulePlan = ViewBag.SchedulePlan;
+    var events = schedulePlan.Events.ToArray();
+    ICollection<Teacher> teachers = ViewBag.Teachers;
+    bool isApproved = schedulePlan.ApprovedDate != null;
+    bool isRemovable = !schedulePlan.Events.Any(x => x.EventLogs.Count > 0);
+
+    ViewData["Title"] = (isApproved? "Изменение" : "Заполнение") + " плана-графика";
 }
 
-<h1>Заполнение плана-графика для @ViewData["groupName"]</h1>
+<h1>@(isApproved? "Изменение" : "Заполнение") плана-графика для @schedulePlan.Group.Name</h1>
 
 <div class="align-items-center">
     <h2 class="d-inline-block">Мероприятия</h2>
@@ -20,7 +24,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Form">
+        <form asp-action="AddEvent">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <input hidden asp-for="SchedulePlanId" class="form-control" value="@Model.SchedulePlanId" />
@@ -37,10 +41,8 @@
     </div>
 </div>
 
-
-<form asp-action="Save">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input hidden asp-for="SchedulePlanId" class="form-control" value="@Model.SchedulePlanId" />
+<form asp-action="Edit">
+    <input hidden name="SchedulePlanId" class="form-control" value="@Model.SchedulePlanId" />
     <table class="table">
         <thead>
             <tr>
@@ -62,7 +64,7 @@
         <tbody>
             @for (int i = 0; i < events.Length; ++i)
             {
-                <tr>
+                <tr class="@(events[i].EventLogs.Count>0? "tabledisable" : "")">
                     <td>
                         @Html.DisplayFor(modelItem => events[i].EventDescription)
                         <input hidden name="[@i].Id" class="form-control" value="@events[i].Id" />
@@ -81,12 +83,13 @@
                         <select disabled="@(events[i].EventLogs.Count>0)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'></select>
                     </td>
                     <td>
-                        <input asp-action="DeleteAsd" asp-controller="Event" type="submit" value="X" class="btn btn-danger" />
+                        <input disabled="@(events[i].EventLogs.Count>0)" asp-action="DeleteEvent" type="submit" asp-route-eventId="@events[i].Id" value="X" class="btn btn-danger" />
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+    <span asp-validation-for="EventLogs" class="text-danger"></span>
     <div class="form-group">
         <input type="submit" value="Сохранить" class="btn btn-primary" />
     </div>
@@ -94,15 +97,20 @@
 
 <hr />
 
+@if (!isApproved)
+{
 <form asp-action="Approve" class="d-inline">
-    <input hidden asp-for="SchedulePlanId" value="@Model.SchedulePlanId" />
+    <input hidden name="id" value="@Model.SchedulePlanId" />
     <input type="submit" value="Утвердить" class="btn btn-success" />
 </form>
-
+}
+@if (isRemovable)
+{
 <form asp-action="Delete" class="d-inline">
-    <input hidden asp-for="SchedulePlanId" value="@Model.SchedulePlanId" />
+    <input hidden name="id" value="@Model.SchedulePlanId" />
     <input type="submit" value="Удалить" class="btn btn-danger" />
 </form>
+}
 
 <div>
     <a asp-action="Index">Вернуться</a>

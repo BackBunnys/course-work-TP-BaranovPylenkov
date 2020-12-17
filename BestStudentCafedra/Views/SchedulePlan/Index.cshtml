@@ -24,7 +24,7 @@
 <div class="text-center">
     @foreach (var item in schedulePlans.Where(x => x.ApprovedDate == null))
     {
-        <a asp-action="Form" class = "btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br />
+        <a asp-action="Edit" class = "btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br />
     }
 </div>
 

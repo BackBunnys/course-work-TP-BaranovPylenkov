@@ -26,11 +26,11 @@ namespace BestStudentCafedra.Controllers
         // GET: SchedulePlan
         public async Task<IActionResult> Index()
         {
-            List<AcademicGroup> academicGroups = await _context.AcademicGroups.ToListAsync();
+            List<AcademicGroup> academicGroups = await _context.AcademicGroups.Where(x => x.SchedulePlans.Count == 0).ToListAsync();
             academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
             ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
-            ViewData["SchedulePlanes"] = await _context.SchedulePlans.OrderBy(x => x.ApprovedDate).ToListAsync();
-            return View();
+            ViewData["SchedulePlanes"] = await _context.SchedulePlans.Include(x => x.Group).OrderBy(x => x.ApprovedDate).ToListAsync();
+            return View("Index");
         }
 
         // GET: SchedulePlan/Details/5
@@ -43,10 +43,6 @@ namespace BestStudentCafedra.Controllers
                 .Include(s => s.Group)
                 .Include(s => s.Events)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (schedulePlan == null)
-            {
-                return NotFound();
-            }
 
             return View(schedulePlan);
         }
@@ -60,13 +56,9 @@ namespace BestStudentCafedra.Controllers
             {
                 _context.Add(schedulePlan);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Form), new { id = schedulePlan.Id });
+                return RedirectToAction(nameof(Edit), new { id = schedulePlan.Id });
             }
-            List<AcademicGroup> academicGroups = await _context.AcademicGroups.ToListAsync();
-            academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
-            ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
-            ViewData["SchedulePlanes"] = await _context.SchedulePlans.OrderBy(x => x.ApprovedDate).ToListAsync();
-            return View(nameof(Index), schedulePlan);
+            return await Index();
         }
 
         public async Task<IActionResult> Fill(int? id)
@@ -91,7 +83,7 @@ namespace BestStudentCafedra.Controllers
                 
                 await _context.AddRangeAsync(events);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Form), new { id = id });
+                return RedirectToAction(nameof(Edit), new { id = id });
             }
             return NotFound();
         }
@@ -99,11 +91,11 @@ namespace BestStudentCafedra.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Approve(int schedulePlanId)
+        public async Task<IActionResult> Approve(int id)
         {
-            if (SchedulePlanExists((int)schedulePlanId))
+            if (SchedulePlanExists((int)id))
             {
-                SchedulePlan schedulePlan = await _context.SchedulePlans.FindAsync(schedulePlanId);
+                SchedulePlan schedulePlan = await _context.SchedulePlans.FindAsync(id);
                 String name = User.Identity.Name;
                 User user = await _userManager.FindByNameAsync(name);
                 schedulePlan.Approve(user.SecondName + " " + user.FirstName[0] + "." + user.MiddleName?[0] + ".", DateTime.Now);
@@ -114,136 +106,78 @@ namespace BestStudentCafedra.Controllers
             return NotFound();
         }
 
+        // GET: SchedulePlan/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null || !SchedulePlanExists((int)id))
+            {
+                return NotFound();
+            }
+
+            var schedulePlan = await _context.SchedulePlans
+                .Include(x => x.Group)
+                .Include(x => x.Events)
+                .ThenInclude(x => x.ResponsibleTeacher)
+                .Include(x => x.Events)
+                .ThenInclude(x => x.EventLogs)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            var teachers = await _context.Teachers.OrderBy(x => x.FullName).ToListAsync();
+            teachers.Insert(0, new Teacher { Id = int.MinValue, FullName = "Выберите преподавателя..." });
+            ViewData["Teachers"] = teachers;
+            schedulePlan.Events = schedulePlan.Events.Where(x => x.Date != null).OrderBy(x => x.Date).Union(schedulePlan.Events.Where(x => x.Date == null)).ToList();
+            ViewData["SchedulePlan"] = schedulePlan;
+            return View("Edit", new Event() { SchedulePlanId = (int)id });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Save(List<Event> events, int schedulePlanId)
+        public async Task<IActionResult> Edit(List<Event> events, int id)
         {
-            if (SchedulePlanExists(schedulePlanId))
+            if (SchedulePlanExists(id))
             {
-                events.ForEach(x => x.ResponsibleTeacherId = x.ResponsibleTeacherId == int.MinValue ? null : x.ResponsibleTeacherId );
+                events.ForEach(x => x.ResponsibleTeacherId = x.ResponsibleTeacherId == int.MinValue ? null : x.ResponsibleTeacherId);
                 _context.UpdateRange(events);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Form), new { id = schedulePlanId });
+                return RedirectToAction(nameof(Edit), new { id = id });
             }
-            var schedulePlan = await _context.SchedulePlans
-                .Include(x => x.Group)
-                .Include(x => x.Events)
-                .ThenInclude(x => x.ResponsibleTeacher)
-                .FirstOrDefaultAsync(x => x.Id == schedulePlanId);
-            var teachers = await _context.Teachers.OrderBy(x => x.FullName).ToListAsync();
-            teachers.Insert(0, new Teacher { Id = int.MinValue, FullName = "Выберите преподавателя..." });
-            ViewData["teachers"] = teachers;
-            ViewData["events"] = schedulePlan.Events.Where(x => x.Date != null).OrderBy(x => x.Date).Union(schedulePlan.Events.Where(x => x.Date == null)).ToList();
-            ViewData["groupName"] = schedulePlan.Group.Name;
-            return View("Form", new Event() { SchedulePlanId = (int)schedulePlanId });
-        }
-
-        // GET: SchedulePlan/Edit/5
-        public async Task<IActionResult> Form(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var schedulePlan = await _context.SchedulePlans
-                .Include(x => x.Group)
-                .Include(x => x.Events)
-                .ThenInclude(x => x.ResponsibleTeacher)
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (schedulePlan == null)
-            {
-                return NotFound();
-            }
-            var teachers = await _context.Teachers.OrderBy(x => x.FullName).ToListAsync();
-            teachers.Insert(0, new Teacher { Id = int.MinValue, FullName = "Выберите преподавателя..." });
-            ViewData["teachers"] = teachers;
-            ViewData["events"] = schedulePlan.Events.Where(x => x.Date != null).OrderBy(x => x.Date).Union(schedulePlan.Events.Where(x => x.Date == null)).ToList();
-            ViewData["groupName"] = schedulePlan.Group.Name;
-            return View(new Event() { SchedulePlanId = (int)id });
+            return await Edit(id);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Form([Bind("SchedulePlanId,EventDescription")] Event e)
+        public async Task<IActionResult> AddEvent([Bind("SchedulePlanId,EventDescription")] Event e)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(e);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Form), e.SchedulePlanId);
+                return RedirectToAction(nameof(Edit), new { id = e.SchedulePlanId });
             }
-
-            var schedulePlan = await _context.SchedulePlans
-                .Include(x => x.Group)
-                .Include(x => x.Events)
-                .ThenInclude(x => x.ResponsibleTeacher)
-                .FirstOrDefaultAsync(x => x.Id == e.SchedulePlanId);
-            var teachers = await _context.Teachers.OrderBy(x => x.FullName).ToListAsync();
-            teachers.Insert(0, new Teacher { Id = int.MinValue, FullName = "Выберите преподавателя" });
-            ViewData["teachers"] = teachers;
-            ViewData["events"] = schedulePlan.Events.Where(x => x.Date != null).OrderBy(x => x.Date).Union(schedulePlan.Events.Where(x => x.Date == null)).ToList();
-            ViewData["groupName"] = schedulePlan.Group.Name;
-            return View(nameof(Form), e);
+            return await Edit(e.SchedulePlanId);
         }
 
-        // GET: SchedulePlan/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var schedulePlan = await _context.SchedulePlans.FindAsync(id);
-            if (schedulePlan == null)
-            {
-                return NotFound();
-            }
-            ViewData["GroupId"] = new SelectList(_context.AcademicGroups.ToList(), "Id", "Name");
-            return View(schedulePlan);
-        }
-
-        // POST: SchedulePlan/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,GroupId,ApprovedDate,LastChangedDate,ApprovingOfficerName")] SchedulePlan schedulePlan)
+        public async Task<IActionResult> DeleteEvent(int eventId)
         {
-            if (id != schedulePlan.Id)
+            var ev = await _context.Events.FindAsync(eventId);
+            if (ev == null) return NotFound();
+            if (!_context.EventLogs.Any(x => x.EventId == ev.Id))
             {
-                return NotFound();
+                _context.Remove(ev);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Edit), new { id = ev.SchedulePlanId });
             }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(schedulePlan);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SchedulePlanExists(schedulePlan.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            List<AcademicGroup> academicGroups = await _context.AcademicGroups.ToListAsync();
-            academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
-            ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
-            return View(schedulePlan);
+            ModelState.AddModelError("EventLogs", "Невозможно удалить мероприятиe, по которому проставлены оценки.");
+            return await Edit(ev.SchedulePlanId);
         }
+
 
         // GET: SchedulePlan/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (id == null || !SchedulePlanExists((int)id))
             {
                 return NotFound();
             }
@@ -251,10 +185,6 @@ namespace BestStudentCafedra.Controllers
             var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (schedulePlan == null)
-            {
-                return NotFound();
-            }
 
             return View(schedulePlan);
         }
@@ -262,12 +192,17 @@ namespace BestStudentCafedra.Controllers
         // POST: SchedulePlan/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int schedulePlanId)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var schedulePlan = await _context.SchedulePlans.FindAsync(schedulePlanId);
-            _context.SchedulePlans.Remove(schedulePlan);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            var schedulePlan = await _context.SchedulePlans.FindAsync(id);
+            if (!_context.Events.Include(x => x.EventLogs).Where(x => x.SchedulePlanId == id).Any(x => x.EventLogs.Count > 0))
+            {
+                _context.SchedulePlans.Remove(schedulePlan);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ModelState.AddModelError("", "Невозможно удалить план-график, мероприятия для которого были оценены.");
+            return await Edit(id);
         }
 
         private bool SchedulePlanExists(int id)

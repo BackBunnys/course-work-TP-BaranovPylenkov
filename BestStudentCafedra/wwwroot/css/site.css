@@ -79,3 +79,7 @@ body {
     text-decoration: underline !important;
     cursor: pointer;
 }
+
+.tabledisable {
+    background-color: #e9ecef;
+}
