@@ -18,7 +18,7 @@ namespace BestStudentCafedra.Models
         public int? TypeId { get; set; }
         [Required(ErrorMessage = "Не указана дисциплина")]
         [Display(Name = "Дисциплина")]
-        public int DisciplineId { get; set; }
+        public int SemesterDisciplineId { get; set; }
         [Required(ErrorMessage = "Не указан номер работы")]
         [Range(0, int.MaxValue, ErrorMessage = "Номер должен быть равен или больше 0")]
         [Display(Name = "Номер")]

@@ -49,7 +49,7 @@ namespace BestStudentCafedra.Controllers
         // GET: Activities/Create
         public IActionResult Create()
         {
-            ViewData["DisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id");
+            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id");
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name");
             return View();
         }
@@ -59,7 +59,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TypeId,DisciplineId,Number,Title,MaxPoints")] Activity activity)
+        public async Task<IActionResult> Create([Bind("Id,TypeId,SemesterDisciplineId,Number,Title,MaxPoints")] Activity activity)
         {
             if (ModelState.IsValid)
             {
@@ -67,7 +67,7 @@ namespace BestStudentCafedra.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.DisciplineId);
+            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.SemesterDisciplineId);
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name", activity.TypeId);
             return View(activity);
         }
@@ -85,7 +85,7 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
-            ViewData["DisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.DisciplineId);
+            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.SemesterDisciplineId);
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name", activity.TypeId);
             return View(activity);
         }
@@ -95,7 +95,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TypeId,DisciplineId,Number,Title,MaxPoints")] Activity activity)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TypeId,SemesterDisciplineId,Number,Title,MaxPoints")] Activity activity)
         {
             if (id != activity.Id)
             {
@@ -122,7 +122,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.DisciplineId);
+            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.SemesterDisciplineId);
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name", activity.TypeId);
             return View(activity);
         }

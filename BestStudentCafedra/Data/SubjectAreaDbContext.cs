@@ -78,13 +78,13 @@ namespace BestStudentCafedra.Data
             {
                 entity.ToTable("activity");
 
-                entity.HasIndex(e => e.DisciplineId, "semester_discipline_id");
+                entity.HasIndex(e => e.SemesterDisciplineId, "semester_discipline_id");
 
                 entity.HasIndex(e => e.TypeId, "type_id");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.DisciplineId).HasColumnName("semester_discipline_id");
+                entity.Property(e => e.SemesterDisciplineId).HasColumnName("semester_discipline_id");
 
                 entity.Property(e => e.MaxPoints).HasColumnName("max_points");
 
@@ -101,7 +101,7 @@ namespace BestStudentCafedra.Data
 
                 entity.HasOne(d => d.SemesterDiscipline)
                     .WithMany(p => p.Activities)
-                    .HasForeignKey(d => d.SemesterDiscipline)
+                    .HasForeignKey(d => d.SemesterDisciplineId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("activity_ibfk_2");
 
