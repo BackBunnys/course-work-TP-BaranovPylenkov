@@ -14,7 +14,9 @@ namespace BestStudentCafedra.Models
         }
 
         public int Id { get; set; }
-        [Display(Name = "Имя")]
+        [Display(Name = "Название")]
+        [Required(ErrorMessage = "Не указано название дисцплины")]
+        [StringLength(100, MinimumLength = 5, ErrorMessage = "Название дисциплины должно быть длиной от 5 до 100 символов")]
         public string Name { get; set; }
 
         public virtual ICollection<SemesterDiscipline> SemesterDisciplines { get; set; }
