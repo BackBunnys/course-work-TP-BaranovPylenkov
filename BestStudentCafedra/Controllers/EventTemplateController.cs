@@ -97,7 +97,7 @@ namespace BestStudentCafedra.Controllers
 
             var eventTemplates = await _context.EventTemplates.ToListAsync();
             var eventTemplate = eventTemplates.FirstOrDefault(x => x.Id == id);
-            eventTemplates.ForEach(x => x.SequentialNumber += x.SequentialNumber >= eventTemplate.SequentialNumber ? -1 : 0);
+            eventTemplates.ForEach(x => x.SequentialNumber += x.SequentialNumber > eventTemplate.SequentialNumber ? -1 : 0);
             _context.EventTemplates.UpdateRange(eventTemplates);
             _context.EventTemplates.Remove(eventTemplate);
             await _context.SaveChangesAsync();
