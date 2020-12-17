@@ -1,0 +1,38 @@
+﻿@model BestStudentCafedra.Models.SchedulePlan
+
+@{
+    ViewData["Title"] = "Планы-графики";
+    ICollection<SchedulePlan> schedulePlans = ViewBag.SchedulePlanes;
+}
+
+<h1>Планы-графики</h1>
+
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="GroupId" class="control-label"></label>
+        <select name="GroupId" class="form-control" asp-items="ViewBag.GroupId"></select>
+        <span asp-validation-for="GroupId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Добавить" class="btn btn-primary" />
+    </div>
+</form>
+
+<hr />
+<h2>Неутверждённые</h2>
+<div class="text-center">
+    @foreach (var item in schedulePlans.Where(x => x.ApprovedDate == null))
+    {
+        <a asp-action="Edit" class = "btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br />
+    }
+</div>
+
+<hr />
+<h2>Утверждённые</h2>
+<div class="text-center">
+    @foreach (var item in schedulePlans.Where(x => x.ApprovedDate != null))
+    {
+        <a asp-action="Details" class = "btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br/>
+    }
+</div>
