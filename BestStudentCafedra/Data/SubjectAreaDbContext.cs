@@ -413,7 +413,7 @@ namespace BestStudentCafedra.Data
 
                 entity.Property(e => e.AcademicDegree)
                     .IsRequired()
-                    .HasColumnType("enum('undergraduate','specialty','magistracy','postgraduate')")
+                    .HasColumnType("enum('Undergraduate','Specialty','Magistracy','Postgraduate')")
                     .HasColumnName("academic_degree")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
