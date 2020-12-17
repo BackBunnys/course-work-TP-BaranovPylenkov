@@ -1,0 +1,90 @@
+﻿@model BestStudentCafedra.Models.AcademicGroup
+
+@{
+    ViewData["Title"] = "Подробности о группе";
+}
+
+<h1>Подробности о группе</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Specialty.Code)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Specialty.Code)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Specialty.AcademicDegree)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Specialty.AcademicDegree)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Specialty.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Specialty.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FormationYear)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FormationYear)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Index">Вернуться в список групп</a>
+</div>
+
+</br>
+<h4>Студенты:</h4>
+<p>Список студентов, которые обучаются в данной группе по образовательной программаме</p>
+<p>
+    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id">Добавить</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().GradebookNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().PhoneNumber)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Student item in Model.Students)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.GradebookNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PhoneNumber)
+            </td>
+            <td>
+                <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
