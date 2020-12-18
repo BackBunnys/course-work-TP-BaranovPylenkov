@@ -68,7 +68,7 @@
                     @Html.DisplayFor(modelItem => item.Number)
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Title)</a>
+                    <a asp-controller="Activities" asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Title)</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.MaxPoints)
