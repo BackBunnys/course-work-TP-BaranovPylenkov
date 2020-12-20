@@ -30,26 +30,27 @@ namespace BestStudentCafedra.Controllers
         // GET: Activities/Details/5
         public async Task<IActionResult> Details(int? id, int groupId)
         {
-            if (id == null)
+            if (id == null || !ActivityExists((int)id))
             {
                 return NotFound();
             }
-
-            var students = _context.Students
-                .Include(x => x.ActivityProtections.Where(y => y.ActivityId == id))
-                .ToList();
 
             var activity = await _context.Activities
                 .Include(a => a.SemesterDiscipline)
+                    .ThenInclude(b => b.Discipline)
+                    .ThenInclude(b => b.GroupDiscipline)
                 .Include(a => a.Type)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            var activityProtections = new StudentActivityViewModel() { Activity = activity, Students = students };
+            var students = _context.Students
+                .Include(x => x.ActivityProtections.Where(y => y.ActivityId == id).OrderByDescending(y => y.ProtectionDate))
+                .Include(x => x.Group)
+                .OrderBy(x => x.Group.Name)
+                .ThenBy(x => x.FullName)
+                .Where(x => x.Group.GroupDiscipline.Any(y => y.DisciplineId == activity.SemesterDiscipline.DisciplineId))
+                .ToList();
 
-            if (activity == null)
-            {
-                return NotFound();
-            }
+            var activityProtections = new StudentActivityViewModel() { Activity = activity, Students = students };
 
             return View(activityProtections);
         }
