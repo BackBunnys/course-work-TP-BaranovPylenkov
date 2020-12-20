@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 #nullable disable
 
@@ -22,5 +23,10 @@ namespace BestStudentCafedra.Models
         public virtual Student Student { get; set; }
         public virtual ICollection<AssignedStaff> AssignedStaffs { get; set; }
         public virtual ICollection<EventLog> EventLogs { get; set; }
+
+        public bool hasMarkForEvent(Event @event)
+        {
+            return EventLogs.Any(x => x.Event == @event);
+        }
     }
 }

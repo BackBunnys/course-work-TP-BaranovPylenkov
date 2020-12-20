@@ -9,6 +9,7 @@ using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using BestStudentCafedra.Models.ViewModels;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -27,8 +28,26 @@ namespace BestStudentCafedra.Controllers
         // GET: Events
         public async Task<IActionResult> Index()
         {
-            var subjectAreaDbContext = _context.Events.Include(x => x.ResponsibleTeacher).Include(x => x.SchedulePlan);
-            return View(await subjectAreaDbContext.ToListAsync());
+            //Selecting teacher
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+            Teacher teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == user.SubjectAreaId);
+
+            //Selecting events for this teacher
+            var events = await _context.Events
+                .Include(x => x.ResponsibleTeacher)
+                .Include(x => x.SchedulePlan.Group.Students)
+                    .ThenInclude(x => x.GraduationWorks)
+                    .ThenInclude(x => x.AssignedStaffs)
+                .Include(x => x.SchedulePlan.Group.Students)
+                    .ThenInclude(x => x.GraduationWorks)
+                    .ThenInclude(x => x.EventLogs)
+                .Where(x => x.Date != null &&
+                            x.SchedulePlan.ApprovedDate != null &&
+                            x.SchedulePlan.Group.Students.Any(x => x.GraduationWorks.Any(x => x.AssignedStaffs.Any(x => x.TeacherId == teacher.Id))))
+                .AsNoTracking().ToListAsync();
+            events = events.Distinct().ToList();
+            
+            return View(events);
         }
 
         // GET: Events/Details/5
