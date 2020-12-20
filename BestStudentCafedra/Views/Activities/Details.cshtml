@@ -1,4 +1,4 @@
-﻿@model BestStudentCafedra.Models.Activity
+﻿@model BestStudentCafedra.Models.ViewModels.StudentActivityViewModel
 
 @{
     ViewData["Title"] = "Подробности о работе";
@@ -10,33 +10,33 @@
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Number)
+            @Html.DisplayNameFor(model => model.Activity.Number)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Number)
+            @Html.DisplayFor(model => model.Activity.Number)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
+            @Html.DisplayNameFor(model => model.Activity.Title)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Title)
+            @Html.DisplayFor(model => model.Activity.Title)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.MaxPoints)
+            @Html.DisplayNameFor(model => model.Activity.MaxPoints)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.MaxPoints)
+            @Html.DisplayFor(model => model.Activity.MaxPoints)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Type)
+            @Html.DisplayNameFor(model => model.Activity.Type)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Type.Name)
+            @Html.DisplayFor(model => model.Activity.Type.Name)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Activity.Id">Изменить</a> |
     <a asp-action="Index">Вернуться в список работ</a>
 </div>
 
@@ -47,28 +47,28 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ActivityProtections.FirstOrDefault().Student)
+                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().FullName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ActivityProtections.FirstOrDefault().Points)
+                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().ActivityProtections.FirstOrDefault().Points)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ActivityProtections.FirstOrDefault().ProtectionDate)
+                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().ActivityProtections.FirstOrDefault().ProtectionDate)
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.ActivityProtections)
+        @foreach (var item in Model.Students)
         {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Student.FullName)
+                @Html.DisplayFor(modelItem => item.FullName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Points)
+                @Html.DisplayFor(modelItem => item.ActivityProtections.FirstOrDefault().Points)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ProtectionDate)
+                @Html.DisplayFor(modelItem => item.ActivityProtections.FirstOrDefault().ProtectionDate)
             </td>
         </tr>
         }

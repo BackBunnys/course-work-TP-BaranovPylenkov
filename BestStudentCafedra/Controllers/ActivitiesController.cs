@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using BestStudentCafedra.Models.ViewModels;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -27,23 +28,30 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, int groupId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
+            var students = _context.Students
+                .Include(x => x.ActivityProtections.Where(y => y.ActivityId == id))
+                .ToList();
+
             var activity = await _context.Activities
                 .Include(a => a.SemesterDiscipline)
                 .Include(a => a.Type)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            var activityProtections = new StudentActivityViewModel() { Activity = activity, Students = students };
+
             if (activity == null)
             {
                 return NotFound();
             }
 
-            return View(activity);
+            return View(activityProtections);
         }
 
         // GET: Activities/Create
