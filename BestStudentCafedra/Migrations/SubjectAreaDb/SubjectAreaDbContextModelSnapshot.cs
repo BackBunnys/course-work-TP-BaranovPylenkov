@@ -104,7 +104,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnName("points");
 
                     b.Property<DateTime>("ProtectionDate")
-                        .HasColumnType("date")
+                        .HasColumnType("datetime")
                         .HasColumnName("protection_date");
 
                     b.Property<int>("StudentId")

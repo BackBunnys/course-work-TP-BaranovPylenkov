@@ -127,7 +127,7 @@ namespace BestStudentCafedra.Data
                 entity.Property(e => e.Points).HasColumnName("points");
 
                 entity.Property(e => e.ProtectionDate)
-                    .HasColumnType("date")
+                    .HasColumnType("datetime")
                     .HasColumnName("protection_date");
 
                 entity.Property(e => e.StudentId).HasColumnName("student_id");
