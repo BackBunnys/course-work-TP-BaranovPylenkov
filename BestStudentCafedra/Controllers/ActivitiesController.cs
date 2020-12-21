@@ -48,12 +48,15 @@ namespace BestStudentCafedra.Controllers
                 .OrderBy(x => x.Group.Name)
                 .ThenBy(x => x.FullName)
                 .Where(x => x.Group.GroupDiscipline.Any(y => y.DisciplineId == activity.SemesterDiscipline.DisciplineId))
+                .AsNoTracking()
                 .ToList();
 
             var activityProtections = new StudentActivityViewModel() { Activity = activity, Students = students };
 
             return View(activityProtections);
         }
+
+
 
         // GET: Activities/Create
         public IActionResult Create()

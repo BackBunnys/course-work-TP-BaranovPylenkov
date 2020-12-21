@@ -69,13 +69,22 @@
                 @Html.DisplayFor(modelItem => item.Group.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FullName)
+                <a title="Подробнее о студенте" asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber">@item.FullName</a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ActivityProtections.FirstOrDefault().ProtectionDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ActivityProtections.FirstOrDefault().Points)
+                <form asp-action="ActivityProtect">
+                    <input hidden name="studentId" value='@item.GradebookNumber' />
+                    <div class="input-group d-inline-block w-auto align-middle">
+                        <input name="points" class="form-control d-inline-block w-auto m-auto" aria-describedby="basic-addon1" title="Введите здесь оценку для ответа студента. Вы можете использовать десятичные знаки." value='@(item.ActivityProtections.Count != 0 ? item.ActivityProtections.FirstOrDefault().Points : 0)' />
+                        <div class="input-group-append d-inline-block m-1">
+                            <span class="input-group-text" id="basic-addon1" title="Максимальное количество баллов">@Model.Activity.MaxPoints</span>
+                        </div>
+                    </div>
+                    <input type="submit" value="Оценить" class="btn btn-primary m-auto" />
+                </form>
             </td>
         </tr>
         }
