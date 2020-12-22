@@ -12,6 +12,7 @@ namespace BestStudentCafedra.Models
         public int GraduationWorkId { get; set; }
         public int EventId { get; set; }
         [Display(Name = "Отметка")]
+        [Required]
         public string Mark { get; set; }
 
         public virtual GraduationWork GraduationWork { get; set; }

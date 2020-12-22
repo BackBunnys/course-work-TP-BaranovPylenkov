@@ -13,7 +13,6 @@ using BestStudentCafedra.Models.ViewModels;
 
 namespace BestStudentCafedra.Controllers
 {
-    [Authorize(Roles="teacher")]
     public class EventsController : Controller
     {
         private readonly SubjectAreaDbContext _context;
@@ -25,31 +24,21 @@ namespace BestStudentCafedra.Controllers
             _userManager = userManager;
         }
 
+
         // GET: Events
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Index()
         {
             //Selecting teacher
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
-            Teacher teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == user.SubjectAreaId);
 
-            //Selecting events for this teacher
-            var events = await _context.Events
-                .Include(x => x.ResponsibleTeacher)
-                .Include(x => x.SchedulePlan.Group.Students)
-                    .ThenInclude(x => x.GraduationWorks)
-                    .ThenInclude(x => x.AssignedStaffs)
-                .Include(x => x.SchedulePlan.Group.Students)
-                    .ThenInclude(x => x.GraduationWorks.Where(x => x.AssignedStaffs.Any(x => x.TeacherId == teacher.Id)))
-                    .ThenInclude(x => x.EventLogs)
-                .Where(x => x.Date != null &&
-                            x.SchedulePlan.ApprovedDate != null &&
-                            x.SchedulePlan.Group.Students.Any(x => x.GraduationWorks.Any(x => x.AssignedStaffs.Any(x => x.TeacherId == teacher.Id))))
-                .AsNoTracking().ToListAsync();
-            events = events.Distinct().ToList();
+            ICollection<Event> events = new List<Event>();
+            events = await getEventsForTeacher(user.SubjectAreaId);
 
             return View(events);
         }
 
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Mark(int? id)
         {
             if (id == null || !EventExists((int)id))
@@ -76,10 +65,12 @@ namespace BestStudentCafedra.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Mark), new { id = eventLog.EventId });
             }
+            else ModelState.AddModelError($"{eventLog.GraduationWorkId}.Mark", "Не выбран вариант");
             return await Details(eventLog.EventId);
         }
 
         // GET: Events/Details/5
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || !EventExists((int)id))
@@ -103,6 +94,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Events/Create
+        [Authorize(Roles = "methodist")]
         public IActionResult Create()
         {
             ViewData["ResponsibleTeacherId"] = new SelectList(_context.Teachers, "Id", "FullName");
@@ -127,6 +119,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Events/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -145,8 +138,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // POST: Events/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "methodist")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,SchedulePlanId,EventDescription,Date,Class,ResponsibleTeacherId")] Event @event)
@@ -182,6 +174,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Events/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -210,6 +203,26 @@ namespace BestStudentCafedra.Controllers
             _context.Events.Remove(@event);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<ICollection<Event>> getEventsForTeacher(int? id)
+        {
+            if (id == null) return new List<Event>();
+
+            var events = await _context.Events
+                .Include(x => x.ResponsibleTeacher)
+                .Include(x => x.SchedulePlan.Group.Students)
+                    .ThenInclude(x => x.GraduationWorks)
+                    .ThenInclude(x => x.AssignedStaffs)
+                .Include(x => x.SchedulePlan.Group.Students)
+                    .ThenInclude(x => x.GraduationWorks.Where(x => x.AssignedStaffs.Any(x => x.TeacherId == id)))
+                    .ThenInclude(x => x.EventLogs)
+                .Where(x => x.Date != null &&
+                            x.SchedulePlan.ApprovedDate != null &&
+                            x.SchedulePlan.Group.Students.Any(x => x.GraduationWorks.Any(x => x.AssignedStaffs.Any(x => x.TeacherId == id))))
+                .AsNoTracking().ToListAsync();
+
+            return events.Distinct().ToList();
         }
 
         private bool EventExists(int id)
