@@ -1,0 +1,38 @@
+﻿@model BestStudentCafedra.Models.Event
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EventDescription)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EventDescription)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Date)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Class)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Class)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SchedulePlan.Group)
+        </dt>
+        <dd class="col-sm-10">
+            <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@Model.SchedulePlan.GroupId">@Model.SchedulePlan.Group.Name</a>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ResponsibleTeacher)
+        </dt>
+        <dd class="col-sm-10">
+            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@Model.ResponsibleTeacherId">@Model.ResponsibleTeacher?.FullName</a>
+        </dd>
+    </dl>
+    <a asp-controller="SchedulePlan" asp-action="Details" asp-route-id="@Model.SchedulePlanId">Посмотреть план-график</a>
+</div>
