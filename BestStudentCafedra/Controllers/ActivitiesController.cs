@@ -63,7 +63,29 @@ namespace BestStudentCafedra.Controllers
             if (ModelState.IsValid)
             {
                 activityProtection.ProtectionDate = DateTime.Now;
-                _context.Add(activityProtection);
+                if (_context.ActivityProtections.Any(x => x.ActivityId == activityProtection.ActivityId && x.StudentId == activityProtection.StudentId))
+                {
+                    try
+                    {
+                        _context.Update(activityProtection);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!ActivityProtectionExists(activityProtection.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
+                else
+                {
+                    
+                    _context.Add(activityProtection);
+                }
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Details), new { id = activityProtection.ActivityId, groupId = 0 });
@@ -184,6 +206,11 @@ namespace BestStudentCafedra.Controllers
         private bool ActivityExists(int id)
         {
             return _context.Activities.Any(e => e.Id == id);
+        }
+
+        private bool ActivityProtectionExists(int id)
+        {
+            return _context.ActivityProtections.Any(e => e.Id == id);
         }
     }
 }
