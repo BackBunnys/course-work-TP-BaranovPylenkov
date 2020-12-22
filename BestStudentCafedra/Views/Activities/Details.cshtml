@@ -77,13 +77,13 @@
             <td>
                 <form asp-action="ActivityProtect">
                     <input hidden name="studentId" value='@item.GradebookNumber' />
-                    <div class="input-group d-inline-block w-auto align-middle">
-                        <input name="points" class="form-control d-inline-block w-auto m-auto" aria-describedby="basic-addon1" title="Введите здесь оценку для ответа студента. Вы можете использовать десятичные знаки." value='@(item.ActivityProtections.Count != 0 ? item.ActivityProtections.FirstOrDefault().Points : 0)' />
-                        <div class="input-group-append d-inline-block m-1">
+                    <div class="input-group float-left" style="max-width: 100px;">
+                        <input name="points" class="form-control" aria-describedby="basic-addon1" title="Введите здесь оценку для ответа студента" value='@(item.ActivityProtections.Count != 0 ? item.ActivityProtections.FirstOrDefault().Points : 0)' />
+                        <div class="input-group-append">
                             <span class="input-group-text" id="basic-addon1" title="Максимальное количество баллов">@Model.Activity.MaxPoints</span>
                         </div>
                     </div>
-                    <input type="submit" value="Оценить" class="btn btn-primary m-auto" />
+                    <input type="submit" value="Оценить" class="btn btn-primary ml-1" />
                 </form>
             </td>
         </tr>
