@@ -14,7 +14,7 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Время защиты")]
         public DateTime ProtectionDate { get; set; }
         [Display(Name = "Баллы")]
-        public int Points { get; set; }
+        public float Points { get; set; }
 
         public virtual Activity Activity { get; set; }
         public virtual Student Student { get; set; }
