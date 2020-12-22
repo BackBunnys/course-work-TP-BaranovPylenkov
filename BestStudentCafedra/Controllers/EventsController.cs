@@ -39,34 +39,66 @@ namespace BestStudentCafedra.Controllers
                     .ThenInclude(x => x.GraduationWorks)
                     .ThenInclude(x => x.AssignedStaffs)
                 .Include(x => x.SchedulePlan.Group.Students)
-                    .ThenInclude(x => x.GraduationWorks)
+                    .ThenInclude(x => x.GraduationWorks.Where(x => x.AssignedStaffs.Any(x => x.TeacherId == teacher.Id)))
                     .ThenInclude(x => x.EventLogs)
                 .Where(x => x.Date != null &&
                             x.SchedulePlan.ApprovedDate != null &&
                             x.SchedulePlan.Group.Students.Any(x => x.GraduationWorks.Any(x => x.AssignedStaffs.Any(x => x.TeacherId == teacher.Id))))
                 .AsNoTracking().ToListAsync();
             events = events.Distinct().ToList();
-            
+
             return View(events);
+        }
+
+        public async Task<IActionResult> Mark(int? id)
+        {
+            if (id == null || !EventExists((int)id))
+            {
+                return NotFound();
+            }
+
+            return await Details(id);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Mark([Bind("GraduationWorkId,EventId,Mark")]EventLog eventLog)
+        {
+            if (!EventExists(eventLog.EventId))
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(eventLog);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Mark), new { id = eventLog.EventId });
+            }
+            return await Details(eventLog.EventId);
         }
 
         // GET: Events/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (id == null || !EventExists((int)id))
             {
                 return NotFound();
             }
+
+            //Selecting teacher
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+            Teacher teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == user.SubjectAreaId);
 
             var @event = await _context.Events
                 .Include(x => x.ResponsibleTeacher)
                 .Include(x => x.SchedulePlan)
+                .ThenInclude(x => x.Group.Students.Where(x => x.GraduationWorks.Any(x => x.AssignedStaffs.Any(x => x.TeacherId == teacher.Id))))
+                .ThenInclude(x => x.GraduationWorks)
+                .ThenInclude(x => x.EventLogs.Where(x => x.EventId == id))
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (@event == null)
-            {
-                return NotFound();
-            }
-
+            
             return View(@event);
         }
 
