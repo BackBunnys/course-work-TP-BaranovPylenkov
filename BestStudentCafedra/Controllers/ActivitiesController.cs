@@ -56,7 +56,18 @@ namespace BestStudentCafedra.Controllers
             return View(activityProtections);
         }
 
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivityProtect([Bind("Id,StudentId,ActivityId,Points")] ActivityProtection activityProtection)
+        {
+            if (ModelState.IsValid)
+            {
+                activityProtection.ProtectionDate = DateTime.Now;
+                _context.Add(activityProtection);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Details), new { id = activityProtection.ActivityId, groupId = 0 });
+        }
 
         // GET: Activities/Create
         public IActionResult Create()

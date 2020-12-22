@@ -1,4 +1,5 @@
 ﻿@model BestStudentCafedra.Models.ViewModels.StudentActivityViewModel
+@using System.Globalization;
 
 @{
     ViewData["Title"] = "Подробности о работе";
@@ -41,7 +42,7 @@
     <a asp-action="Index">Вернуться в список работ</a>
 </div>
 
-<br/>
+<br />
 <h4>Оценки:</h4>
 
 <table class="table">
@@ -64,29 +65,30 @@
     <tbody>
         @foreach (var item in Model.Students)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Group.Name)
-            </td>
-            <td>
-                <a title="Подробнее о студенте" asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber">@item.FullName</a>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ActivityProtections.FirstOrDefault().ProtectionDate)
-            </td>
-            <td>
-                <form asp-action="ActivityProtect">
-                    <input hidden name="studentId" value='@item.GradebookNumber' />
-                    <div class="input-group float-left" style="max-width: 100px;">
-                        <input name="points" class="form-control" aria-describedby="basic-addon1" title="Введите здесь оценку для ответа студента" value='@(item.ActivityProtections.Count != 0 ? item.ActivityProtections.FirstOrDefault().Points : 0)' />
-                        <div class="input-group-append">
-                            <span class="input-group-text" id="basic-addon1" title="Максимальное количество баллов">@Model.Activity.MaxPoints</span>
+            <tr>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Group.Name)
+                </td>
+                <td class="align-middle">
+                    <a title="Подробнее о студенте" asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber">@item.FullName</a>
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.ActivityProtections.FirstOrDefault().ProtectionDate)
+                </td>
+                <td>
+                    <form asp-action="ActivityProtect">
+                        <input hidden name="StudentId" value='@item.GradebookNumber' />
+                        <input hidden name="ActivityId" value='@Model.Activity.Id' />
+                        <div class="input-group float-left" style="max-width: 120px;">
+                            <input name="Points" type="number" step="0.1" min="0" max="@Model.Activity.MaxPoints" class="form-control" aria-describedby="basic-addon1" title="Введите здесь оценку для ответа студента" value='@(item.ActivityProtections.Count != 0 ? item.ActivityProtections.FirstOrDefault().Points.ToString("G", new CultureInfo("en-US")) : null)' />
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon1" title="Максимальное количество баллов">@Model.Activity.MaxPoints</span>
+                            </div>
                         </div>
-                    </div>
-                    <input type="submit" value="Оценить" class="btn btn-primary ml-1" />
-                </form>
-            </td>
-        </tr>
+                        <input type="submit" value="Оценить" class="btn btn-primary ml-1" />
+                    </form>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
