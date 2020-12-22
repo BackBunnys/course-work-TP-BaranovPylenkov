@@ -273,7 +273,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     student_id = table.Column<int>(type: "int", nullable: false),
                     activity_id = table.Column<int>(type: "int", nullable: false),
                     protection_date = table.Column<DateTime>(type: "datetime", nullable: false),
-                    points = table.Column<int>(type: "int", nullable: false)
+                    points = table.Column<int>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {

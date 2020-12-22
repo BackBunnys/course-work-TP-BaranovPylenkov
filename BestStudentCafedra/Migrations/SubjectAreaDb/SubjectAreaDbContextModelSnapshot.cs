@@ -100,7 +100,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnName("activity_id");
 
                     b.Property<int>("Points")
-                        .HasColumnType("int")
+                        .HasColumnType("float")
                         .HasColumnName("points");
 
                     b.Property<DateTime>("ProtectionDate")
