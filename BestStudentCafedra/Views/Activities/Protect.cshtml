@@ -2,7 +2,7 @@
 @using System.Globalization;
 
 @{
-    ViewData["Title"] = "Подробности о работе";
+    ViewData["Title"] = "Оценивание работы";
 }
 
 <h1>Подробности о работе</h1>
@@ -44,6 +44,7 @@
 
 <br />
 <h4>Оценки:</h4>
+<p>Список и их оценок за выполнение выбранной учебной деятельности по образовательной программаме</p>
 
 <table class="table">
     <thead>
@@ -76,7 +77,7 @@
                     @Html.DisplayFor(modelItem => item.ActivityProtections.FirstOrDefault().ProtectionDate)
                 </td>
                 <td>
-                    <form asp-action="ActivityProtect">
+                    <form asp-action="Protect">
                         <input hidden name="StudentId" value='@item.GradebookNumber' />
                         <input hidden name="ActivityId" value='@Model.Activity.Id' />
                         <div class="input-group float-left" style="max-width: 120px;">

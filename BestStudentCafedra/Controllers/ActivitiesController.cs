@@ -28,7 +28,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Details/5
-        public async Task<IActionResult> Details(int? id, int groupId)
+        public async Task<IActionResult> Protect(int? id, int? groupId)
         {
             if (id == null || !ActivityExists((int)id))
             {
@@ -56,9 +56,10 @@ namespace BestStudentCafedra.Controllers
             return View(activityProtections);
         }
 
+        // POST: Activities/Details/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ActivityProtect([Bind("Id,StudentId,ActivityId,Points")] ActivityProtection activityProtection)
+        public async Task<IActionResult> Protect(int? id,[Bind("Id,StudentId,ActivityId,Points")] ActivityProtection activityProtection, int? groupId)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +89,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Details), new { id = activityProtection.ActivityId, groupId = 0 });
+            return RedirectToAction(nameof(Protect), new { id = activityProtection.ActivityId });
         }
 
         // GET: Activities/Create
