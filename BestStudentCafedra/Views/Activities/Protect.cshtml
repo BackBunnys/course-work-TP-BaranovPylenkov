@@ -1,5 +1,5 @@
 ﻿@model BestStudentCafedra.Models.ViewModels.StudentActivityViewModel
-@using System.Globalization;
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Оценивание работы";
@@ -45,6 +45,17 @@
 <br />
 <h4>Оценки:</h4>
 <p>Список и их оценок за выполнение выбранной учебной деятельности по образовательной программаме</p>
+
+<form asp-action="Protect" method="get">
+    <div class="input-group mb-3" style="max-width: 300px">
+        <select class="custom-select" id="inputGroupSelect" name="groupId"  asp-items="ViewBag.GroupId">
+            <option selected>Все группы</option>
+        </select>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Отобразить</button>
+        </div>
+    </div>
+</form>
 
 <table class="table">
     <thead>

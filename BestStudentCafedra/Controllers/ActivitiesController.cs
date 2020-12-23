@@ -42,12 +42,24 @@ namespace BestStudentCafedra.Controllers
                 .Include(a => a.Type)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
+            var groups = _context.AcademicGroups
+                .Include(x => x.GroupDiscipline)
+                .Where(x => x.GroupDiscipline.Any(y => y.DisciplineId == activity.SemesterDiscipline.DisciplineId))
+                .AsNoTracking().ToList();
+
+            ViewData["GroupId"] = new SelectList(groups, "Id", "Name", groupId);
+
+            if (groupId != null)
+            {
+                groups = groups.Where(x => x.Id == groupId).ToList();
+            }
+
             var students = _context.Students
                 .Include(x => x.ActivityProtections.Where(y => y.ActivityId == id).OrderByDescending(y => y.ProtectionDate))
                 .Include(x => x.Group)
                 .OrderBy(x => x.Group.Name)
                 .ThenBy(x => x.FullName)
-                .Where(x => x.Group.GroupDiscipline.Any(y => y.DisciplineId == activity.SemesterDiscipline.DisciplineId))
+                .Where(x => groups.Contains(x.Group))
                 .AsNoTracking()
                 .ToList();
 
