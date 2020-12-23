@@ -63,6 +63,11 @@ namespace BestStudentCafedra.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (activityProtection.Points > _context.Activities.Find(activityProtection.ActivityId).MaxPoints || activityProtection.Points < 0)
+                {
+                    ModelState.AddModelError($"student-{activityProtection.StudentId}", "Оценка должна быть в диапозоне от 0 до " + _context.Activities.Find(activityProtection.ActivityId).MaxPoints);
+                }
+
                 activityProtection.ProtectionDate = DateTime.Now;
                 if (_context.ActivityProtections.Any(x => x.ActivityId == activityProtection.ActivityId && x.StudentId == activityProtection.StudentId))
                 {
@@ -89,7 +94,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Protect), new { id = activityProtection.ActivityId });
+            return await Protect(id, groupId);
         }
 
         // GET: Activities/Create
