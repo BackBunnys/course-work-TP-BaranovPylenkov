@@ -1,0 +1,73 @@
+﻿@model BestStudentCafedra.Models.Event
+
+@{
+    ViewData["Title"] = "Оценка мероприятия";
+    var graduationWork = new GraduationWork() { Student = new Student() };
+    var eventLog = new EventLog();
+    var students = Model.SchedulePlan.Group.Students.OrderBy(x => x.FullName).ToArray();
+    var selectList = new List<string> { "Выполнено", "Не выполнено" };
+}
+
+<h1>Оценка мероприятия</h1>
+@{await Html.RenderPartialAsync("_Details", Model);}
+<hr />
+<h4>Работы</h4>
+@if (Model.SchedulePlan.Group.Students.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => graduationWork.Student.FullName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => graduationWork.Theme)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => eventLog.Mark)
+                </th>
+                <th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in students)
+            {
+                var isMarked = item.GraduationWorks.Any(x => x.hasMarkForEvent(Model));
+                <tr class='@(isMarked ? "tabledisable" : "")'>
+                    <td class="align-middle">
+                        @Html.DisplayFor(modelItem => item.FullName)
+                    </td>
+                    <td class="align-middle">
+                        @Html.DisplayFor(modelItem => item.GraduationWorks.FirstOrDefault().Theme)
+                    </td>
+                    <td class="align-middle">
+                        <form asp-action="Mark" class="form-inline">
+                            <input hidden name="GraduationWorkId" value="@item.GraduationWorks.FirstOrDefault().Id" />
+                            <input hidden name="EventId" value="@Model.Id" />
+                            <div>
+                                <select disabled="@isMarked" name="Mark" class="form-control" asp-items='new SelectList(selectList, item.GraduationWorks.FirstOrDefault().EventLogs.FirstOrDefault(x => x.EventId == Model.Id)?.Mark)'></select>
+                                <br/>
+                                @Html.ValidationMessage($"{item.GraduationWorks.FirstOrDefault().Id}.Mark", new { @class = "text-danger position-absolute" })
+                            </div>
+
+                            <div class="form-group m-2">
+                                <input disabled="@isMarked" type="submit" value="Поставить" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <span>Отсутствуют.</span>
+}
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Index">Вернуться к списку мероприятий</a>
+</div>
+
+

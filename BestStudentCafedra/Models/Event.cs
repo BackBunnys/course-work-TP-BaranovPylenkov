@@ -29,6 +29,7 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Ответственный преподаватель")]
         public int? ResponsibleTeacherId { get; set; }
 
+        [Display(Name = "План-график")]
         public virtual SchedulePlan SchedulePlan { get; set; }
 
         [Display(Name = "Ответственный преподаватель")]
