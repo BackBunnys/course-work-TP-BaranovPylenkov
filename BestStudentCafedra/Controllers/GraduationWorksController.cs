@@ -7,23 +7,41 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class GraduationWorksController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public GraduationWorksController(SubjectAreaDbContext context)
+        public GraduationWorksController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: GraduationWorks
         public async Task<IActionResult> Index()
         {
-            var subjectAreaDbContext = _context.GraduationWorks.Include(g => g.Student);
-            return View(await subjectAreaDbContext.ToListAsync());
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+            List<GraduationWork> graduationWorks = new List<GraduationWork>();
+            if (User.IsInRole("methodist")) {
+                graduationWorks = await _context.GraduationWorks
+                    .Include(x => x.Student.Group)
+                    .Include(x => x.AssignedStaffs)
+                    .OrderByDescending(x => x.ArchievedDate).ToListAsync();
+            }
+            else if (User.IsInRole("teacher")) {
+                graduationWorks = await _context.GraduationWorks
+                    .Include(x => x.Student.Group)
+                    .Include(x => x.AssignedStaffs)
+                    .Where(x => x.AssignedStaffs.Any(x => x.TeacherId == user.SubjectAreaId && x.Type == "Scientific Adviser"))
+                    .OrderByDescending(x => x.ArchievedDate).ToListAsync();
+            }
+
+            return View(graduationWorks);
         }
 
         // GET: GraduationWorks/Details/5
