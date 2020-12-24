@@ -20,7 +20,7 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Тема")]
         public string Theme { get; set; }
         public DateTime? ArchievedDate { get; set; }
-        public bool? Result { get; set; }
+        public short? Result { get; set; }
 
         public virtual Student Student { get; set; }
         public virtual ICollection<AssignedStaff> AssignedStaffs { get; set; }
