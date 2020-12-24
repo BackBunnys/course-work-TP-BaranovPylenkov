@@ -16,12 +16,17 @@ namespace BestStudentCafedra.Models
         }
 
         public int Id { get; set; }
+        [Display(Name = "Студент")]
+        [Required(ErrorMessage = "Не указан студент")]
         public int StudentId { get; set; }
         [Display(Name = "Тема")]
         public string Theme { get; set; }
+        [Display(Name = "Дата архивации")]
         public DateTime? ArchievedDate { get; set; }
+        [Display(Name = "Результат")]
         public short? Result { get; set; }
 
+        [Display(Name = "Студент")]
         public virtual Student Student { get; set; }
         public virtual ICollection<AssignedStaff> AssignedStaffs { get; set; }
         public virtual ICollection<EventLog> EventLogs { get; set; } = new List<EventLog>();
