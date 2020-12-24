@@ -64,7 +64,7 @@
         <tbody>
             @for (int i = 0; i < events.Length; ++i)
             {
-                bool isMarked = (events[i].EventLogs.Count > 0;
+                bool isMarked = (events[i].EventLogs.Count > 0);
                 <tr class="@(isMarked? "tabledisable" : "")">
                     <td>
                         @Html.DisplayFor(modelItem => events[i].EventDescription)
