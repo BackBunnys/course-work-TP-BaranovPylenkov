@@ -64,7 +64,8 @@
         <tbody>
             @for (int i = 0; i < events.Length; ++i)
             {
-                <tr class="@(events[i].EventLogs.Count>0? "tabledisable" : "")">
+                bool isMarked = (events[i].EventLogs.Count > 0;
+                <tr class="@(isMarked? "tabledisable" : "")">
                     <td>
                         @Html.DisplayFor(modelItem => events[i].EventDescription)
                         <input hidden name="[@i].Id" class="form-control" value="@events[i].Id" />
@@ -72,18 +73,18 @@
                         <input hidden name="[@i].SchedulePlanId" class="form-control" value="@events[i].SchedulePlanId" />
                     </td>
                     <td>
-                        <input disabled="@(events[i].EventLogs.Count>0)" type="datetime-local" name="[@i].Date" class="form-control" value='@events[i].Date?.ToString("s")' />
+                        <input readonly="@(isMarked)" type="datetime-local" name="[@i].Date" class="form-control" value='@events[i].Date?.ToString("s")' />
                         <span asp-validation-for="[@i].Date" class="text-danger"></span>
                     </td>
                     <td>
-                        <input disabled="@(events[i].EventLogs.Count>0)" name="[@i].Class" asp-for="Class" class="form-control" value="@events[i].Class" />
+                        <input readonly="@(isMarked)" name="[@i].Class" asp-for="Class" class="form-control" value="@events[i].Class" />
                         <span asp-validation-for="[@i].Class" class="text-danger"></span>
                     </td>
                     <td>
-                        <select disabled="@(events[i].EventLogs.Count>0)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'></select>
+                        <select readonly="@(isMarked)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'></select>
                     </td>
                     <td>
-                        <input disabled="@(events[i].EventLogs.Count>0)" asp-action="DeleteEvent" type="submit" asp-route-eventId="@events[i].Id" value="X" class="btn btn-danger" />
+                        <input disabled="@(isMarked)" asp-action="DeleteEvent" type="submit" asp-route-eventId="@events[i].Id" value="X" class="btn btn-danger" />
                     </td>
                 </tr>
             }

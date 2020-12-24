@@ -42,6 +42,7 @@ namespace BestStudentCafedra.Controllers
             var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
                 .Include(s => s.Events)
+                .ThenInclude(s => s.ResponsibleTeacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             return View(schedulePlan);
