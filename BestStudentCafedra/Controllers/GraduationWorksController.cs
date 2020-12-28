@@ -26,22 +26,17 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Index()
         {
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
-            List<GraduationWork> graduationWorks = new List<GraduationWork>();
-            if (User.IsInRole("methodist")) {
-                graduationWorks = await _context.GraduationWorks
+            IQueryable<GraduationWork> graduationWorks = _context.GraduationWorks
                     .Include(x => x.Student.Group)
                     .Include(x => x.AssignedStaffs)
-                    .OrderByDescending(x => x.ArchievedDate).ToListAsync();
-            }
-            else if (User.IsInRole("teacher")) {
-                graduationWorks = await _context.GraduationWorks
-                    .Include(x => x.Student.Group)
-                    .Include(x => x.AssignedStaffs)
-                    .Where(x => x.AssignedStaffs.Any(x => x.TeacherId == user.SubjectAreaId && x.Type == "Scientific Adviser"))
-                    .OrderByDescending(x => x.ArchievedDate).ToListAsync();
+                    .ThenInclude(x => x.Teacher);
+
+            if (User.IsInRole("teacher")) {
+                graduationWorks = graduationWorks.Where(x => x.AssignedStaffs
+                    .Any(x => x.TeacherId == user.SubjectAreaId && x.Type == "Scientific Adviser"));
             }
 
-            return View(graduationWorks);
+            return View(await graduationWorks.OrderByDescending(x => x.ArchievedDate).ToListAsync());
         }
 
         // GET: GraduationWorks/Details/5
