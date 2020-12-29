@@ -101,7 +101,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 else
                 {
-                    
+                    activityProtection.Id = 0;
                     _context.Add(activityProtection);
                 }
                 await _context.SaveChangesAsync();
