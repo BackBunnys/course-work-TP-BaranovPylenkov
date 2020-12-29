@@ -29,6 +29,7 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<EventTemplate> EventTemplates { get; set; }
         public virtual DbSet<EventLog> EventLogs { get; set; }
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
+        public virtual DbSet<GroupDiscipline> GroupDisciplines { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
         public virtual DbSet<SemesterDiscipline> SemesterDiscipline { get; set; }
         public virtual DbSet<Specialty> Specialties { get; set; }
@@ -126,7 +127,7 @@ namespace BestStudentCafedra.Data
                 entity.Property(e => e.Points).HasColumnName("points");
 
                 entity.Property(e => e.ProtectionDate)
-                    .HasColumnType("date")
+                    .HasColumnType("datetime")
                     .HasColumnName("protection_date");
 
                 entity.Property(e => e.StudentId).HasColumnName("student_id");
@@ -320,6 +321,33 @@ namespace BestStudentCafedra.Data
                     .HasColumnName("name")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
+            });
+
+            modelBuilder.Entity<GroupDiscipline>(entity =>
+            {
+                entity.ToTable("group_disciplines");
+
+                entity.HasIndex(e => e.DisciplineId, "discipline_id");
+
+                entity.HasIndex(e => e.GroupId, "group_id");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.DisciplineId).HasColumnName("discipline_id");
+
+                entity.Property(e => e.GroupId).HasColumnName("group_id");
+
+                entity.HasOne(d => d.Discipline)
+                    .WithMany(p => p.GroupDiscipline)
+                    .HasForeignKey(d => d.DisciplineId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("group_discipline_ibfk_1");
+
+                entity.HasOne(d => d.AcademicGroup)
+                    .WithMany(p => p.GroupDiscipline)
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("group_discipline_ibfk_2");
             });
 
             modelBuilder.Entity<Event>(entity =>

@@ -37,8 +37,59 @@
 </div>
 
 <div>
-    <a href="@ViewBag.returnUrl"/>Вернуться</a>
+    <a href="@ViewBag.returnUrl" />Вернуться</a>
 </div>
+
+<br />
+<h4>Работы:</h4>
+<p>Список учебных деятельностей на которые разделена дисциплина по образовательной программаме</p>
+<p>
+    <a asp-controller="Activities" asp-action="Create">Создать</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Activities.FirstOrDefault().Number)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Activities.FirstOrDefault().Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Activities.FirstOrDefault().MaxPoints)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Activities.FirstOrDefault().Type)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Activities)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Number)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaxPoints)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

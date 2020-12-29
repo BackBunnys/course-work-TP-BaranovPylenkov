@@ -3,14 +3,16 @@ using System;
 using BestStudentCafedra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BestStudentCafedra.Migrations.SubjectAreaDb
 {
     [DbContext(typeof(SubjectAreaDbContext))]
-    partial class SubjectAreaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201218135919_Group Disciplines")]
+    partial class GroupDisciplines
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,11 +102,11 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnName("activity_id");
 
                     b.Property<int>("Points")
-                        .HasColumnType("float")
+                        .HasColumnType("int")
                         .HasColumnName("points");
 
                     b.Property<DateTime>("ProtectionDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("date")
                         .HasColumnName("protection_date");
 
                     b.Property<int>("StudentId")
