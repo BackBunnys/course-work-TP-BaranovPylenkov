@@ -10,7 +10,8 @@ namespace BestStudentCafedra.Models
     {
         public Teacher()
         {
-            AssignedStaff = new HashSet<AssignedStaff>();
+            GraduationWorksAdvice = new HashSet<GraduationWork>();
+            GraduationWorksReview = new HashSet<GraduationWork>();
             TeacherDisciplines = new HashSet<TeacherDiscipline>();
             Events = new HashSet<Event>();
         }
@@ -26,7 +27,8 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Ученая степень")]
         public string AcademicDegree { get; set; }
 
-        public virtual ICollection<AssignedStaff> AssignedStaff { get; set; }
+        public virtual ICollection<GraduationWork> GraduationWorksAdvice { get; set; }
+        public virtual ICollection<GraduationWork> GraduationWorksReview { get; set; }
         public virtual ICollection<Event> Events { get; set; }
         public virtual ICollection<TeacherDiscipline> TeacherDisciplines { get; set; }
     }
