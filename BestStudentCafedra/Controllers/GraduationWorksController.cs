@@ -42,18 +42,19 @@ namespace BestStudentCafedra.Controllers
         // GET: GraduationWorks/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (id == null || !GraduationWorkExists((int)id))
             {
                 return NotFound();
             }
 
             var graduationWork = await _context.GraduationWorks
                 .Include(g => g.Student)
+                .ThenInclude(g => g.Group.SchedulePlans)
+                .ThenInclude(g => g.Events.Where(e => e.Date != null))
+                .ThenInclude(g => g.EventLogs.Where(e => e.GraduationWorkId == id))
+                .Include(g => g.AssignedStaffs)
+                .ThenInclude(g => g.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (graduationWork == null)
-            {
-                return NotFound();
-            }
 
             return View(graduationWork);
         }
