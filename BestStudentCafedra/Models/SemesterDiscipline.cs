@@ -11,6 +11,7 @@ namespace BestStudentCafedra.Models
         public SemesterDiscipline()
         {
             Activities = new HashSet<Activity>();
+            RatingControls = new HashSet<RatingControl>();
         }
 
         public int Id { get; set; }
@@ -31,6 +32,7 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Дисциплина")]
         public virtual Discipline Discipline { get; set; }
         public virtual ICollection<Activity> Activities { get; set; }
+        public virtual ICollection<RatingControl> RatingControls { get; set; }
     }
 
     public enum ControlType
