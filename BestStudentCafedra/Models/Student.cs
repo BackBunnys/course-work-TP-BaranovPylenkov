@@ -32,5 +32,6 @@ namespace BestStudentCafedra.Models
         public virtual AcademicGroup Group { get; set; }
         public virtual ICollection<ActivityProtection> ActivityProtections { get; set; }
         public virtual ICollection<GraduationWork> GraduationWorks { get; set; }
+        public virtual ICollection<StudentRating> StudentRatings { get; set; }
     }
 }

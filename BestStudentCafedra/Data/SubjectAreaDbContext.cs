@@ -31,9 +31,11 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
         public virtual DbSet<GroupDiscipline> GroupDisciplines { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
+        public virtual DbSet<RatingControl> RatingControls { get; set; }
         public virtual DbSet<SemesterDiscipline> SemesterDiscipline { get; set; }
         public virtual DbSet<Specialty> Specialties { get; set; }
         public virtual DbSet<Student> Students { get; set; }
+        public virtual DbSet<StudentRating> StudentRatings { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
         public virtual DbSet<TeacherDiscipline> TeacherDisciplines { get; set; }
         public virtual DbSet<SchedulePlan> SchedulePlans { get; set; }
@@ -392,6 +394,29 @@ namespace BestStudentCafedra.Data
                     .HasConstraintName("schedule_plan_event_ibfk_2");
             });
 
+            modelBuilder.Entity<RatingControl>(entity =>
+            {
+                entity.ToTable("rating_control");
+
+                entity.HasIndex(e => e.SemesterDisciplineId, "semester_discipline_id");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.SemesterDisciplineId).HasColumnName("semester_discipline_id");
+
+                entity.Property(e => e.Number).HasColumnName("number");
+
+                entity.Property(e => e.CompletionDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("completion_date");
+
+                entity.HasOne(d => d.SemesterDiscipline)
+                    .WithMany(p => p.RatingControls)
+                    .HasForeignKey(d => d.SemesterDisciplineId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("rating_control_ibfk_2");
+            });
+
             modelBuilder.Entity<SchedulePlan>(entity =>
             {
                 entity.ToTable("schedule_plan");
@@ -486,6 +511,35 @@ namespace BestStudentCafedra.Data
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("student_ibfk_1");
+            });
+
+            modelBuilder.Entity<StudentRating>(entity =>
+            {
+                entity.ToTable("student_rating");
+
+                entity.HasIndex(e => e.StudentId, "sr_student_id");
+
+                entity.HasIndex(e => e.RatingId, "sr_rating_id");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.StudentId).HasColumnName("student_id");
+
+                entity.Property(e => e.RatingId).HasColumnName("rating_id");
+
+                entity.Property(e => e.Points).HasColumnName("points");
+
+                entity.HasOne(d => d.RatingControl)
+                    .WithMany(p => p.StudentRatings)
+                    .HasForeignKey(d => d.RatingId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("student_rating_ibfk_2");
+
+                entity.HasOne(d => d.Student)
+                    .WithMany(p => p.StudentRatings)
+                    .HasForeignKey(d => d.StudentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("student_rating_ibfk_1");
             });
 
             modelBuilder.Entity<Teacher>(entity =>
