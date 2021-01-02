@@ -9,27 +9,68 @@
 <p>
     <a asp-action="Create">Добавить</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+<div class="accordion" id="accordionExample">
+    @foreach (var item in Model)
+    {
+        <div class="card">
+            <div class="card-header" id="heading-@item.Id">
+                <h2 class="mb-0">
+                    <button class="btn btn-link float-left" type="button" data-toggle="collapse" data-target="#collapse-@item.Id" aria-expanded="true" aria-controls="collapse-@item.Id">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </button>
+                    <div class="btn-group float-right" role="group" aria-label="Semester disciplines">
+                        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Добавить семестр</a>
+                        <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Изменить</a>
+                        <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">X</a>
+                    </div>
+                </h2>
+            </div>
+
+            <div id="collapse-@item.Id" class="collapse" aria-labelledby="heading-@item.Id" data-parent="#accordionExample">
+                <div class="card-body p-0">
+                    @if (item.SemesterDisciplines.Count > 0) {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Year)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Semester)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().ControlType)
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sem in item.SemesterDisciplines)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(semItem => sem.Year)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(semItem => sem.Semester)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(semItem => sem.ControlType)
+                                        </td>
+                                        <td>
+                                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Перейти</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                     } else {
+                        <p class="text-center text-info m-3">Семестры по данной дисциплине ещё не добавлены!</p>
+                     }
+                </div>
+            </div>
+        </div>
+    }
+</div>
