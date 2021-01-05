@@ -45,46 +45,98 @@
     <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
     <a asp-action="Index">Вернуться в список групп</a>
 </div>
+<br/>
+<div class="accordion">
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-outline-gray" data-toggle="collapse" data-target="#collapseStudents" aria-expanded="true" aria-controls="collapseStudents">Студенты</button>
+        <button type="button" class="btn btn-outline-gray" data-toggle="collapse" data-target="#collapseDisciplines" aria-expanded="true" aria-controls="collapseDisciplines">Дисциплины</button>
+    </div>
+</div>
 
-</br>
-<h4>Студенты:</h4>
-<p>Список студентов, которые обучаются в данной группе по образовательной программаме</p>
-<p>
-    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id">Добавить</a>
-</p>
+<div class="accordion" id="accordionExample">
+    <div class="card">
+        <div id="collapseStudents" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div class="card-body p-0">
+                <p class="px-3 pt-3">Список студентов, которые обучаются в данной группе по образовательной программаме</p>
+                <div class="btn-group px-3 pb-3" role="group" aria-label="Basic example">
+                    <a asp-controller="Student" asp-action="Create" class="btn btn-secondary" role="button">Добавить</a>
+                    <a asp-controller="Student" asp-action="Create" class="btn btn-secondary" role="button">Создать нового</a>
+                </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().GradebookNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().PhoneNumber)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Student item in Model.Students)
-        {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.GradebookNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>
-                <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a>
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().GradebookNumber)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().FullName)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().PhoneNumber)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Student item in Model.Students)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.GradebookNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FullName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                                </td>
+                                <td>
+                                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div id="collapseDisciplines" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+            <div class="card-body p-0">
+                <p class="px-3 pt-3">Список дисциплин, на которых  обучаются данная группа по образовательной программаме</p>
+                <div class="btn-group px-3 pb-3" role="group" aria-label="Basic example">
+                    <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Добавить</a>
+                    <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Создать новую</a>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.GroupDiscipline.FirstOrDefault().Discipline.Name)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (GroupDiscipline item in Model.GroupDiscipline)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Discipline.Name)
+                                </td>
+                                <td>
+                                    <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id">Рейтинг</a> |
+                                    <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
+                                    <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
+                                    <a asp-controller="Disciplines" asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -42,6 +42,8 @@ namespace BestStudentCafedra.Controllers
             var groups = await _context.AcademicGroups
                 .Include(s => s.Students.OrderBy(n => n.FullName))
                 .Include(s => s.Specialty)
+                .Include(d => d.GroupDiscipline)
+                .ThenInclude(d => d.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (groups == null)

@@ -83,3 +83,8 @@ body {
 .tabledisable {
     background-color: #e9ecef;
 }
+
+.btn-outline-gray {
+    color: #212529;
+    border-color: rgba(0,0,0,.125);
+}
