@@ -21,12 +21,19 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: AcademicGroups
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? formYear)
         {
             var groups = _context.AcademicGroups
                 .Include(s => s.Specialty)
                 .OrderByDescending(y => y.FormationYear)
                 .ThenBy(n => n.Name);
+
+            ViewData["formYears"] = new SelectList(groups.Select(y => y.FormationYear).Distinct(), formYear);
+
+            if (formYear != null)
+            {
+                groups = (IOrderedQueryable<AcademicGroup>)groups.Where(x => x.FormationYear == formYear);
+            }
 
             return View(await groups.ToListAsync());
         }
