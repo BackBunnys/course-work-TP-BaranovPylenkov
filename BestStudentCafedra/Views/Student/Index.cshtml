@@ -9,7 +9,8 @@
 <p>
     <a asp-action="Create">Добавить</a>
 </p>
-<table class="table">
+
+<table class="table" id="studentsTable">
     <thead>
         <tr>
             <th>
@@ -28,26 +29,39 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.GradebookNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Group.Name)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a> |
-                <a asp-action="Edit" asp-route-id="@item.GradebookNumber">Изменить</a> |
-                <a asp-action="Delete" asp-route-id="@item.GradebookNumber">Удалить</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GradebookNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Group.Name)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a> |
+                    <a asp-action="Edit" asp-route-id="@item.GradebookNumber">Изменить</a> |
+                    <a asp-action="Delete" asp-route-id="@item.GradebookNumber">Удалить</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" />
+    <script>
+        var table = $('#studentsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }});
+    </script>
+}
