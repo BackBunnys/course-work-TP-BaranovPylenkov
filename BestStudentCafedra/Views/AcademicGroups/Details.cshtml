@@ -103,14 +103,14 @@
     </div>
     <div class="card">
         <div id="collapseDisciplines" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-            <div class="card-body p-0">
-                <p class="px-3 pt-3">Список дисциплин, на которых  обучаются данная группа по образовательной программаме</p>
-                <div class="btn-group px-3 pb-3" role="group" aria-label="Basic example">
+            <div class="card-body">
+                <p>Список дисциплин, на которых  обучаются данная группа по образовательной программаме</p>
+                <div class="btn-group pb-3" role="group" aria-label="Basic example">
                     <a asp-action="AddDiscipline" asp-route-id="@Model.Id" class="btn btn-secondary" role="button">Добавить</a>
                     <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Создать новую</a>
                 </div>
 
-                <table class="table">
+                <table class="table table-bordered" id="disciplineTable">
                     <thead>
                         <tr>
                             <th>
@@ -127,10 +127,14 @@
                                     @Html.DisplayFor(modelItem => item.Discipline.Name)
                                 </td>
                                 <td>
-                                    <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id">Рейтинг</a> |
-                                    <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
-                                    <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
-                                    <a asp-controller="Disciplines" asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                                    <div class="btn-group" role="group">
+                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary">Рейтинг</a>
+                                        <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Изменить</a>
+                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary">Подробнее</a>
+                                        <a asp-controller="Disciplines" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">&times;</a>
+                                    </div>
+
+
                                 </td>
                             </tr>
                         }
@@ -147,6 +151,14 @@
     <script src="~/js/site.js"></script>
     <script>
         var table = $('#studentsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+
+    <script>
+        var table = $('#disciplineTable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }
