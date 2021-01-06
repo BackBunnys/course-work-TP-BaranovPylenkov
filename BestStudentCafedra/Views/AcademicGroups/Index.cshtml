@@ -58,3 +58,15 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#groupTable').DataTable({
+            filter: false,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
