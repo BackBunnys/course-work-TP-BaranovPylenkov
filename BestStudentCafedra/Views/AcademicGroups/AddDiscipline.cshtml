@@ -1,15 +1,16 @@
 ﻿@model IEnumerable<BestStudentCafedra.Models.Discipline>
 
 @{
-    ViewData["Title"] = "AddDiscipline";
+    ViewData["Title"] = "Добавить дисциплину группе";
 }
 
-<h1>AddDiscipline</h1>
+<h1>Добавить дисциплину группе</h1>
+<p>Выберите дисциплину, которую необходимо добавить группе @ViewBag.DisciplineName</p>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Создать новую</a>
 </p>
-<table class="table">
+<table class="table" id="disciplineTable">
     <thead>
         <tr>
             <th>
@@ -19,17 +20,30 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <a asp-action="Add" asp-route-id="@item.Id">Добавить</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" />
+    <script>
+        var table = $('#disciplineTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
