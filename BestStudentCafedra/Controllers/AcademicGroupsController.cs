@@ -158,6 +158,32 @@ namespace BestStudentCafedra.Controllers
             return View(disciplines);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddDiscipline(int id, int disciplineId)
+        {
+            if (GroupExists(id))
+            {
+                if (_context.GroupDisciplines.Where(x => x.GroupId == id && x.DisciplineId == disciplineId).Count() > 0)
+                {
+                    return Conflict();
+                }
+
+                var newGroupDiscip = new GroupDiscipline();
+                newGroupDiscip.GroupId = (int)id;
+                newGroupDiscip.DisciplineId = disciplineId;
+
+                _context.Add(newGroupDiscip);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
+            else
+            {
+                return NotFound();
+            } 
+        }
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
