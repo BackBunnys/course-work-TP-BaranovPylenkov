@@ -45,7 +45,7 @@
     <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
     <a asp-action="Index">Вернуться в список групп</a>
 </div>
-<br/>
+<br />
 <div class="accordion">
     <div class="btn-group" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-outline-gray" data-toggle="collapse" data-target="#collapseStudents" aria-expanded="true" aria-controls="collapseStudents">Студенты</button>
@@ -56,14 +56,14 @@
 <div class="accordion" id="accordionExample">
     <div class="card">
         <div id="collapseStudents" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-            <div class="card-body p-0">
-                <p class="px-3 pt-3">Список студентов, которые обучаются в данной группе по образовательной программаме</p>
-                <div class="btn-group px-3 pb-3" role="group" aria-label="Basic example">
+            <div class="card-body">
+                <p>Список студентов, которые обучаются в данной группе по образовательной программаме</p>
+                <div class="btn-group pb-3" role="group" aria-label="Basic example">
                     <a asp-controller="Student" asp-action="Index" class="btn btn-secondary" role="button">Перевести</a>
                     <a asp-controller="Student" asp-action="Create" class="btn btn-secondary" role="button">Создать нового</a>
                 </div>
 
-                <table class="table">
+                <table class="table table-bordered" id="studentsTable">
                     <thead>
                         <tr>
                             <th>
@@ -106,7 +106,7 @@
             <div class="card-body p-0">
                 <p class="px-3 pt-3">Список дисциплин, на которых  обучаются данная группа по образовательной программаме</p>
                 <div class="btn-group px-3 pb-3" role="group" aria-label="Basic example">
-                    <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Добавить</a>
+                    <a asp-action="AddDiscipline" asp-route-id="@Model.Id" class="btn btn-secondary" role="button">Добавить</a>
                     <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Создать новую</a>
                 </div>
 
@@ -140,3 +140,18 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/site.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" />
+    <script>
+        var table = $('#studentsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
