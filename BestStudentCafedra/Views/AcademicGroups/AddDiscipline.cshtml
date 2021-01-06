@@ -10,6 +10,7 @@
 <p>
     <a asp-action="Create">Создать новую</a>
 </p>
+
 <table class="table" id="disciplineTable">
     <thead>
         <tr>
@@ -27,8 +28,14 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    <a asp-action="Add" asp-route-id="@item.Id">Добавить</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <form asp-action="AddDiscipline">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input hidden name="disciplineId" value="@item.Id" />
+                            <input type="submit" value="Добавить" class="btn btn-secondary" />
+                        </form>
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary">Подробнее</a>
+                    </div>                    
                 </td>
             </tr>
         }
