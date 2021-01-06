@@ -141,6 +141,23 @@ namespace BestStudentCafedra.Controllers
             return View(group);
         }
 
+        public async Task<IActionResult> AddDiscipline(int? id)
+        {
+            if (id == null || !GroupExists((int)id))
+                return NotFound();
+
+            List<Discipline> groupDisciplines = await _context.GroupDisciplines
+                .Where(x => x.GroupId == id)
+                .Select(x => x.Discipline)
+                .ToListAsync();
+            var disciplines = await _context.Disciplines.OrderBy(x => x.Name).ToListAsync();
+            disciplines.RemoveAll(x => groupDisciplines.Any(y => y.Id == x.Id));
+
+            ViewData["DisciplineName"] = _context.AcademicGroups.FirstOrDefault(x => x.Id == id).Name;
+
+            return View(disciplines);
+        }
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
