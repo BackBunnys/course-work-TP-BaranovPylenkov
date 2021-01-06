@@ -35,7 +35,7 @@
                             <input type="submit" value="Добавить" class="btn btn-secondary" />
                         </form>
                         <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary">Подробнее</a>
-                    </div>                    
+                    </div>
                 </td>
             </tr>
         }
@@ -43,9 +43,7 @@
 </table>
 
 @section Scripts {
-    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" />
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
     <script>
         var table = $('#disciplineTable').DataTable({
             language: {
