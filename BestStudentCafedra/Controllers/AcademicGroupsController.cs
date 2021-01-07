@@ -184,6 +184,35 @@ namespace BestStudentCafedra.Controllers
             } 
         }
 
+        public async Task<IActionResult> DropDiscipline(int? id, int? disciplineId)
+        {
+            if (id == null || disciplineId == null || !GroupExists((int)id))
+                return NotFound();
+
+            var groupDiscipline = await _context.GroupDisciplines
+                .Include(x => x.AcademicGroup)
+                .Include(x => x.Discipline)
+                .FirstOrDefaultAsync(x => x.GroupId == id && x.DisciplineId == disciplineId);
+            if (groupDiscipline == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_DropDiscipline", groupDiscipline);
+        }
+
+        // POST: AcademicGroups/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DropDiscipline(int id)
+        {
+            var discipline = await _context.GroupDisciplines.FindAsync(id);
+            var groupId = discipline.GroupId;
+            _context.GroupDisciplines.Remove(discipline);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = groupId });
+        }
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

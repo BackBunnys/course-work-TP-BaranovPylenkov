@@ -131,10 +131,8 @@
                                         <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Рейтинг</a>
                                         <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">Изменить</a>
                                         <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
-                                        <a asp-controller="Disciplines" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                                        <a onclick="loadAndShowModal('../DropDiscipline/@Model.Id?disciplineId=@item.DisciplineId')" class="btn btn-outline-danger">&times;</a>
                                     </div>
-
-
                                 </td>
                             </tr>
                         }
@@ -143,6 +141,13 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="modDialog" class="modal modal-removable fade">
+        <div class="spinner-border text-light fixed-top mt-5 mx-auto" style="z-index: -1;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    <div id="dialogContent" class="modal-dialog"></div>
 </div>
 
 @section Scripts {
