@@ -28,13 +28,13 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    <div class="btn-group" role="group" aria-label="Basic example">
+                    <div class="btn-group btn-group-sm float-right" role="group" aria-label="Basic example">
                         <form asp-action="AddDiscipline">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <input hidden name="disciplineId" value="@item.Id" />
-                            <input type="submit" value="Добавить" class="btn btn-secondary" />
+                            <input type="submit" value="Добавить" class="btn btn-sm btn-outline-primary" />
                         </form>
-                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary">Подробнее</a>
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Подробнее</a>
                     </div>
                 </td>
             </tr>
