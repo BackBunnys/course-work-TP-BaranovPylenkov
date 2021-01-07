@@ -1,0 +1,55 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.Discipline>
+
+@{
+    ViewData["Title"] = "Добавить дисциплину группе";
+}
+
+<h1>Добавить дисциплину группе</h1>
+<p>Выберите дисциплину, которую необходимо добавить группе @ViewBag.DisciplineName</p>
+
+<p>
+    <a asp-action="Create">Создать новую</a>
+</p>
+
+<table class="table border" id="disciplineTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group" aria-label="Basic example">
+                        <form asp-action="AddDiscipline">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input hidden name="disciplineId" value="@item.Id" />
+                            <input type="submit" value="Добавить" class="btn btn-sm btn-outline-primary" />
+                        </form>
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Подробнее</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#disciplineTable').DataTable({
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
