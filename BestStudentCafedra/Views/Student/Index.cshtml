@@ -59,6 +59,7 @@
     <script>
         var table = $('#studentsTable').DataTable({
             order: [[1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }

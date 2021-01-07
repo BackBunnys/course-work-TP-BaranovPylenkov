@@ -67,6 +67,7 @@
         var table = $('#groupTable').DataTable({
             filter: false,
             order: [[2, "desc"], [1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }
