@@ -92,7 +92,7 @@
                                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                                 </td>
                                 <td>
-                                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber" class="btn btn-outline-primary btn-sm">Подробнее</a>
+                                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber" class="btn btn-outline-primary btn-sm float-right">Подробнее</a>
                                 </td>
                             </tr>
                         }
@@ -127,7 +127,7 @@
                                     @Html.DisplayFor(modelItem => item.Discipline.Name)
                                 </td>
                                 <td>
-                                    <div class="btn-group btn-group-sm" role="group">
+                                    <div class="btn-group btn-group-sm float-right" role="group">
                                         <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Рейтинг</a>
                                         <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">Изменить</a>
                                         <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
