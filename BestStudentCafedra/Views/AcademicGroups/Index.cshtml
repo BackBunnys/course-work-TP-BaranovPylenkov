@@ -21,7 +21,7 @@
     </div>
 </form>
 
-<table class="table" id="groupTable">
+<table class="table border rounded" id="groupTable">
     <thead>
         <tr>
             <th>
@@ -66,6 +66,7 @@
     <script>
         var table = $('#groupTable').DataTable({
             filter: false,
+            order: [[2, "desc"], [1, "asc"]],
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }

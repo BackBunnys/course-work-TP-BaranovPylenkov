@@ -10,7 +10,7 @@
     <a asp-action="Create">Добавить</a>
 </p>
 
-<table class="table" id="studentsTable">
+<table class="table border rounded" id="studentsTable">
     <thead>
         <tr>
             <th>
@@ -58,6 +58,7 @@
     @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
     <script>
         var table = $('#studentsTable').DataTable({
+            order: [[1, "asc"]],
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }

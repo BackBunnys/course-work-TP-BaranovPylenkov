@@ -25,17 +25,16 @@ namespace BestStudentCafedra.Controllers
         {
             var groups = _context.AcademicGroups
                 .Include(s => s.Specialty)
-                .OrderByDescending(y => y.FormationYear)
-                .ThenBy(n => n.Name);
+                .ToList();
 
             ViewData["formYears"] = new SelectList(groups.Select(y => y.FormationYear).Distinct(), formYear);
 
             if (formYear != null)
             {
-                groups = (IOrderedQueryable<AcademicGroup>)groups.Where(x => x.FormationYear == formYear);
+                groups = groups.Where(x => x.FormationYear == formYear).ToList();
             }
 
-            return View(await groups.ToListAsync());
+            return View(groups);
         }
 
         // GET: AcademicGroups/Details/5
@@ -47,7 +46,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             var groups = await _context.AcademicGroups
-                .Include(s => s.Students.OrderBy(n => n.FullName))
+                .Include(s => s.Students)
                 .Include(s => s.Specialty)
                 .Include(d => d.GroupDiscipline)
                 .ThenInclude(d => d.Discipline)
