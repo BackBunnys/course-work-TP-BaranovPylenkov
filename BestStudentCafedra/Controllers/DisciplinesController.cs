@@ -54,7 +54,7 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Semesters(int id)
         {
             var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
-            return PartialView("_Details", semesterDisciplines);
+            return PartialView("_Semesters", semesterDisciplines);
         }
 
         // GET: Disciplines/Create
