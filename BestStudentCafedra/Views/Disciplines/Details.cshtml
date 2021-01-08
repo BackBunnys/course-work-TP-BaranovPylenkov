@@ -26,7 +26,7 @@
 <h4>Семестры:</h4>
 <p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
 
-<table class="table">
+<table class="table border rounded">
     <thead>
         <tr>
             <th>
@@ -61,7 +61,9 @@
                 @Html.DisplayFor(modelItem => item.ControlType)
             </td>
             <td>
-                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path">Подробнее</a>
+                <div class="btn-group btn-group-sm float-right" role="group">
+                    <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
+                </div>
             </td>
         </tr>
         }
