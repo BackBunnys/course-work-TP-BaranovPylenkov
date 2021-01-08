@@ -11,67 +11,67 @@
     <a asp-action="Create">Добавить</a>
 </p>
 
-<div class="accordion" id="accordionExample">
-    @foreach (var item in Model)
-    {
-        <div class="card">
-            <div class="card-header" id="heading-@item.Id">
-                <h2 class="mb-0">
-                    <button class="btn btn-link float-left" type="button" data-toggle="collapse" data-target="#collapse-@item.Id" aria-expanded="true" aria-controls="collapse-@item.Id">
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </button>
-                    <div class="btn-group btn-group-sm float-right" role="group" aria-label="Semester disciplines">
-                        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Добавить семестр</a>
-                        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Изменить</a>
-                        <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
-                        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">&times;</a>
-                    </div>
-                </h2>
-            </div>
 
-            <div id="collapse-@item.Id" class="collapse" aria-labelledby="heading-@item.Id" data-parent="#accordionExample">
-                <div class="card-body p-0">
-                    @if (item.SemesterDisciplines.Count > 0) {
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Year)
-                                    </th>
-                                    <th>
-                                        @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Semester)
-                                    </th>
-                                    <th>
-                                        @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().ControlType)
-                                    </th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var sem in item.SemesterDisciplines)
-                                {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(semItem => sem.Year)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(semItem => sem.Semester)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(semItem => sem.ControlType)
-                                        </td>
-                                        <td>
-                                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-outline-primary float-right">Перейти</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                     } else {
-                        <p class="text-center text-danger m-3">Семестры по данной дисциплине ещё не добавлены! <a asp-action="Edit" asp-route-id="@item.Id">Добавить</a></p>
-                     }
+<table class="table border rounded" id="disciplineTable">
+    <thead>
+        <tr>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr class="bg-light">
+            <td class="accordion-button cursor-pointer" onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id }, null)')"></td>
+            <td onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id }, null)')" class="cursor-pointer">
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm float-right" role="group">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">Изменить</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
                 </div>
-            </div>
-        </div>
-    }
-</div>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#disciplineTable').DataTable({
+            order: [[1, 'asc']],
+            columnDefs: [{ orderable: false, targets: [-1, 0] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+
+        function loadChildRow(x, path) {
+            var tr = x.closest('tr');
+            var row = table.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                $(tr).removeClass('shown');
+            }
+            else {
+                if (row.child() == null) {
+                    row.child('Loading...').show();
+                    row.child().load(path);
+                }
+                else {
+                    row.child.show();
+                }
+
+                $(tr).addClass('shown');
+            }
+        }
+    </script>
+}
