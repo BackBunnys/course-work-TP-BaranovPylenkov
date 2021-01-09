@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using BestStudentCafedra.Models.ViewModels;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -19,30 +20,27 @@ namespace BestStudentCafedra.Controllers
             _context = context;
         }
 
-        // GET: RatingControls
-        public async Task<IActionResult> Index()
-        {
-            var subjectAreaDbContext = _context.RatingControls.Include(r => r.SemesterDiscipline);
-            return View(await subjectAreaDbContext.ToListAsync());
-        }
-
         // GET: RatingControls/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Group(int? id, int? disciplineId)
         {
-            if (id == null)
+            if (id == null || disciplineId == null)
             {
                 return NotFound();
             }
 
-            var ratingControl = await _context.RatingControls
-                .Include(r => r.SemesterDiscipline)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ratingControl == null)
-            {
-                return NotFound();
-            }
+            var groupRating = new GroupRatingViewModel();
+            groupRating.RatingControls = await _context.RatingControls
+                .Where(x => x.SemesterDisciplineId == disciplineId && x.GroupId == id)
+                .OrderByDescending(x => x.CompletionDate)
+                .ToListAsync();
 
-            return View(ratingControl);
+            groupRating.Group = await _context.AcademicGroups
+                .Include(x => x.Specialty)
+                .Include(x => x.Students.OrderBy(y => y.FullName))
+                .ThenInclude(x => x.ActivityProtections)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            return View(groupRating);
         }
 
         // GET: RatingControls/Create
