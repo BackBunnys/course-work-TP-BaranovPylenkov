@@ -21,14 +21,20 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: AcademicGroups
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? formYear)
         {
             var groups = _context.AcademicGroups
                 .Include(s => s.Specialty)
-                .OrderByDescending(y => y.FormationYear)
-                .ThenBy(n => n.Name);
+                .ToList();
 
-            return View(await groups.ToListAsync());
+            ViewData["formYears"] = new SelectList(groups.Select(y => y.FormationYear).Distinct(), formYear);
+
+            if (formYear != null)
+            {
+                groups = groups.Where(x => x.FormationYear == formYear).ToList();
+            }
+
+            return View(groups);
         }
 
         // GET: AcademicGroups/Details/5
@@ -40,8 +46,10 @@ namespace BestStudentCafedra.Controllers
             }
 
             var groups = await _context.AcademicGroups
-                .Include(s => s.Students.OrderBy(n => n.FullName))
+                .Include(s => s.Students)
                 .Include(s => s.Specialty)
+                .Include(d => d.GroupDiscipline)
+                .ThenInclude(d => d.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (groups == null)
@@ -130,6 +138,78 @@ namespace BestStudentCafedra.Controllers
 
             ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code", group.SpecialtyId);
             return View(group);
+        }
+
+        public async Task<IActionResult> AddDiscipline(int? id)
+        {
+            if (id == null || !GroupExists((int)id))
+                return NotFound();
+
+            List<Discipline> groupDisciplines = await _context.GroupDisciplines
+                .Where(x => x.GroupId == id)
+                .Select(x => x.Discipline)
+                .ToListAsync();
+            var disciplines = await _context.Disciplines.OrderBy(x => x.Name).ToListAsync();
+            disciplines.RemoveAll(x => groupDisciplines.Any(y => y.Id == x.Id));
+
+            ViewData["DisciplineName"] = _context.AcademicGroups.FirstOrDefault(x => x.Id == id).Name;
+
+            return View(disciplines);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddDiscipline(int id, int disciplineId)
+        {
+            if (GroupExists(id))
+            {
+                if (_context.GroupDisciplines.Where(x => x.GroupId == id && x.DisciplineId == disciplineId).Count() > 0)
+                {
+                    return Conflict();
+                }
+
+                var newGroupDiscip = new GroupDiscipline();
+                newGroupDiscip.GroupId = (int)id;
+                newGroupDiscip.DisciplineId = disciplineId;
+
+                _context.Add(newGroupDiscip);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
+            else
+            {
+                return NotFound();
+            } 
+        }
+
+        public async Task<IActionResult> DropDiscipline(int? id, int? disciplineId)
+        {
+            if (id == null || disciplineId == null || !GroupExists((int)id))
+                return NotFound();
+
+            var groupDiscipline = await _context.GroupDisciplines
+                .Include(x => x.AcademicGroup)
+                .Include(x => x.Discipline)
+                .FirstOrDefaultAsync(x => x.GroupId == id && x.DisciplineId == disciplineId);
+            if (groupDiscipline == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_DropDiscipline", groupDiscipline);
+        }
+
+        // POST: AcademicGroups/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DropDiscipline(int id)
+        {
+            var discipline = await _context.GroupDisciplines.FindAsync(id);
+            var groupId = discipline.GroupId;
+            _context.GroupDisciplines.Remove(discipline);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = groupId });
         }
 
         public async Task<IActionResult> Delete(int? id)
