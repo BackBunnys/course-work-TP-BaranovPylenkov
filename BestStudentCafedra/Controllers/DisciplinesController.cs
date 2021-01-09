@@ -22,7 +22,11 @@ namespace BestStudentCafedra.Controllers
         // GET: Disciplines
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Disciplines.ToListAsync());
+            var discipline = _context.Disciplines
+                .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
+                .ThenInclude(d => d.Discipline)
+                .OrderBy(x => x.Name);
+            return View(discipline.ToList());
         }
 
         // GET: Disciplines/Details/5
@@ -45,6 +49,12 @@ namespace BestStudentCafedra.Controllers
 
             ViewData["returnUrl"] = returnUrl;
             return View(discipline);
+        }
+
+        public async Task<IActionResult> Semesters(int id)
+        {
+            var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
+            return PartialView("_Semesters", semesterDisciplines);
         }
 
         // GET: Disciplines/Create
