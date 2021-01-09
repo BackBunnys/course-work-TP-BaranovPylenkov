@@ -15,6 +15,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     semester_discipline_id = table.Column<int>(type: "int", nullable: false),
+                    group_id = table.Column<int>(type: "int", nullable: false),
                     number = table.Column<int>(type: "int", nullable: false),
                     completion_date = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
@@ -25,6 +26,12 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         name: "rating_control_ibfk_2",
                         column: x => x.semester_discipline_id,
                         principalTable: "semester_discipline",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "rating_control_ibfk_3",
+                        column: x => x.group_id,
+                        principalTable: "academic_group",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
