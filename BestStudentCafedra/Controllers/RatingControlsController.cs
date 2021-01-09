@@ -136,7 +136,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            return View(ratingControl);
+            return PartialView("_Delete", ratingControl);
         }
 
         // POST: RatingControls/Delete/5
@@ -147,7 +147,7 @@ namespace BestStudentCafedra.Controllers
             var ratingControl = await _context.RatingControls.FindAsync(id);
             _context.RatingControls.Remove(ratingControl);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Group), new { id = ratingControl.GroupId, disciplineId = ratingControl.SemesterDisciplineId });
         }
 
         private bool RatingControlExists(int id)
