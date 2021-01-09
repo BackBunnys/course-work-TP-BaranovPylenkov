@@ -28,10 +28,10 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                 table: "teacher_disciplines",
                 newName: "discipline_id2");
 
-            migrationBuilder.RenameIndex(
+            migrationBuilder.RenameColumn(
                 name: "discipline_id",
-                table: "semester_discipline_id",
-                newName: "semester_discipline_id1");
+                table: "activity",
+                newName: "semester_discipline_id");
 
             migrationBuilder.CreateTable(
                 name: "semester_discipline",
