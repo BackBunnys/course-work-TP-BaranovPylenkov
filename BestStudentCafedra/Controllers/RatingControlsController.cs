@@ -47,6 +47,28 @@ namespace BestStudentCafedra.Controllers
             return View(groupRating);
         }
 
+        // GET: AcademicGroups/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var rating = await _context.RatingControls
+                .Include(s => s.StudentRatings)
+                .ThenInclude(s => s.Student)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (rating == null)
+            {
+                return NotFound();
+            }
+
+            rating.StudentRatings = rating.StudentRatings.OrderBy(x => x.Student.FullName).ToList();
+            return View(rating);
+        }
+
         // GET: RatingControls/Create
         public IActionResult Create(int? groupId, int? disciplineId)
         {
