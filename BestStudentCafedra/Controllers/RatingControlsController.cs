@@ -156,8 +156,8 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
-            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", ratingControl.SemesterDisciplineId);
-            return View(ratingControl);
+
+            return PartialView("_Edit", ratingControl);
         }
 
         // POST: RatingControls/Edit/5
@@ -165,13 +165,8 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SemesterDisciplineId,Number,CompletionDate")] RatingControl ratingControl)
+        public async Task<IActionResult> Edit([Bind("Id,SemesterDisciplineId,GroupId,Number,CompletionDate")] RatingControl ratingControl)
         {
-            if (id != ratingControl.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
@@ -190,10 +185,9 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", ratingControl.SemesterDisciplineId);
-            return View(ratingControl);
+
+            return RedirectToAction(nameof(Details), new { id = ratingControl.Id });
         }
 
         // GET: RatingControls/Delete/5
