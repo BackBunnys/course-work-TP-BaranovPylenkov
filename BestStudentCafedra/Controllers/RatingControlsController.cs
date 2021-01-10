@@ -62,21 +62,35 @@ namespace BestStudentCafedra.Controllers
             return PartialView("_Create", ratingControl);
         }
 
-        // POST: RatingControls/Create
+        // POST: RatingControls/CreateConfirm
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SemesterDisciplineId,Number,CompletionDate")] RatingControl ratingControl)
+        public async Task<IActionResult> CreateConfirm(int? groupId, int? disciplineId)
         {
-            if (ModelState.IsValid)
+            if (groupId == null || disciplineId == null)
             {
-                _context.Add(ratingControl);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", ratingControl.SemesterDisciplineId);
-            return View(ratingControl);
+
+            var lastNumber = 0;
+            if (_context.RatingControls.Count() > 0)
+            { 
+                var groupRatingControls = _context.RatingControls.Where(x => x.GroupId == groupId && x.SemesterDisciplineId == disciplineId);
+                if (groupRatingControls != null) lastNumber = groupRatingControls.OrderByDescending(x => x.Number).FirstOrDefault().Number;
+            }
+
+            var newRatingControl = new RatingControl();
+            newRatingControl.Number = lastNumber + 1;
+            newRatingControl.GroupId = (int)groupId;
+            newRatingControl.SemesterDisciplineId = (int)disciplineId;
+            newRatingControl.CompletionDate = DateTime.Now;
+
+            _context.Add(newRatingControl);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Group), new { id = groupId, disciplineId = disciplineId });
         }
 
         // GET: RatingControls/Edit/5

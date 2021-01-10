@@ -11,7 +11,7 @@
         <p>Вы действительно хотите сформировать рейтинговую ведомость для данной группы?</p>
     </div>
     <div class="modal-footer">
-        <form asp-controller="RatingControls" asp-action="Create">
+        <form asp-controller="RatingControls" asp-action="CreateConfirm">
             <input hidden name="groupId" value="@Model.GroupId" />
             <input hidden name="disciplineId" value="@Model.SemesterDisciplineId" />
             <input type="submit" value="Сформировать" class="btn btn-primary" />
