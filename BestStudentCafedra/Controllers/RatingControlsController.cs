@@ -40,6 +40,10 @@ namespace BestStudentCafedra.Controllers
                 .ThenInclude(x => x.ActivityProtections)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
+            groupRating.SemesterDiscipline = await _context.SemesterDiscipline
+                .Include(x => x.Discipline)
+                .FirstOrDefaultAsync(x => x.Id == disciplineId);
+
             return View(groupRating);
         }
 
