@@ -44,10 +44,18 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: RatingControls/Create
-        public IActionResult Create()
+        public IActionResult Create(int? groupId, int? disciplineId)
         {
-            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id");
-            return View();
+            if (groupId == null || disciplineId == null)
+            {
+                return NotFound();
+            }
+
+            var ratingControl = new RatingControl();
+            ratingControl.GroupId = (int)groupId;
+            ratingControl.SemesterDisciplineId = (int)disciplineId;
+
+            return PartialView("_Create", ratingControl);
         }
 
         // POST: RatingControls/Create
