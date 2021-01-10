@@ -31,7 +31,7 @@ namespace BestStudentCafedra.Controllers
             var groupRating = new GroupRatingViewModel();
             groupRating.RatingControls = await _context.RatingControls
                 .Where(x => x.SemesterDisciplineId == disciplineId && x.GroupId == id)
-                .OrderByDescending(x => x.CompletionDate)
+                .OrderBy(x => x.Number)
                 .ToListAsync();
 
             groupRating.Group = await _context.AcademicGroups
