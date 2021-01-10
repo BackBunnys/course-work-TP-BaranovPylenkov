@@ -98,7 +98,7 @@ namespace BestStudentCafedra.Controllers
 
             var lastNumber = 0;
             if (_context.RatingControls.Count() > 0)
-            { 
+            {
                 var groupRatingControls = _context.RatingControls.Where(x => x.GroupId == groupId && x.SemesterDisciplineId == disciplineId);
                 if (groupRatingControls != null) lastNumber = groupRatingControls.OrderByDescending(x => x.Number).FirstOrDefault().Number;
             }
@@ -110,6 +110,34 @@ namespace BestStudentCafedra.Controllers
             newRatingControl.CompletionDate = DateTime.Now;
 
             _context.Add(newRatingControl);
+            await _context.SaveChangesAsync();
+
+            var students = await _context.Students
+                .Where(x => x.GroupId == groupId)
+                .ToListAsync();
+
+            var activityProtections = await _context.Activities
+                .Where(x => x.SemesterDisciplineId == disciplineId)
+                .Include(x => x.ActivityProtections.Where(y => y.Student.GroupId == groupId))
+                .SelectMany(x => x.ActivityProtections)
+                .ToListAsync();
+
+
+            var studentsRating = new List<StudentRating>();
+            foreach (var student in students)
+            {
+                var studentRating = new StudentRating();
+                studentRating.RatingId = newRatingControl.Id;
+                studentRating.StudentId = student.GradebookNumber;
+                studentRating.Points = activityProtections
+                    .Where(x => x.StudentId == student.GradebookNumber)
+                    .Select(x => x.Points)
+                    .Sum();
+
+                studentsRating.Add(studentRating);
+            }
+
+            _context.AddRange(studentsRating);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Group), new { id = groupId, disciplineId = disciplineId });
