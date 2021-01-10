@@ -9,6 +9,7 @@ namespace BestStudentCafedra.Models.ViewModels
     public class GroupRatingViewModel
     {
         public AcademicGroup Group;
+        public SemesterDiscipline SemesterDiscipline;
         public IEnumerable<RatingControl> RatingControls;
     }
 }
