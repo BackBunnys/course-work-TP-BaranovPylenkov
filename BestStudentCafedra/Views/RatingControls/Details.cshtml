@@ -1,14 +1,13 @@
 ﻿@model BestStudentCafedra.Models.RatingControl
 
 @{
-    ViewData["Title"] = "Данные о рейтинг контроле";
+    ViewData["Title"] = "Данные о промежуточном рейтинг контроде";
     var i = 0;
 }
 
-<h1>Данные о рейтинг контроле</h1>
+<h1>Данные о промежуточном рейтинг контроле</h1>
 
 <div>
-    <h4>RatingControl</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -26,6 +25,7 @@
     </dl>
 </div>
 <div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Скачать</a> |
     <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
     <a asp-action="Group" asp-route-id="@Model.GroupId" asp-route-disciplineId="@Model.SemesterDisciplineId">Вернуться в рейтинг группы</a>
 </div>
@@ -46,7 +46,6 @@
     <tbody>
         @foreach (var item in Model.StudentRatings)
         {
-
             <tr>
                 <td>@{i++;} @i</td>
                 <td>
