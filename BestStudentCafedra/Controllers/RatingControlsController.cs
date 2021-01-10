@@ -220,7 +220,11 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var ratingControl = await _context.RatingControls.FindAsync(id);
+            var ratingControl = await _context.RatingControls
+                .Include(x => x.StudentRatings)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            _context.StudentRatings.RemoveRange(ratingControl.StudentRatings);
             _context.RatingControls.Remove(ratingControl);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Group), new { id = ratingControl.GroupId, disciplineId = ratingControl.SemesterDisciplineId });
