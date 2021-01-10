@@ -17,6 +17,8 @@ namespace BestStudentCafedra.Models
         public int SemesterDisciplineId { get; set; }
         public int GroupId { get; set; }
         [Display(Name = "Номер")]
+        [Required(ErrorMessage = "Не указан номер рейтинг контроля")]
+        [Range(1, int.MaxValue, ErrorMessage = "Номер должен быть равен или больше 1")]
         public int Number { get; set; }
         [Display(Name = "Дата формирования")]
         [DataType(DataType.Date)]
