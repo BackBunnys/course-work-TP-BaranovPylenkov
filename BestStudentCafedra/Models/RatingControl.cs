@@ -20,7 +20,7 @@ namespace BestStudentCafedra.Models
         public int Number { get; set; }
         [Display(Name = "Дата формирования")]
         [DataType(DataType.Date)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime CompletionDate { get; set; }
 
         public virtual SemesterDiscipline SemesterDiscipline { get; set; }
