@@ -30,6 +30,7 @@ namespace BestStudentCafedra.Controllers
 
             var groupRating = new GroupRatingViewModel();
             groupRating.RatingControls = await _context.RatingControls
+                .Include(x => x.StudentRatings)
                 .Where(x => x.SemesterDisciplineId == disciplineId && x.GroupId == id)
                 .OrderBy(x => x.Number)
                 .ToListAsync();
@@ -37,11 +38,16 @@ namespace BestStudentCafedra.Controllers
             groupRating.Group = await _context.AcademicGroups
                 .Include(x => x.Specialty)
                 .Include(x => x.Students.OrderBy(y => y.FullName))
-                .ThenInclude(x => x.ActivityProtections)
+                    .ThenInclude(x => x.ActivityProtections
+                        .Where(y => _context.Activities
+                            .Where(z => z.SemesterDisciplineId == disciplineId)
+                            .Any(h => y.ActivityId == h.Id)))
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             groupRating.SemesterDiscipline = await _context.SemesterDiscipline
                 .Include(x => x.Discipline)
+                .Include(x => x.Activities)
+                    .ThenInclude(y => y.Type)
                 .FirstOrDefaultAsync(x => x.Id == disciplineId);
 
             return View(groupRating);

@@ -1,4 +1,5 @@
 ﻿@model BestStudentCafedra.Models.ViewModels.GroupRatingViewModel
+@using System.Globalization
 @{
     ViewData["Title"] = "Рейтинг группы";
 }
@@ -139,6 +140,104 @@
     <div id="dialogContent" class="modal-dialog"></div>
 </div>
 
+<br />
+<div class="align-items-center">
+    <h4 class="d-inline-block">Текущий рейтинг контроль</h4>
+    <a asp-action="Index" class="btn btn-sm btn-outline-primary ml-2 mb-1">Скачать</a>
+</div>
+<p>Уровень знаний студентов на данный момент по лекциям, лабораторным, практическим и самостоятельным работам</p>
+
+<table class="table table-sm table-bordered rounded" id="ratingTable">
+    <thead>
+        <tr>
+            <th rowspan="2">#</th>
+            <th rowspan="2">@Html.DisplayNameFor(model => model.Group.Students.FirstOrDefault().FullName)</th>
+            @foreach (var item in Model.SemesterDiscipline.Activities.Select(x => x.Type).Distinct())
+            {
+                <th colspan="@Model.SemesterDiscipline.Activities.Where(x => x.TypeId == item.Id).Count()">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </th>
+            }
+            <th rowspan="2">Итого</th>
+            <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
+        </tr>
+
+        <tr>
+            @foreach (var item in Model.SemesterDiscipline.Activities)
+            {
+                <th>
+                    №@Html.DisplayFor(modelItem => item.Number)
+                </th>
+            }
+            @foreach (var item in Model.RatingControls)
+            {
+                <th>
+                    №@Html.DisplayFor(modelItem => item.Number)
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @{ int i = 1; }
+
+        @foreach (var student in Model.Group.Students)
+        {
+            <tr>
+                <td>@i</td>
+                @{ float total = 0; i++; }
+                <td>
+                    @Html.DisplayFor(modelItem => student.FullName)
+                </td>
+                @foreach (var item in Model.SemesterDiscipline.Activities)
+                {
+                    <td>
+                        @{
+                            ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == item);
+                            if (activityProtection != null)
+                            {
+                                total += activityProtection.Points;
+                                @Html.Raw(activityProtection.Points.ToString(new CultureInfo("en-US")));
+                            }
+                        }
+                    </td>
+                }
+                <td>@total.ToString(new CultureInfo("en-US"))</td>
+                @foreach (var item in Model.RatingControls)
+                {
+                    <td>
+                        @{
+                            StudentRating studentRating = item.StudentRatings.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
+                            if (studentRating != null)
+                            {
+                                @Html.Raw(studentRating.Points.ToString(new CultureInfo("en-US")));
+                            }
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
 @section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
     <script src="~/js/site.js"></script>
+    <script src="//cdn.datatables.net/plug-ins/1.10.22/sorting/formatted-numbers.js"></script>
+    <script>
+        var table = $('#ratingTable').DataTable({
+            columnDefs: [
+                {
+                    type: 'formatted-num', targets: [
+                        @for(var i = 0; i < Model.SemesterDiscipline.Activities.Count() + 1 + Model.RatingControls.Count(); i++)
+                        {
+                            @Html.Raw($",{i + 2} ");
+                        }
+                    ]
+                }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
 }
