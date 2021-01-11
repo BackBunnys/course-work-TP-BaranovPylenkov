@@ -143,7 +143,7 @@
 <br />
 <div class="align-items-center">
     <h4 class="d-inline-block">Текущий рейтинг контроль</h4>
-    <a asp-action="Index" class="btn btn-sm btn-outline-primary ml-2 mb-1">Скачать</a>
+    <a asp-action="DownloadCurrentRating" asp-route-groupId="@Model.Group.Id" asp-route-disciplineId="@Model.SemesterDiscipline.Id" class="btn btn-sm btn-outline-primary ml-2 mb-1">Скачать</a>
 </div>
 <p>Уровень знаний студентов на данный момент по лекциям, лабораторным, практическим и самостоятельным работам</p>
 
