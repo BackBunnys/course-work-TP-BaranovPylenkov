@@ -270,7 +270,8 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, 2).Value = "Группа:"; worksheet.Cell(currentRow, 3).Value = ratingControl.AcademicGroup.Name;
                 worksheet.Cell(currentRow, 3).Style.Font.Bold = true; currentRow++;
                 worksheet.Cell(currentRow, 2).Value = "Код:"; worksheet.Cell(currentRow, 3).Value = $"'{ratingControl.AcademicGroup.Specialty.Code}";
-                worksheet.Cell(currentRow, 5).Value = "Специальность:"; worksheet.Cell(currentRow, 6).Value = ratingControl.AcademicGroup.Specialty.Name; currentRow++;
+                worksheet.Cell(currentRow, 5).Value = "Специальность:"; worksheet.Cell(currentRow, 6).Value = ratingControl.AcademicGroup.Specialty.Name;
+                worksheet.Cell(currentRow, 6).Style.Alignment.WrapText = true; worksheet.Row(currentRow).Height = 15; currentRow++;
                 currentRow++;
 
                 worksheet.Cell(currentRow, 2).Value = "Дисциплина:"; worksheet.Cell(currentRow, 3).Value = ratingControl.SemesterDiscipline.Discipline.Name;
@@ -282,10 +283,6 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, 2).Value = "Преподаватель:"; worksheet.Cell(currentRow, 3).Value = ratingControl.SemesterDiscipline.Discipline.TeacherDisciplines.FirstOrDefault(x => x.DisciplineId == ratingControl.SemesterDiscipline.DisciplineId).Teacher.FullName;
                 worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 6)).Merge(); worksheet.Cell(currentRow, 3).Style.Font.Bold = true; currentRow++;
                 currentRow++;
-
-                worksheet.Cell(currentRow, 2).Value = "Подписанную и сканированную копию ведомости необходимо отправить в деканат"; currentRow++;
-                currentRow++;
-
 
                 worksheet.Cell(currentRow, 1).Value = "#"; worksheet.Cell(currentRow, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(currentRow, 2).Value = "Зач. книжка"; worksheet.Cell(currentRow, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
@@ -308,11 +305,14 @@ namespace BestStudentCafedra.Controllers
                     currentRow++;
                     i++;
                 }
+                worksheet.Column(1).AdjustToContents();
+
+                currentRow--;
+                worksheet.Cell(currentRow, 1).Value = "Подписанную и сканированную копию ведомости необходимо сдать в деканат"; currentRow++;
 
                 currentRow++;
                 worksheet.Cell(currentRow, 2).Value = "Подпись";
                 worksheet.Cell(currentRow, 3).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                worksheet.Column(1).AdjustToContents();
 
                 using (var stream = new MemoryStream())
                 {
