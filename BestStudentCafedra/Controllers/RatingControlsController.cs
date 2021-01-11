@@ -8,6 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using BestStudentCafedra.Models.ViewModels;
+using System.Text;
+using ClosedXML.Excel;
+using System.IO;
+using System.Globalization;
+using System.ComponentModel;
+using System.Reflection;
+using System.ComponentModel.DataAnnotations;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -228,6 +235,144 @@ namespace BestStudentCafedra.Controllers
             _context.RatingControls.Remove(ratingControl);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Group), new { id = ratingControl.GroupId, disciplineId = ratingControl.SemesterDisciplineId });
+        }
+
+        public async Task<IActionResult> DownloadRating(int id)
+        {
+            var ratingControl = await _context.RatingControls
+                .Include(x => x.SemesterDiscipline)
+                    .ThenInclude(y => y.Discipline)
+                        .ThenInclude(z => z.TeacherDisciplines)
+                            .ThenInclude(h => h.Teacher)
+                .Include(x => x.AcademicGroup)
+                    .ThenInclude(y => y.Specialty)
+                .Include(x => x.StudentRatings)
+                    .ThenInclude(y => y.Student)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Ведомость");
+                var currentRow = 1;
+
+                var width = 14;
+                worksheet.Column(2).Width = width;
+                worksheet.Column(3).Width = width;
+                worksheet.Column(4).Width = width;
+                worksheet.Column(5).Width = width;
+                worksheet.Column(6).Width = width;
+
+                worksheet.Cell(currentRow, 2).Value = "Промежуточный рейтинг (Рубежный контроль)"; currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Номер"; worksheet.Cell(currentRow, 3).Value = ratingControl.Number;
+                worksheet.Cell(currentRow, 5).Value = "Дата:"; worksheet.Cell(currentRow, 6).Value = ratingControl.CompletionDate.Date; currentRow++;
+                currentRow++;
+
+                worksheet.Cell(currentRow, 2).Value = "Группа:"; worksheet.Cell(currentRow, 3).Value = ratingControl.AcademicGroup.Name;
+                worksheet.Cell(currentRow, 3).Style.Font.Bold = true; currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Код:"; worksheet.Cell(currentRow, 3).Value = $"'{ratingControl.AcademicGroup.Specialty.Code}";
+                worksheet.Cell(currentRow, 5).Value = "Специальность:"; worksheet.Cell(currentRow, 6).Value = ratingControl.AcademicGroup.Specialty.Name; currentRow++;
+                currentRow++;
+
+                worksheet.Cell(currentRow, 2).Value = "Дисциплина:"; worksheet.Cell(currentRow, 3).Value = ratingControl.SemesterDiscipline.Discipline.Name;
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 6)).Merge(); worksheet.Cell(currentRow, 3).Style.Font.Bold = true; currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Курс:"; worksheet.Cell(currentRow, 3).Value = ratingControl.SemesterDiscipline.Year;
+                worksheet.Cell(currentRow, 5).Value = "Семестр:"; worksheet.Cell(currentRow, 6).Value = ratingControl.SemesterDiscipline.Semester; currentRow++;
+                currentRow++;
+
+                worksheet.Cell(currentRow, 2).Value = "Преподаватель:"; worksheet.Cell(currentRow, 3).Value = ratingControl.SemesterDiscipline.Discipline.TeacherDisciplines.FirstOrDefault(x => x.DisciplineId == ratingControl.SemesterDiscipline.DisciplineId).Teacher.FullName;
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 6)).Merge(); worksheet.Cell(currentRow, 3).Style.Font.Bold = true; currentRow++;
+                currentRow++;
+
+                worksheet.Cell(currentRow, 2).Value = "Подписанную и сканированную копию ведомости необходимо отправить в деканат"; currentRow++;
+                currentRow++;
+
+
+                worksheet.Cell(currentRow, 1).Value = "#"; worksheet.Cell(currentRow, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow, 2).Value = "Зач. книжка"; worksheet.Cell(currentRow, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow, 3).Value = "ФИО";
+                worksheet.Cell(currentRow, 6).Value = "Баллы"; worksheet.Cell(currentRow, 6).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 5)).Merge();
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 5)).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                worksheet.Range(worksheet.Cell(currentRow, 1), worksheet.Cell(currentRow, 6)).Style.Font.Bold = true;
+                currentRow++;
+
+                var i = 1;
+                foreach (var studentRating in ratingControl.StudentRatings)
+                {
+                    worksheet.Cell(currentRow, 1).Value = i; worksheet.Cell(currentRow, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow, 2).Value = studentRating.Student.GradebookNumber; worksheet.Cell(currentRow, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow, 3).Value = studentRating.Student.FullName;
+                    worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 5)).Merge(); worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 5)).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow, 6).Value = studentRating.Points; worksheet.Cell(currentRow, 6).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    currentRow++;
+                    i++;
+                }
+
+                currentRow++;
+                worksheet.Cell(currentRow, 2).Value = "Подпись";
+                worksheet.Cell(currentRow, 3).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                worksheet.Column(1).AdjustToContents();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{ratingControl.AcademicGroup.Name} рейтинг №{ratingControl.Number}.xlsx");
+                }
+            }
+        }
+
+        public string GetDisplayName(object obj, string propertyName)
+        {
+            if (obj == null) return null;
+            return GetDisplayName(obj.GetType(), propertyName);
+
+        }
+
+        public string GetDisplayName(Type type, string propertyName)
+        {
+            var property = type.GetProperty(propertyName);
+            if (property == null) return null;
+
+            return GetDisplayName(property);
+        }
+
+        public string GetDisplayName(PropertyInfo property)
+        {
+            var attrName = GetAttributeDisplayName(property);
+            if (!string.IsNullOrEmpty(attrName))
+                return attrName;
+
+            var metaName = GetMetaDisplayName(property);
+            if (!string.IsNullOrEmpty(metaName))
+                return metaName;
+
+            return property.Name.ToString();
+        }
+
+        private string GetAttributeDisplayName(PropertyInfo property)
+        {
+            var atts = property.GetCustomAttributes(
+                typeof(DisplayNameAttribute), true);
+            if (atts.Length == 0)
+                return null;
+            return (atts[0] as DisplayNameAttribute).DisplayName;
+        }
+
+        private string GetMetaDisplayName(PropertyInfo property)
+        {
+            var atts = property.DeclaringType.GetCustomAttributes(
+                typeof(MetadataTypeAttribute), true);
+            if (atts.Length == 0)
+                return null;
+
+            var metaAttr = atts[0] as MetadataTypeAttribute;
+            var metaProperty =
+                metaAttr.MetadataClassType.GetProperty(property.Name);
+            if (metaProperty == null)
+                return null;
+            return GetAttributeDisplayName(metaProperty);
         }
 
         private bool RatingControlExists(int id)
