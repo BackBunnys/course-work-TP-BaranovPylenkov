@@ -124,7 +124,7 @@
                 <td>
                     <div class="btn-group btn-group-sm float-right" role="group">
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
-                        <a asp-action="Index" class="btn btn-outline-secondary">Скачать</a>
+                        <a asp-action="DownloadRating" asp-route-id="@item.Id" class="btn btn-outline-secondary">Скачать</a>
                         <a href="#" onclick="loadAndShowModal('../Delete/@item.Id')" class="btn btn-outline-danger">&times;</a>
                     </div>
                 </td>
