@@ -6,19 +6,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BestStudentCafedra.Models
 {
-    public partial class Teacher
+    public partial class Teacher: Person
     {
         public Teacher()
         {
-            AssignedStaff = new HashSet<AssignedStaff>();
-            TeacherDisciplines = new HashSet<TeacherDiscipline>();
+            GraduationWorksAdvice = new HashSet<GraduationWork>();
+            GraduationWorksReview = new HashSet<GraduationWork>();
+            TeacherRequests = new HashSet<TeacherRequest>();
             Events = new HashSet<Event>();
+            TeacherDisciplines = new HashSet<TeacherDiscipline>();
         }
         public int Id { get; set; }
-        [Required(ErrorMessage = "Не указано имя")]
-        [RegularExpression(@"^[А-Я][а-я]+\s+[А-Я|а-я][а-я]+(\s+[А-Я|а-я][а-я]+)*$", ErrorMessage = "Имя должно состоять минимум из двух слов по две буквы")]
-        [Display(Name = "Имя")]
-        public string FullName { get; set; }
         [Required(ErrorMessage = "Не указана должность")]
         [StringLength(100, ErrorMessage = "Должность должна содержать менее 100 символов")]
         [Display(Name = "Должность")]
@@ -26,7 +24,9 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Ученая степень")]
         public string AcademicDegree { get; set; }
 
-        public virtual ICollection<AssignedStaff> AssignedStaff { get; set; }
+        public virtual ICollection<GraduationWork> GraduationWorksAdvice { get; set; }
+        public virtual ICollection<GraduationWork> GraduationWorksReview { get; set; }
+        public virtual ICollection<TeacherRequest> TeacherRequests { get; set; }
         public virtual ICollection<Event> Events { get; set; }
         public virtual ICollection<TeacherDiscipline> TeacherDisciplines { get; set; }
     }

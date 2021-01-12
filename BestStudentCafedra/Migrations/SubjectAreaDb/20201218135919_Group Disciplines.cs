@@ -17,16 +17,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                 table: "schedule_plan",
                 newName: "group_id1");
 
-            migrationBuilder.RenameColumn(
-                name: "discipline_id",
-                table: "activity",
-                newName: "semester_discipline_id");
-
-            migrationBuilder.RenameIndex(
-                name: "discipline_id",
-                table: "activity",
-                newName: "semester_discipline_id");
-
             migrationBuilder.CreateTable(
                 name: "group_disciplines",
                 columns: table => new
