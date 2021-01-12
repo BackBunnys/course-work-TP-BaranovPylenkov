@@ -21,7 +21,7 @@ namespace BestStudentCafedra.Controllers
 {
     public class RatingControlsController : Controller
     {
-        public const string EXAMTYPENAME = "Экзамен";
+        public static string EXAMTYPENAME = "Экзамен";
         private readonly SubjectAreaDbContext _context;
 
         public RatingControlsController(SubjectAreaDbContext context)

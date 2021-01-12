@@ -1,7 +1,20 @@
 ﻿@model BestStudentCafedra.Models.ViewModels.GroupRatingViewModel
 @using System.Globalization
+@using BestStudentCafedra.Controllers
 @{
     ViewData["Title"] = "Рейтинг группы";
+
+    var pointMultiplier = 0; var examMultiplier = 0;
+    Activity exam = null;
+    if (Model.SemesterDiscipline.ControlType == ControlType.Exam)
+    {
+        exam = Model.SemesterDiscipline.Activities.FirstOrDefault(x => x.Type.Name == RatingControlsController.EXAMTYPENAME);
+        Model.SemesterDiscipline.Activities.Remove(exam);
+        pointMultiplier = (int)(60 / Model.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+        examMultiplier = (int)(40 / exam.MaxPoints);
+    } else {
+        pointMultiplier = (int)(100 / Model.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+    }
 }
 
 <h1>Рейтинг контроль</h1>
@@ -158,6 +171,7 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </th>
             }
+            @if(exam != null) { <th rowspan="2">Экз</th> }
             <th rowspan="2">Итого</th>
             <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
         </tr>
@@ -169,6 +183,7 @@
                     №@Html.DisplayFor(modelItem => item.Number)
                 </th>
             }
+
             @foreach (var item in Model.RatingControls)
             {
                 <th>
@@ -182,39 +197,54 @@
 
         @foreach (var student in Model.Group.Students)
         {
-            <tr>
-                <td>@i</td>
-                @{ float total = 0; i++; }
+        <tr>
+            <td>@i</td>
+            @{ float total = 0; i++; }
+            <td>
+                @Html.DisplayFor(modelItem => student.FullName)
+            </td>
+            @foreach (var item in Model.SemesterDiscipline.Activities)
+            {
                 <td>
-                    @Html.DisplayFor(modelItem => student.FullName)
+                    @{
+                        ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == item);
+                        if (activityProtection != null)
+                        {
+                            var points = activityProtection.Points * pointMultiplier;
+                            total += points;
+                            @Html.Raw(points.ToString(new CultureInfo("en-US")));
+                        }
+                    }
                 </td>
-                @foreach (var item in Model.SemesterDiscipline.Activities)
-                {
-                    <td>
-                        @{
-                            ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == item);
-                            if (activityProtection != null)
-                            {
-                                total += activityProtection.Points;
-                                @Html.Raw(activityProtection.Points.ToString(new CultureInfo("en-US")));
-                            }
+            }
+            @if (exam != null) 
+            { 
+                <td>
+                    @{ 
+                        ActivityProtection examProtection = exam.ActivityProtections.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
+                        if (examProtection != null)
+                        {
+                            var points = examProtection.Points * examMultiplier;
+                            total += points;
+                            @Html.Raw(points.ToString(new CultureInfo("en-US")));
                         }
-                    </td>
-                }
-                <td>@total.ToString(new CultureInfo("en-US"))</td>
-                @foreach (var item in Model.RatingControls)
-                {
-                    <td>
-                        @{
-                            StudentRating studentRating = item.StudentRatings.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
-                            if (studentRating != null)
-                            {
-                                @Html.Raw(studentRating.Points.ToString(new CultureInfo("en-US")));
-                            }
+                    }
+                </td>
+            }
+            <td>@total.ToString(new CultureInfo("en-US"))</td>
+            @foreach (var item in Model.RatingControls)
+            {
+                <td>
+                    @{
+                        StudentRating studentRating = item.StudentRatings.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
+                        if (studentRating != null)
+                        {
+                            @Html.Raw(studentRating.Points.ToString(new CultureInfo("en-US")));
                         }
-                    </td>
-                }
-            </tr>
+                    }
+                </td>
+            }
+        </tr>
         }
     </tbody>
 </table>
