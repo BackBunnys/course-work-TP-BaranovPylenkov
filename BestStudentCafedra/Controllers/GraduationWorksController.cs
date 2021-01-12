@@ -28,12 +28,11 @@ namespace BestStudentCafedra.Controllers
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
             IQueryable<GraduationWork> graduationWorks = _context.GraduationWorks
                     .Include(x => x.Student.Group)
-                    .Include(x => x.AssignedStaffs)
-                    .ThenInclude(x => x.Teacher);
+                    .Include(x => x.Reviewer)
+                    .Include(x => x.ScientificAdviser);
 
             if (User.IsInRole("teacher")) {
-                graduationWorks = graduationWorks.Where(x => x.AssignedStaffs
-                    .Any(x => x.TeacherId == user.SubjectAreaId && x.Type == "Scientific Adviser"));
+                graduationWorks = graduationWorks.Where(x => x.ScientificAdviserId == user.SubjectAreaId);
             }
 
             return View(await graduationWorks.OrderByDescending(x => x.ArchievedDate).ToListAsync());
@@ -52,8 +51,8 @@ namespace BestStudentCafedra.Controllers
                 .ThenInclude(g => g.Group.SchedulePlans)
                 .ThenInclude(g => g.Events.Where(e => e.Date != null))
                 .ThenInclude(g => g.EventLogs.Where(e => e.GraduationWorkId == id))
-                .Include(g => g.AssignedStaffs)
-                .ThenInclude(g => g.Teacher)
+                .Include(x => x.Reviewer)
+                .Include(x => x.ScientificAdviser)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             return View(graduationWork);
@@ -62,7 +61,9 @@ namespace BestStudentCafedra.Controllers
         // GET: GraduationWorks/Create
         public IActionResult Create()
         {
-            ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName");
+            ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName", graduationWork.StudentId);
+            ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ScientificAdviserId);
+            ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ReviewerId);
             return View();
         }
 
@@ -78,6 +79,8 @@ namespace BestStudentCafedra.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName", graduationWork.StudentId);
+            ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ScientificAdviserId);
+            ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ReviewerId);
             return View(graduationWork);
         }
 
@@ -95,13 +98,15 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
             ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName", graduationWork.StudentId);
+            ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ScientificAdviserId);
+            ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ReviewerId);
             return View(graduationWork);
         }
 
         // POST: GraduationWorks/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,StudentId,Theme,ArchievedDate,Result")] GraduationWork graduationWork)
+        public async Task<IActionResult> Edit(int id, GraduationWork graduationWork)
         {
             if (id != graduationWork.Id)
             {
@@ -129,6 +134,8 @@ namespace BestStudentCafedra.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName", graduationWork.StudentId);
+            ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ScientificAdviserId);
+            ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ReviewerId);
             return View(graduationWork);
         }
 
