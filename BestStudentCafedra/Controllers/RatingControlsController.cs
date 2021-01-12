@@ -370,6 +370,7 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, 2).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, 3).Value = "Расчетная ведомость рейтинга:";
                 worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 5)).Merge();
+                worksheet.Cell(currentRow, 3 + 5 + 1).Value = semesterDiscipline.Discipline.Name;
                 currentRow++;
 
                 worksheet.Cell(currentRow, 1).Value = "сп.";
@@ -385,31 +386,35 @@ namespace BestStudentCafedra.Controllers
                     worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                     worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 1 + group.Students.Count(), currentCol + length)).Style.Fill.BackgroundColor = XLColor.FromArgb(100 + r.Next(155), 100 + r.Next(155), 100 + r.Next(155));
+                    worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol + length)).Style.Fill.BackgroundColor = XLColor.FromArgb(100 + r.Next(155), 100 + r.Next(155), 100 + r.Next(155));
                     currentCol += length + 1;
                 }
                 currentRow++;
-
-                worksheet.Cell(currentRow, 1).Value = "№"; worksheet.Cell(currentRow, 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                worksheet.Cell(currentRow, 2).Value = "Ф.И.О. студента"; worksheet.Cell(currentRow, 2).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
 
                 currentCol = 3;
                 foreach (var item in semesterDiscipline.Activities)
                 {
                     worksheet.Cell(currentRow, currentCol).Value = $"№{item.Number}";
-                    worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow + 1, currentCol).Value = item.MaxPoints * pointMultiplier;
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                     worksheet.Column(currentCol).Width = 4;
                     currentCol++;
                 }
 
                 worksheet.Cell(currentRow, currentCol).Value = "Итого";
+
                 worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
-                worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Thin;
                 worksheet.Column(currentCol).Width = 6;
-                worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 1 + group.Students.Count(), currentCol)).Style.Fill.BackgroundColor = XLColor.FromArgb(51, 102, 255);
+                worksheet.Range(worksheet.Cell(currentRow + 2, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol)).Style.Fill.BackgroundColor = XLColor.FromArgb(51, 102, 255);
+                
+                worksheet.Cell(currentRow + 1, currentCol).Value = 100;
+                worksheet.Cell(currentRow + 1, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow + 1, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+
                 currentCol++;
 
                 foreach (var item in ratingControls)
@@ -422,7 +427,10 @@ namespace BestStudentCafedra.Controllers
                     worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     worksheet.Cell(currentRow, currentCol).Style.Font.FontSize = 9;
                     worksheet.Cell(currentRow, currentCol).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
-                    worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow + 1, currentCol).Value = $"#{item.Number}";
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     worksheet.Column(currentCol).Width = 5;
                     currentCol++;
                 }
@@ -437,7 +445,12 @@ namespace BestStudentCafedra.Controllers
                         worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                         worksheet.Cell(currentRow, currentCol).Style.Font.FontSize = 9;
                         worksheet.Cell(currentRow, currentCol).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
-                        worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+
+                        worksheet.Cell(currentRow + 1, currentCol).Value = "ЭКЗ";
+                        worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+
                         worksheet.Column(currentCol).Width = 5;
                         currentCol++;
                     }
@@ -445,17 +458,28 @@ namespace BestStudentCafedra.Controllers
 
                 worksheet.Cell(currentRow, currentCol).Value = "Оценка";
                 worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
-                worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                 worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
-                worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Double;
                 worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Double;
+
+                
+                if (semesterDiscipline.ControlType == ControlType.Exam)
+                    worksheet.Cell(currentRow + 1, currentCol).Value = 5;
+                else
+                    worksheet.Cell(currentRow + 1, currentCol).Value = "Зач";
+                worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow + 1, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Double;
+                worksheet.Cell(currentRow + 1, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Double;
+
                 worksheet.Column(currentCol).Width = 5;
                 currentCol++;
 
-
                 worksheet.Row(currentRow).Height = 50;
+                currentRow++;
+
+                worksheet.Cell(currentRow, 1).Value = "№"; worksheet.Cell(currentRow, 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow, 2).Value = "Ф.И.О. студента"; worksheet.Cell(currentRow, 2).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                worksheet.Row(currentRow).Height = 20;
                 currentRow++;
 
                 var i = 1;
@@ -514,6 +538,12 @@ namespace BestStudentCafedra.Controllers
                         worksheet.Cell(currentRow, currentCol).FormulaA1 = $"IF({totalCell}>90,5,IF({totalCell}>73,4,IF({totalCell}>60,3,2)))";
                     else
                         worksheet.Cell(currentRow, currentCol).FormulaA1 = $"IF({totalCell}>60,\"Зач\",\"Нез\")";
+
+                    var start = currentCol;
+
+
+
+
 
                     currentRow++;
                 }
