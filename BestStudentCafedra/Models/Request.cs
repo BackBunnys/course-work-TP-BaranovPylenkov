@@ -18,7 +18,7 @@ namespace BestStudentCafedra.Models
             Response(Models.Status.APPROVED, approvingPerson);
         }
 
-        public void Reject(Person rejectingPerson, string reason)
+        public virtual void Reject(Person rejectingPerson, string reason)
         {
             RejectReason = reason;
             Response(Models.Status.REJECTED, rejectingPerson);
