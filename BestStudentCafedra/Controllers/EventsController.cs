@@ -85,7 +85,7 @@ namespace BestStudentCafedra.Controllers
             var @event = await _context.Events
                 .Include(x => x.ResponsibleTeacher)
                 .Include(x => x.SchedulePlan)
-                .ThenInclude(x => x.Group.Students.Where(x => x.GraduationWorks.Any(x => x.AssignedStaffs.Any(x => x.TeacherId == teacher.Id))))
+                .ThenInclude(x => x.Group.Students.Where(x => x.GraduationWorks.Any(x => x.ScientificAdviserId == teacher.Id)))
                 .ThenInclude(x => x.GraduationWorks)
                 .ThenInclude(x => x.EventLogs.Where(x => x.EventId == id))
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -211,15 +211,18 @@ namespace BestStudentCafedra.Controllers
 
             var events = await _context.Events
                 .Include(x => x.ResponsibleTeacher)
+                .Include(x => x.SchedulePlan.Group.Students.Where(x => x.GraduationWorks.Any(x => x.ScientificAdviserId == id)))
+                    .ThenInclude(x => x.GraduationWorks)
+                    .ThenInclude(x => x.ScientificAdviser)
                 .Include(x => x.SchedulePlan.Group.Students)
                     .ThenInclude(x => x.GraduationWorks)
-                    .ThenInclude(x => x.AssignedStaffs)
+                    .ThenInclude(x => x.Reviewer)
                 .Include(x => x.SchedulePlan.Group.Students)
-                    .ThenInclude(x => x.GraduationWorks.Where(x => x.AssignedStaffs.Any(x => x.TeacherId == id)))
+                    .ThenInclude(x => x.GraduationWorks)
                     .ThenInclude(x => x.EventLogs)
                 .Where(x => x.Date != null &&
                             x.SchedulePlan.ApprovedDate != null &&
-                            x.SchedulePlan.Group.Students.Any(x => x.GraduationWorks.Any(x => x.AssignedStaffs.Any(x => x.TeacherId == id))))
+                            x.SchedulePlan.Group.Students.Any(x => x.GraduationWorks.Any(x => x.ScientificAdviserId == id)))
                 .AsNoTracking().ToListAsync();
 
             return events.Distinct().ToList();

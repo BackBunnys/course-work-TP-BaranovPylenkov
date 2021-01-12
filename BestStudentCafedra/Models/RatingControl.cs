@@ -14,10 +14,12 @@ namespace BestStudentCafedra.Models
 
         public int Id { get; set; }
         public int SemesterDisciplineId { get; set; }
+        public int GroupId { get; set; }
         public int Number { get; set; }
         public DateTime CompletionDate { get; set; }
 
         public virtual SemesterDiscipline SemesterDiscipline { get; set; }
+        public virtual AcademicGroup AcademicGroup { get; set; }
 
         public virtual ICollection<StudentRating> StudentRatings { get; set; }
     }

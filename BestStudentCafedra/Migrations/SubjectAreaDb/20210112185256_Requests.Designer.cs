@@ -3,14 +3,16 @@ using System;
 using BestStudentCafedra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BestStudentCafedra.Migrations.SubjectAreaDb
 {
     [DbContext(typeof(SubjectAreaDbContext))]
-    partial class SubjectAreaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210112185256_Requests")]
+    partial class Requests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -817,22 +819,21 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
             modelBuilder.Entity("BestStudentCafedra.Models.GraduationWork", b =>
                 {
-                    b.HasOne("BestStudentCafedra.Models.Teacher", "Reviewer")
-                        .WithMany("GraduationWorksReview")
-                        .HasForeignKey("ReviewerId")
-                        .HasConstraintName("graduation_works_ibfk_3")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("BestStudentCafedra.Models.Teacher", "ScientificAdviser")
                         .WithMany("GraduationWorksAdvice")
-                        .HasForeignKey("ScientificAdviserId")
-                        .HasConstraintName("graduation_works_ibfk_2")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ScientificAdviserId");
 
                     b.HasOne("BestStudentCafedra.Models.Student", "Student")
                         .WithMany("GraduationWorks")
                         .HasForeignKey("StudentId")
                         .HasConstraintName("graduation_works_ibfk_1")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BestStudentCafedra.Models.Teacher", "Reviewer")
+                        .WithMany("GraduationWorksReview")
+                        .HasForeignKey("StudentId")
+                        .HasConstraintName("graduation_works_ibfk_3")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
