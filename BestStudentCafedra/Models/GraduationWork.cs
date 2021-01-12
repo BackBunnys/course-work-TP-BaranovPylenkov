@@ -10,6 +10,8 @@ namespace BestStudentCafedra.Models
         public GraduationWork()
         {
             EventLogs = new HashSet<EventLog>();
+            TeacherRequests = new HashSet<TeacherRequest>();
+            ThemeRequests = new HashSet<ThemeRequest>();
         }
 
         public int Id { get; set; }
@@ -24,5 +26,7 @@ namespace BestStudentCafedra.Models
         public virtual Teacher ScientificAdviser { get; set; }
         public virtual Teacher Reviewer { get; set; }
         public virtual ICollection<EventLog> EventLogs { get; set; }
+        public virtual ICollection<TeacherRequest> TeacherRequests { get; set; }
+        public virtual ICollection<ThemeRequest> ThemeRequests { get; set; }
     }
 }

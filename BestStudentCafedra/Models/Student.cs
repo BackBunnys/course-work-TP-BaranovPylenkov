@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BestStudentCafedra.Models
 {
-    public partial class Student
+    public partial class Student: Person
     {
         public Student()
         {
@@ -20,10 +20,6 @@ namespace BestStudentCafedra.Models
         [Required(ErrorMessage = "Не указана группа")]
         [Display(Name = "Группа")]
         public int GroupId { get; set; }
-        [Required(ErrorMessage = "Не указано имя")]
-        [RegularExpression(@"^[А-Я][а-я]+\s+[А-Я|а-я][а-я]+(\s+[А-Я|а-я][а-я]+)*$", ErrorMessage = "Имя должно состоять минимум из двух слов по две буквы")]
-        [Display(Name = "Имя")]
-        public string FullName { get; set; }
         [Phone(ErrorMessage ="Номер телефона указан в неверном формате")]
         [Display(Name = "Номер телефона")]
         public string PhoneNumber { get; set; }
