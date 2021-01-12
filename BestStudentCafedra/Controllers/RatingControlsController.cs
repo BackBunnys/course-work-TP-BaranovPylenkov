@@ -358,6 +358,7 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, 2).Value = group.Name; worksheet.Cell(currentRow, 2).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
                 worksheet.Cell(currentRow, 2).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, 3).Value = "Расчетная ведомость рейтинга:";
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 5)).Merge();
                 currentRow++;
 
                 worksheet.Cell(currentRow, 1).Value = "сп.";
@@ -391,8 +392,10 @@ namespace BestStudentCafedra.Controllers
                 }
 
                 worksheet.Cell(currentRow, currentCol).Value = "Итого";
+                worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
+                worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
+                worksheet.Column(currentCol).Width = 6;
                 worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 1 + group.Students.Count(), currentCol)).Style.Fill.BackgroundColor = XLColor.FromArgb(100 + r.Next(155), 100 + r.Next(155), 100 + r.Next(155));
-                worksheet.Column(currentCol).AdjustToContents();
                 currentCol++;
 
                 foreach (var item in ratingControls)
@@ -402,6 +405,7 @@ namespace BestStudentCafedra.Controllers
                     worksheet.Cell(currentRow, currentCol).Value = item.CompletionDate.Date;
                     worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
                     worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     worksheet.Cell(currentRow, currentCol).Style.Font.FontSize = 9;
                     worksheet.Cell(currentRow, currentCol).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
                     worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
@@ -446,8 +450,10 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Row(currentRow).Style.Fill.BackgroundColor = XLColor.FromArgb(51, 51, 51); currentRow++;
                 currentRow++;
 
-                worksheet.Cell(currentRow, 2).Value = "Преподаватель"; 
+                worksheet.Cell(currentRow, 2).Value = "Преподаватель";
                 worksheet.Cell(currentRow, 3).Value = semesterDiscipline.Discipline.TeacherDisciplines.FirstOrDefault(x => x.DisciplineId == semesterDiscipline.DisciplineId).Teacher.FullName;
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 6)).Merge();
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 6)).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
 
                 worksheet.Column(1).AdjustToContents();
                 worksheet.Column(2).AdjustToContents();
