@@ -29,6 +29,24 @@ namespace BestStudentCafedra.Controllers
             _context = context;
         }
 
+        // GET: RatingControls/Index
+        public async Task<IActionResult> Index(int? disciplineId)
+        {
+            if (disciplineId == null)
+            {
+                return NotFound();
+            }
+
+            var semester = await _context.SemesterDiscipline
+                .Include(x => x.Discipline)
+                    .ThenInclude(y => y.GroupDiscipline)
+                        .ThenInclude(z => z.AcademicGroup)
+                            .ThenInclude(h => h.Specialty)
+                .FirstOrDefaultAsync(x => x.Id == disciplineId);
+
+            return View(semester);
+        }
+
         // GET: RatingControls/Details/5
         public async Task<IActionResult> Group(int? id, int? disciplineId)
         {
