@@ -21,6 +21,7 @@ namespace BestStudentCafedra.Controllers
 {
     public class RatingControlsController : Controller
     {
+        public const string EXAMTYPENAME = "Экзамен";
         private readonly SubjectAreaDbContext _context;
 
         public RatingControlsController(SubjectAreaDbContext context)
@@ -351,9 +352,13 @@ namespace BestStudentCafedra.Controllers
 
             var pointMultiplier = 0;
             if (semesterDiscipline.ControlType == ControlType.Exam)
-                pointMultiplier = (int)(60 / semesterDiscipline.Activities.Where(x => x.Type.Name != "Экзамен").Select(x => x.MaxPoints).Sum());
+            {
+                pointMultiplier = (int)(60 / semesterDiscipline.Activities.Where(x => x.Type.Name != EXAMTYPENAME).Select(x => x.MaxPoints).Sum());
+            }
             else
+            {
                 pointMultiplier = (int)(100 / semesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+            }
 
             using (var workbook = new XLWorkbook())
             {
@@ -391,7 +396,7 @@ namespace BestStudentCafedra.Controllers
                 currentCol = 3;
                 foreach (var item in semesterDiscipline.Activities)
                 {
-                    worksheet.Cell(currentRow, currentCol).Value = item.Number;
+                    worksheet.Cell(currentRow, currentCol).Value = $"№{item.Number}";
                     worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                     worksheet.Column(currentCol).Width = 4;
                     currentCol++;
@@ -400,6 +405,7 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, currentCol).Value = "Итого";
                 worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
+                worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 worksheet.Column(currentCol).Width = 6;
                 worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 1 + group.Students.Count(), currentCol)).Style.Fill.BackgroundColor = XLColor.FromArgb(100 + r.Next(155), 100 + r.Next(155), 100 + r.Next(155));
                 currentCol++;
@@ -419,6 +425,22 @@ namespace BestStudentCafedra.Controllers
                     currentCol++;
                 }
 
+                if (semesterDiscipline.ControlType == ControlType.Exam)
+                {
+                    if (semesterDiscipline.Activities.FirstOrDefault(x => x.Type.Name == EXAMTYPENAME) != null)
+                    {
+                        worksheet.Cell(currentRow, currentCol).Value = EXAMTYPENAME;
+                        worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
+                        worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        worksheet.Cell(currentRow, currentCol).Style.Font.FontSize = 9;
+                        worksheet.Cell(currentRow, currentCol).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
+                        worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                        worksheet.Column(currentCol).Width = 5;
+                        currentCol++;
+                    }
+                }
+
                 worksheet.Row(currentRow).Height = 50;
                 currentRow++;
 
@@ -435,12 +457,20 @@ namespace BestStudentCafedra.Controllers
                         ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == activity);
                         if (activityProtection != null)
                         {
-                            worksheet.Cell(currentRow, currentCol).Value = activityProtection.Points * pointMultiplier;
+                            if (activityProtection.Activity.Type.Name == EXAMTYPENAME)
+                                worksheet.Cell(currentRow, currentCol).Value = (40 / activityProtection.Activity.MaxPoints) * activityProtection.Points;
+                            else
+                                worksheet.Cell(currentRow, currentCol).Value = activityProtection.Points * pointMultiplier;
                         }
                         currentCol++;
                     }
 
-                    worksheet.Cell(currentRow, currentCol).FormulaA1 = $"SUM({worksheet.Cell(currentRow, currentCol - 1).Address}:{worksheet.Cell(currentRow, currentCol - semesterDiscipline.Activities.Count).Address})"; currentCol++;
+                    worksheet.Cell(currentRow, currentCol).FormulaA1 = $"SUM({worksheet.Cell(currentRow, currentCol - 1).Address}:{worksheet.Cell(currentRow, currentCol - semesterDiscipline.Activities.Count).Address})";
+                    worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                    var totalCol = currentCol;
+                    currentCol++;
+
                     foreach (var ratingControl in ratingControls)
                     {
                         StudentRating studentRating = ratingControl.StudentRatings.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
@@ -450,6 +480,14 @@ namespace BestStudentCafedra.Controllers
                         }
                         currentCol++;
                     }
+
+                    if (semesterDiscipline.ControlType == ControlType.Exam)
+                    {
+                        var exam = student.ActivityProtections.OrderBy(x => x.Points).Where(x => x.Activity.Type.Name == EXAMTYPENAME).FirstOrDefault();
+                        worksheet.Cell(currentRow, currentCol).Value = (exam != null) ? (40 / exam.Activity.MaxPoints) * exam.Points : 0;
+                        currentCol++;
+                    }
+
                     currentRow++;
                 }
 
