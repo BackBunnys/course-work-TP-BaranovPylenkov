@@ -12,13 +12,20 @@ namespace BestStudentCafedra.Models
         public int TeacherId { get; set; }
         public RequestType RequestType { get; set; }
 
-        public override void Approve()
+        public override void Approve(Person approvingPerson)
         {
-            base.Approve();
-            if (RequestType == RequestType.ADVISER)
-                GraduationWork.ScientificAdviserId = TeacherId;
-            else if (RequestType == RequestType.REVIEWER)
-                GraduationWork.ReviewerId = TeacherId;
+            if (approvingPerson is Teacher teacher)
+            {
+                if (teacher.Id != TeacherId)
+                    throw new ArgumentException("Teacher request can be approved only by teacher to which this request is directed");
+                
+                base.Approve(teacher);
+                if (RequestType == RequestType.ADVISER)
+                    GraduationWork.ScientificAdviserId = TeacherId;
+                else if (RequestType == RequestType.REVIEWER)
+                    GraduationWork.ReviewerId = TeacherId;
+            }
+            else throw new ArgumentException("Teacher request can be approved only by teacher");
         }
 
         public virtual Teacher Teacher { get; set; }
