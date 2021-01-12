@@ -10,7 +10,7 @@ namespace BestStudentCafedra.Models
         public Status? Status { get; set; }
         public string RejectReason { get; set; }
         public DateTime CreatingDate { get; set; } = DateTime.Now;
-        public DateTime ResponseDate { get; set; }
+        public DateTime? ResponseDate { get; set; }
         public string ResponsePersonName { get; set; }
 
         public virtual void Approve(Person approvingPerson)

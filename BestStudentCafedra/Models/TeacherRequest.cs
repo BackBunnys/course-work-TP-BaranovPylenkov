@@ -10,6 +10,7 @@ namespace BestStudentCafedra.Models
         public int Id { get; set; }
         public int GraduationWorkId { get; set; }
         public int TeacherId { get; set; }
+        public string Motivation { get; set; }
         public RequestType RequestType { get; set; }
 
         public override void Approve(Person approvingPerson)
@@ -31,6 +32,5 @@ namespace BestStudentCafedra.Models
         public virtual Teacher Teacher { get; set; }
         public virtual GraduationWork GraduationWork { get; set; }
     }
-
     public enum RequestType { ADVISER, REVIEWER };
 }

@@ -28,6 +28,7 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<EventTemplate> EventTemplates { get; set; }
         public virtual DbSet<EventLog> EventLogs { get; set; }
         public virtual DbSet<GraduationWork> GraduationWorks { get; set; }
+        public virtual DbSet<ThemeRequest> ThemeRequests { get; set; }
         public virtual DbSet<GroupDiscipline> GroupDisciplines { get; set; }
         public virtual DbSet<ProposedTopic> ProposedTopics { get; set; }
         public virtual DbSet<RatingControl> RatingControls { get; set; }
@@ -36,6 +37,7 @@ namespace BestStudentCafedra.Data
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<StudentRating> StudentRatings { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
+        public virtual DbSet<TeacherRequest> TeacherRequests { get; set; }
         public virtual DbSet<TeacherDiscipline> TeacherDisciplines { get; set; }
         public virtual DbSet<SchedulePlan> SchedulePlans { get; set; }
 
@@ -216,6 +218,138 @@ namespace BestStudentCafedra.Data
                     .HasColumnName("description")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
+            });
+
+            modelBuilder.Entity<ThemeRequest>(entity =>
+            {
+                entity.ToTable("theme_request");
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.GraduationWorkId).HasColumnName("graduation_work_id");
+
+                entity.HasIndex(e => e.GraduationWorkId, "graduation_work_id");
+
+                entity.Property(e => e.Theme)
+                    .IsRequired()
+                    .HasColumnType("varchar(150)")
+                    .HasColumnName("theme")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Motivation)
+                    .HasColumnType("varchar(500)")
+                    .HasColumnName("motivation")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.TeacherResponse)
+                    .HasColumnType("enum('APPROVED','REJECTED')")
+                    .HasColumnName("teacher_response")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.CafedraResponse)
+                    .HasColumnType("enum('APPROVED','REJECTED')")
+                    .HasColumnName("cafedra_response")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Status)
+                    .HasColumnType("enum('APPROVED','REJECTED')")
+                    .HasColumnName("status")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.RejectReason)
+                    .HasColumnType("varchar(500)")
+                    .HasColumnName("reject_reason")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.CreatingDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("creating_date");
+
+                entity.Property(e => e.ResponseDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("response_date");
+
+                entity.Property(e => e.ResponsePersonName)
+                    .HasColumnType("varchar(100)")
+                    .HasColumnName("response_person_name")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.HasOne(d => d.GraduationWork)
+                    .WithMany(p => p.ThemeRequests)
+                    .HasForeignKey(d => d.GraduationWorkId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("theme_request_ibfk_1");
+            });
+
+            modelBuilder.Entity<TeacherRequest>(entity =>
+            {
+                entity.ToTable("teacher_request");
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.GraduationWorkId).HasColumnName("graduation_work_id");
+
+                entity.HasIndex(e => e.GraduationWorkId, "graduation_work_id");
+
+                entity.Property(e => e.TeacherId).HasColumnName("teacher_id");
+
+                entity.HasIndex(e => e.TeacherId, "teacher_id");
+
+                entity.Property(e => e.Motivation)
+                    .HasColumnType("varchar(500)")
+                    .HasColumnName("motivation")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.RequestType)
+                    .IsRequired()
+                    .HasColumnType("enum('ADVISER','REVIEWER')")
+                    .HasColumnName("request_type")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.Status)
+                    .HasColumnType("enum('APPROVED','REJECTED')")
+                    .HasColumnName("status")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.RejectReason)
+                    .HasColumnType("varchar(500)")
+                    .HasColumnName("reject_reason")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.CreatingDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("creating_date");
+
+                entity.Property(e => e.ResponseDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("response_date");
+
+                entity.Property(e => e.ResponsePersonName)
+                    .HasColumnType("varchar(100)")
+                    .HasColumnName("response_person_name")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.HasOne(d => d.GraduationWork)
+                    .WithMany(p => p.TeacherRequests)
+                    .HasForeignKey(d => d.GraduationWorkId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("teacher_request_ibfk_1");
+
+                entity.HasOne(d => d.Teacher)
+                    .WithMany(p => p.TeacherRequests)
+                    .HasForeignKey(d => d.TeacherId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("teacher_request_ibfk_2");
             });
 
             modelBuilder.Entity<EventLog>(entity =>
