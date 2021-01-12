@@ -174,6 +174,7 @@
             @if(exam != null) { <th rowspan="2">Экз</th> }
             <th rowspan="2">Итого</th>
             <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
+            <th rowspan="2">Оценка</th>
         </tr>
 
         <tr>
@@ -217,10 +218,10 @@
                     }
                 </td>
             }
-            @if (exam != null) 
-            { 
+            @if (exam != null)
+            {
                 <td>
-                    @{ 
+                    @{
                         ActivityProtection examProtection = exam.ActivityProtections.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
                         if (examProtection != null)
                         {
@@ -244,6 +245,28 @@
                     }
                 </td>
             }
+        <td>
+            @{
+                if (exam != null)
+                {
+                    var mark = 2;
+                    if (total > 90)
+                        mark = 5;
+                    else if (total > 73)
+                        mark = 4;
+                    else if (total > 60)
+                        mark = 3;
+                    @Html.Raw(mark.ToString());
+                }
+                else
+                {
+                    var mark = "Незачет";
+                    if (total > 60)
+                        mark = "Зачет";  
+                    @Html.Raw(mark);
+                }
+            }
+        </td>
         </tr>
         }
     </tbody>
