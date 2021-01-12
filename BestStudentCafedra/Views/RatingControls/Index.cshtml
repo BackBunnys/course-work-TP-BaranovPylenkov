@@ -1,53 +1,97 @@
-﻿@model IEnumerable<BestStudentCafedra.Models.RatingControl>
+﻿@model BestStudentCafedra.Models.SemesterDiscipline
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Академические группы";
 }
 
-<h1>Index</h1>
+<h1>Рейтинг контроль</h1>
+<h4>Данные о дисциплине опредленного сесметра</h4>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Discipline)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Discipline.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Year)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Year)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Semester)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Semester)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ControlType)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ControlType)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-controller="Disciplines" asp-action="Index" />Вернуться в список дисциплин</a>
+</div>
 
+<br />
+<h4>Выберите группу</h4>
+<p>Выберите группу, чтобы перейтити к рейтингу дисциплины данного семестра</p>
 
-
-
-
-
-<table class="table">
+<table class="table border rounded" id="groupTable">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Number)
+                @Html.DisplayNameFor(model => model.Discipline.GroupDiscipline.FirstOrDefault().AcademicGroup.Specialty.Code)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CompletionDate)
+                @Html.DisplayNameFor(model => model.Discipline.GroupDiscipline.FirstOrDefault().AcademicGroup.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SemesterDiscipline)
+                @Html.DisplayNameFor(model => model.Discipline.GroupDiscipline.FirstOrDefault().AcademicGroup.FormationYear)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Number)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CompletionDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SemesterDiscipline.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.Discipline.GroupDiscipline)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AcademicGroup.Specialty.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AcademicGroup.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AcademicGroup.FormationYear)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-action="Group" asp-route-id="@item.AcademicGroup.Id" asp-route-disciplineId="@Model.Id" class="btn btn-outline-primary">Перейти</a>
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#groupTable').DataTable({
+            order: [[2, "desc"], [1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
