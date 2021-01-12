@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BestStudentCafedra.Models
 {
-    public partial class Teacher
+    public partial class Teacher: Person
     {
         public Teacher()
         {
@@ -16,10 +16,6 @@ namespace BestStudentCafedra.Models
             Events = new HashSet<Event>();
         }
         public int Id { get; set; }
-        [Required(ErrorMessage = "Не указано имя")]
-        [RegularExpression(@"^[А-Я][а-я]+\s+[А-Я|а-я][а-я]+(\s+[А-Я|а-я][а-я]+)*$", ErrorMessage = "Имя должно состоять минимум из двух слов по две буквы")]
-        [Display(Name = "Имя")]
-        public string FullName { get; set; }
         [Required(ErrorMessage = "Не указана должность")]
         [StringLength(100, ErrorMessage = "Должность должна содержать менее 100 символов")]
         [Display(Name = "Должность")]
