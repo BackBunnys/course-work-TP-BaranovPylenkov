@@ -9,25 +9,26 @@ namespace BestStudentCafedra.Models
     {
         public Status? Status { get; set; }
         public string RejectReason { get; set; }
-        public DateTime CreatingDate { get; set; }
+        public DateTime CreatingDate { get; set; } = DateTime.Now;
         public DateTime ResponseDate { get; set; }
+        public string ResponsePersonName { get; set; }
 
-        public Request()
+        public virtual void Approve(Person approvingPerson)
         {
-            CreatingDate = DateTime.Now;
+            Response(Models.Status.APPROVED, approvingPerson);
         }
 
-        public virtual void Approve()
+        public void Reject(Person rejectingPerson, string reason)
         {
-            Status = Models.Status.APPROVED;
-            ResponseDate = DateTime.Now;
-        }
-
-        public void Reject(string reason)
-        {
-            Status = Models.Status.REJECTED;
             RejectReason = reason;
+            Response(Models.Status.REJECTED, rejectingPerson);
+        }
+
+        private void Response(Status status, Person responsePerson)
+        {
+            Status = status;
             ResponseDate = DateTime.Now;
+            ResponsePersonName = responsePerson.FullName;
         }
     }
 
