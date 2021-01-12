@@ -309,7 +309,6 @@ namespace BestStudentCafedra.Controllers
                 }
                 worksheet.Column(1).AdjustToContents();
 
-                currentRow--;
                 worksheet.Cell(currentRow, 1).Value = "Подписанную и сканированную копию ведомости необходимо сдать в деканат"; currentRow++;
 
                 currentRow++;
