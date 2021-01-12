@@ -461,11 +461,25 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Double;
                 worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Double;
-                
+
                 if (semesterDiscipline.ControlType == ControlType.Exam)
+                {
                     worksheet.Cell(currentRow + 1, currentCol).Value = 5;
+
+                    worksheet.Range(worksheet.Cell(currentRow + 2, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol))
+                        .AddConditionalFormat().WhenEquals("5").Fill.SetBackgroundColor(XLColor.FromArgb(0, 176, 80));
+                    worksheet.Range(worksheet.Cell(currentRow + 2, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol))
+                        .AddConditionalFormat().WhenEquals("4").Fill.SetBackgroundColor(XLColor.FromArgb(255, 245, 60));
+                    worksheet.Range(worksheet.Cell(currentRow + 2, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol))
+                        .AddConditionalFormat().WhenEquals("3").Fill.SetBackgroundColor(XLColor.FromArgb(255, 80, 80));
+                }
                 else
+                {
                     worksheet.Cell(currentRow + 1, currentCol).Value = "Зач";
+                    worksheet.Range(worksheet.Cell(currentRow + 2, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol))
+                       .AddConditionalFormat().WhenEquals("Зач").Fill.SetBackgroundColor(XLColor.FromArgb(0, 176, 80));
+                }
+
                 worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(currentRow + 1, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Double;
                 worksheet.Cell(currentRow + 1, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Double;
@@ -561,7 +575,6 @@ namespace BestStudentCafedra.Controllers
                         worksheet.Cell(currentRow, currentCol).FormulaA1 = $"IF({totalCell}>90,5,IF({totalCell}>73,4,IF({totalCell}>60,3,2)))";
                     else
                         worksheet.Cell(currentRow, currentCol).FormulaA1 = $"IF({totalCell}>60,\"Зач\",\"Нез\")";
-
                     currentCol++;
 
                     currentCol++;
