@@ -461,7 +461,6 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Double;
                 worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Double;
-
                 
                 if (semesterDiscipline.ControlType == ControlType.Exam)
                     worksheet.Cell(currentRow + 1, currentCol).Value = 5;
@@ -473,6 +472,30 @@ namespace BestStudentCafedra.Controllers
 
                 worksheet.Column(currentCol).Width = 5;
                 currentCol++;
+
+                currentCol++; 
+                var startCol = currentCol;  currentRow--;
+                foreach (var activityType in semesterDiscipline.Activities.Select(x => x.Type).Distinct())
+                {
+                    var length = semesterDiscipline.Activities.Where(x => x.TypeId == activityType.Id).Count() - 1;
+                    worksheet.Range(worksheet.Cell(currentRow, currentCol), worksheet.Cell(currentRow, currentCol + length)).Merge();
+                    worksheet.Cell(currentRow, currentCol).Value = Abbreviaturization(activityType.Name);
+                    worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
+                    worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol + length)).Style.Fill.BackgroundColor = XLColor.FromArgb(100 + r.Next(155), 100 + r.Next(155), 100 + r.Next(155));
+                    currentCol += length + 1;
+                }
+                currentRow++;  currentCol = startCol;
+
+                foreach (var item in semesterDiscipline.Activities)
+                {
+                    worksheet.Cell(currentRow, currentCol).Value = $"№{item.Number}";
+                    worksheet.Cell(currentRow + 1, currentCol).Value = item.MaxPoints;
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    worksheet.Column(currentCol).Width = 4;
+                    currentCol++;
+                }
 
                 worksheet.Row(currentRow).Height = 50;
                 currentRow++;
@@ -539,11 +562,18 @@ namespace BestStudentCafedra.Controllers
                     else
                         worksheet.Cell(currentRow, currentCol).FormulaA1 = $"IF({totalCell}>60,\"Зач\",\"Нез\")";
 
-                    var start = currentCol;
+                    currentCol++;
 
-
-
-
+                    currentCol++;
+                    foreach (var activity in semesterDiscipline.Activities)
+                    {
+                        ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == activity);
+                        if (activityProtection != null)
+                        {
+                            worksheet.Cell(currentRow, currentCol).Value = activityProtection.Points;
+                        }
+                        currentCol++;
+                    }
 
                     currentRow++;
                 }
