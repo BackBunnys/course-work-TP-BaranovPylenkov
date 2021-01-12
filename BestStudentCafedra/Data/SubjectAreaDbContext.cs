@@ -383,9 +383,13 @@ namespace BestStudentCafedra.Data
 
                 entity.HasIndex(e => e.SemesterDisciplineId, "semester_discipline_id");
 
+                entity.HasIndex(e => e.SemesterDisciplineId, "group_id");
+
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.SemesterDisciplineId).HasColumnName("semester_discipline_id");
+
+                entity.Property(e => e.GroupId).HasColumnName("group_id");
 
                 entity.Property(e => e.Number).HasColumnName("number");
 
@@ -398,6 +402,12 @@ namespace BestStudentCafedra.Data
                     .HasForeignKey(d => d.SemesterDisciplineId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("rating_control_ibfk_2");
+
+                entity.HasOne(d => d.AcademicGroup)
+                    .WithMany(p => p.RatingControls)
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("rating_control_ibfk_3");
             });
 
             modelBuilder.Entity<SchedulePlan>(entity =>
