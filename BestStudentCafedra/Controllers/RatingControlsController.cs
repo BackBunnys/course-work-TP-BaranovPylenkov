@@ -349,6 +349,12 @@ namespace BestStudentCafedra.Controllers
                     .ThenInclude(y => y.Type)
                 .FirstOrDefaultAsync(x => x.Id == disciplineId);
 
+            var pointMultiplier = 0;
+            if (semesterDiscipline.ControlType == ControlType.Exam)
+                pointMultiplier = (int)(60 / semesterDiscipline.Activities.Where(x => x.Type.Name != "Экзамен").Select(x => x.MaxPoints).Sum());
+            else
+                pointMultiplier = (int)(100 / semesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Текущий рейтинг контроль");
@@ -429,7 +435,7 @@ namespace BestStudentCafedra.Controllers
                         ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == activity);
                         if (activityProtection != null)
                         {
-                            worksheet.Cell(currentRow, currentCol).Value = activityProtection.Points;
+                            worksheet.Cell(currentRow, currentCol).Value = activityProtection.Points * pointMultiplier;
                         }
                         currentCol++;
                     }
@@ -440,7 +446,7 @@ namespace BestStudentCafedra.Controllers
                         StudentRating studentRating = ratingControl.StudentRatings.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
                         if (studentRating != null)
                         {
-                            worksheet.Cell(currentRow, currentCol).Value = studentRating.Points;
+                            worksheet.Cell(currentRow, currentCol).Value = studentRating.Points * pointMultiplier;
                         }
                         currentCol++;
                     }
