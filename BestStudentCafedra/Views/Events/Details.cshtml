@@ -1,0 +1,69 @@
+﻿@model BestStudentCafedra.Models.Event
+
+@{
+    ViewData["Title"] = "Подробности о мероприятии";
+    var graduationWork = new GraduationWork() { Student = new Student() };
+    var eventLog = new EventLog();
+    var students = Model.SchedulePlan.Group.Students.OrderBy(x => x.FullName).ToArray();
+}
+<h1>Подробности о мероприятии</h1>
+@{await Html.RenderPartialAsync("_Details", Model);}
+<hr />
+<h4>Работы</h4>
+@if (Model.SchedulePlan.Group.Students.Count > 0)
+{
+    if(Model.Date < DateTime.Now)
+    {
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => graduationWork.Student.FullName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => graduationWork.Theme)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => eventLog.Mark)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in students)
+                {
+            <tr>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.GraduationWorks.FirstOrDefault().Theme)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.GraduationWorks.FirstOrDefault().EventLogs.FirstOrDefault(x => x.EventId == Model.Id).Mark)
+                </td>
+            </tr>
+                }
+        </tbody>
+    </table>
+    }
+    else
+    {
+        <div class="text-center">
+            @foreach (var item in students)
+            {
+                <a class="btn textlink" asp-controller="GraduationWork" asp-action="Details">@item.GraduationWorks.FirstOrDefault().Theme (@item.FullName)</a>
+                <hr />
+            }
+        </div>
+    }
+}
+else
+{
+<span>Отсутствуют.</span>
+}
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Index">Вернуться к списку мероприятий</a>
+</div>
+
+

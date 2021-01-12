@@ -28,7 +28,7 @@
             @Html.DisplayFor(model => model.AcademicDegree)
         </dd>
     </dl>
-
+</div>
 
     <div>
         <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
@@ -59,11 +59,10 @@
                         @Html.DisplayFor(modelItem => item.Discipline.Name)
                     </td>
                     <td>
-                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId">Подробнее</a> |
-                        <a asp-action="DeleteDiscipline" asp-route-id="@item.Id">Удалить</a>
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path">Подробнее</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-</div>
+
