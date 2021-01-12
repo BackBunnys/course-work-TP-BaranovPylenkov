@@ -12,6 +12,7 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" value="@ViewBag.returnUrl" name="returnUrl" />
             <div class="form-group">
                 <label asp-for="FullName" class="control-label"></label>
                 <input asp-for="FullName" class="form-control" />
@@ -35,8 +36,41 @@
 </div>
 
 <div>
-    <a asp-action="Index">Вернуться</a>
+    <a asp-action="Index">Вернуться в список преподавателей</a>
 </div>
+
+</br>
+<h4>Дисциплины:</h4>
+<p>Список дисциплин, которые ведет преподаватель по основным образовательным программам</p>
+<p>
+    <a asp-action="AddDiscipline" asp-route-id="@Model.Id">Добавить</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (TeacherDiscipline item in Model.TeacherDisciplines)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discipline.Name)
+                </td>
+                <td>
+                    <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path">Изменить</a> |
+                    <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path">Подробнее</a> |
+                    <a asp-action="DeleteDiscipline" asp-route-id="@item.Id">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

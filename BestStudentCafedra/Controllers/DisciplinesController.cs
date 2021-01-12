@@ -22,11 +22,66 @@ namespace BestStudentCafedra.Controllers
         // GET: Disciplines
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Disciplines.ToListAsync());
+            var discipline = _context.Disciplines
+                .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
+                .ThenInclude(d => d.Discipline)
+                .OrderBy(x => x.Name);
+            return View(discipline.ToList());
         }
 
         // GET: Disciplines/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string returnUrl)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var discipline = await _context.Disciplines
+                .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
+                .ThenInclude(d => d.Discipline)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (discipline == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["returnUrl"] = returnUrl;
+            return View(discipline);
+        }
+
+        public async Task<IActionResult> Semesters(int id)
+        {
+            var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
+            return PartialView("_Semesters", semesterDisciplines);
+        }
+
+        // GET: Disciplines/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Disciplines/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline, string returnUrl)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(discipline);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["returnUrl"] = returnUrl;
+            return View(discipline);
+        }
+
+        // GET: Disciplines/Edit/5
+        public async Task<IActionResult> Edit(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -43,44 +98,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            return View(discipline);
-        }
-
-        // GET: Disciplines/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Disciplines/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(discipline);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(discipline);
-        }
-
-        // GET: Disciplines/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var discipline = await _context.Disciplines.FindAsync(id);
-            if (discipline == null)
-            {
-                return NotFound();
-            }
+            ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
 
@@ -89,7 +107,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Discipline discipline)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Discipline discipline, string returnUrl)
         {
             if (id != discipline.Id)
             {
@@ -116,6 +134,8 @@ namespace BestStudentCafedra.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
 

@@ -83,3 +83,24 @@ body {
 .tabledisable {
     background-color: #e9ecef;
 }
+
+.btn-outline-gray {
+    color: #212529;
+    border-color: rgba(0,0,0,.125);
+}
+
+.accordion-button {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1.25rem;
+    transform: rotate(180deg);
+}
+
+tr.shown td.accordion-button {
+    transform: none !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

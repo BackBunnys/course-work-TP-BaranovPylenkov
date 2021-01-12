@@ -5,13 +5,17 @@
 }
 
 <h1>Дициплины</h1>
+<p>Список доступных учебных предметов, по которым ведется подготовка студентов по образовательно программе</p>
 
 <p>
     <a asp-action="Create">Добавить</a>
 </p>
-<table class="table">
+
+
+<table class="table border rounded" id="disciplineTable">
     <thead>
         <tr>
+            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -19,17 +23,55 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
+        @foreach (var item in Model)
+        {
+        <tr class="bg-light">
+            <td class="accordion-button cursor-pointer" onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id }, null)')"></td>
+            <td onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id }, null)')" class="cursor-pointer">
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                <div class="btn-group btn-group-sm float-right" role="group">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">Изменить</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                </div>
             </td>
         </tr>
-}
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#disciplineTable').DataTable({
+            order: [[1, 'asc']],
+            columnDefs: [{ orderable: false, targets: [-1, 0] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+
+        function loadChildRow(x, path) {
+            var tr = x.closest('tr');
+            var row = table.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                $(tr).removeClass('shown');
+            }
+            else {
+                if (row.child() == null) {
+                    row.child('Loading...').show();
+                    row.child().load(path);
+                }
+                else {
+                    row.child.show();
+                }
+
+                $(tr).addClass('shown');
+            }
+        }
+    </script>
+}

@@ -9,7 +9,8 @@
 <p>
     <a asp-action="Create">Добавить</a>
 </p>
-<table class="table">
+
+<table class="table border rounded" id="studentsTable">
     <thead>
         <tr>
             <th>
@@ -28,26 +29,40 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.GradebookNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Group.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.GradebookNumber">Изменить</a> |
-                <a asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a> |
-                <a asp-action="Delete" asp-route-id="@item.GradebookNumber">Удалить</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GradebookNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Group.Name)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a> |
+                    <a asp-action="Edit" asp-route-id="@item.GradebookNumber">Изменить</a> |
+                    <a asp-action="Delete" asp-route-id="@item.GradebookNumber">Удалить</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#studentsTable').DataTable({
+            order: [[1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

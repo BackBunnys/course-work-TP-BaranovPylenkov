@@ -42,6 +42,7 @@ namespace BestStudentCafedra.Controllers
             var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
                 .Include(s => s.Events)
+                .ThenInclude(s => s.ResponsibleTeacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             return View(schedulePlan);
@@ -136,8 +137,11 @@ namespace BestStudentCafedra.Controllers
         {
             if (SchedulePlanExists(id))
             {
+                var schedulePlan = _context.SchedulePlans.FirstOrDefault(x => x.Id == id);
+                schedulePlan.LastChangedDate = DateTime.Now;
                 events.ForEach(x => x.ResponsibleTeacherId = x.ResponsibleTeacherId == int.MinValue ? null : x.ResponsibleTeacherId);
                 _context.UpdateRange(events);
+                _context.Update(schedulePlan);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Edit), new { id = id });
             }

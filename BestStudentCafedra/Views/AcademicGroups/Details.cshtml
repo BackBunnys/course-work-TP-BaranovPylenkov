@@ -1,0 +1,175 @@
+﻿@model BestStudentCafedra.Models.AcademicGroup
+
+@{
+    ViewData["Title"] = "Подробности о группе";
+}
+
+<h1>Подробности о группе</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Specialty.Code)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Specialty.Code)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Specialty.AcademicDegree)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Specialty.AcademicDegree)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Specialty.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Specialty.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FormationYear)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FormationYear)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Index">Вернуться в список групп</a>
+</div>
+<br />
+<div class="accordion">
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-outline-gray" data-toggle="collapse" data-target="#collapseStudents" aria-expanded="true" aria-controls="collapseStudents">Студенты</button>
+        <button type="button" class="btn btn-outline-gray" data-toggle="collapse" data-target="#collapseDisciplines" aria-expanded="true" aria-controls="collapseDisciplines">Дисциплины</button>
+    </div>
+</div>
+
+<div class="accordion" id="accordionExample">
+    <div class="card">
+        <div id="collapseStudents" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div class="card-body">
+                <p>Список студентов, которые обучаются в данной группе по образовательной программаме</p>
+                <div class="btn-group pb-3" role="group" aria-label="Basic example">
+                    <a asp-controller="Student" asp-action="Index" class="btn btn-secondary" role="button">Перевести</a>
+                    <a asp-controller="Student" asp-action="Create" class="btn btn-secondary" role="button">Создать нового</a>
+                </div>
+
+                <table class="table border rounded" id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().GradebookNumber)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().FullName)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().PhoneNumber)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Student item in Model.Students)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.GradebookNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FullName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                                </td>
+                                <td>
+                                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber" class="btn btn-outline-primary btn-sm float-right">Подробнее</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div id="collapseDisciplines" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+            <div class="card-body">
+                <p>Список дисциплин, на которых  обучаются данная группа по образовательной программаме</p>
+                <div class="btn-group pb-3" role="group" aria-label="Basic example">
+                    <a asp-action="AddDiscipline" asp-route-id="@Model.Id" class="btn btn-secondary" role="button">Добавить</a>
+                    <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Создать новую</a>
+                </div>
+
+                <table class="table border rounded" id="disciplineTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.GroupDiscipline.FirstOrDefault().Discipline.Name)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (GroupDiscipline item in Model.GroupDiscipline)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Discipline.Name)
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm float-right" role="group">
+                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Рейтинг</a>
+                                        <a asp-controller="Disciplines" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">Изменить</a>
+                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                                        <a onclick="loadAndShowModal('../DropDiscipline/@Model.Id?disciplineId=@item.DisciplineId')" class="btn btn-outline-danger">&times;</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modDialog" class="modal modal-removable fade">
+        <div class="spinner-border text-light fixed-top mt-5 mx-auto" style="z-index: -1;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script src="~/js/site.js"></script>
+    <script>
+        var table = $('#studentsTable').DataTable({
+            order: [[1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+
+    <script>
+        var table = $('#disciplineTable').DataTable({
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
