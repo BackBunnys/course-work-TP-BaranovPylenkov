@@ -406,8 +406,10 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
                 worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Thin;
                 worksheet.Column(currentCol).Width = 6;
-                worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 1 + group.Students.Count(), currentCol)).Style.Fill.BackgroundColor = XLColor.FromArgb(100 + r.Next(155), 100 + r.Next(155), 100 + r.Next(155));
+                worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 1 + group.Students.Count(), currentCol)).Style.Fill.BackgroundColor = XLColor.FromArgb(51, 102, 255);
                 currentCol++;
 
                 foreach (var item in ratingControls)
@@ -441,6 +443,18 @@ namespace BestStudentCafedra.Controllers
                     }
                 }
 
+                worksheet.Cell(currentRow, currentCol).Value = "Оценка";
+                worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
+                worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
+                worksheet.Cell(currentRow, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Double;
+                worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Double;
+                worksheet.Column(currentCol).Width = 5;
+                currentCol++;
+
+
                 worksheet.Row(currentRow).Height = 50;
                 currentRow++;
 
@@ -468,6 +482,7 @@ namespace BestStudentCafedra.Controllers
                     worksheet.Cell(currentRow, currentCol).FormulaA1 = $"SUM({worksheet.Cell(currentRow, currentCol - 1).Address}:{worksheet.Cell(currentRow, currentCol - semesterDiscipline.Activities.Count).Address})";
                     worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Thin;
                     worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                     var totalCol = currentCol;
                     currentCol++;
 
@@ -477,6 +492,7 @@ namespace BestStudentCafedra.Controllers
                         if (studentRating != null)
                         {
                             worksheet.Cell(currentRow, currentCol).Value = studentRating.Points * pointMultiplier;
+                            worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                         }
                         currentCol++;
                     }
@@ -485,8 +501,19 @@ namespace BestStudentCafedra.Controllers
                     {
                         var exam = student.ActivityProtections.OrderBy(x => x.Points).Where(x => x.Activity.Type.Name == EXAMTYPENAME).FirstOrDefault();
                         worksheet.Cell(currentRow, currentCol).Value = (exam != null) ? (40 / exam.Activity.MaxPoints) * exam.Points : 0;
+                        worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                         currentCol++;
                     }
+
+                    var totalCell = worksheet.Cell(currentRow, totalCol).Address;
+                    worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Double;
+                    worksheet.Cell(currentRow, currentCol).Style.Border.RightBorder = XLBorderStyleValues.Double;
+                    worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
+
+                    if (semesterDiscipline.ControlType == ControlType.Exam)
+                        worksheet.Cell(currentRow, currentCol).FormulaA1 = $"IF({totalCell}>90,5,IF({totalCell}>73,4,IF({totalCell}>60,3,2)))";
+                    else
+                        worksheet.Cell(currentRow, currentCol).FormulaA1 = $"IF({totalCell}>60,\"Зач\",\"Нез\")";
 
                     currentRow++;
                 }
