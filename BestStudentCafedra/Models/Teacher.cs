@@ -12,8 +12,9 @@ namespace BestStudentCafedra.Models
         {
             GraduationWorksAdvice = new HashSet<GraduationWork>();
             GraduationWorksReview = new HashSet<GraduationWork>();
-            TeacherDisciplines = new HashSet<TeacherDiscipline>();
+            TeacherRequests = new HashSet<TeacherRequest>();
             Events = new HashSet<Event>();
+            TeacherDisciplines = new HashSet<TeacherDiscipline>();
         }
         public int Id { get; set; }
         [Required(ErrorMessage = "Не указана должность")]
@@ -25,6 +26,7 @@ namespace BestStudentCafedra.Models
 
         public virtual ICollection<GraduationWork> GraduationWorksAdvice { get; set; }
         public virtual ICollection<GraduationWork> GraduationWorksReview { get; set; }
+        public virtual ICollection<TeacherRequest> TeacherRequests { get; set; }
         public virtual ICollection<Event> Events { get; set; }
         public virtual ICollection<TeacherDiscipline> TeacherDisciplines { get; set; }
     }
