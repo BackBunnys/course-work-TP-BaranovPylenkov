@@ -417,13 +417,13 @@ namespace BestStudentCafedra.Data
 
                 entity.HasOne(d => d.ScientificAdviser)
                     .WithMany(p => p.GraduationWorksAdvice)
-                    .HasForeignKey(d => d.StudentId)
+                    .HasForeignKey(d => d.ScientificAdviserId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("graduation_works_ibfk_2");
 
                 entity.HasOne(d => d.Reviewer)
                     .WithMany(p => p.GraduationWorksReview)
-                    .HasForeignKey(d => d.StudentId)
+                    .HasForeignKey(d => d.ReviewerId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("graduation_works_ibfk_3");
             });
