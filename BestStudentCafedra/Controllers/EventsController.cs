@@ -211,14 +211,14 @@ namespace BestStudentCafedra.Controllers
 
             var events = await _context.Events
                 .Include(x => x.ResponsibleTeacher)
-                .Include(x => x.SchedulePlan.Group.Students)
+                .Include(x => x.SchedulePlan.Group.Students.Where(x => x.GraduationWorks.Any(x => x.ScientificAdviserId == id)))
                     .ThenInclude(x => x.GraduationWorks)
                     .ThenInclude(x => x.ScientificAdviser)
                 .Include(x => x.SchedulePlan.Group.Students)
                     .ThenInclude(x => x.GraduationWorks)
                     .ThenInclude(x => x.Reviewer)
                 .Include(x => x.SchedulePlan.Group.Students)
-                    .ThenInclude(x => x.GraduationWorks.Where(x => x.ScientificAdviserId == id))
+                    .ThenInclude(x => x.GraduationWorks)
                     .ThenInclude(x => x.EventLogs)
                 .Where(x => x.Date != null &&
                             x.SchedulePlan.ApprovedDate != null &&
