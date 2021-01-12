@@ -3,14 +3,16 @@ using System;
 using BestStudentCafedra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BestStudentCafedra.Migrations.SubjectAreaDb
 {
     [DbContext(typeof(SubjectAreaDbContext))]
-    partial class SubjectAreaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201218135919_Group Disciplines")]
+    partial class GroupDisciplines
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,12 +101,12 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnType("int")
                         .HasColumnName("activity_id");
 
-                    b.Property<float>("Points")
-                        .HasColumnType("float")
+                    b.Property<int>("Points")
+                        .HasColumnType("int")
                         .HasColumnName("points");
 
                     b.Property<DateTime>("ProtectionDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("date")
                         .HasColumnName("protection_date");
 
                     b.Property<int>("StudentId")
@@ -137,6 +139,37 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.HasKey("Id");
 
                     b.ToTable("activity_type");
+                });
+
+            modelBuilder.Entity("BestStudentCafedra.Models.AssignedStaff", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("GraduationWorkId")
+                        .HasColumnType("int")
+                        .HasColumnName("graduation_work_id");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int")
+                        .HasColumnName("teacher_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("enum('Scientific Adviser','Reviewer')")
+                        .HasColumnName("type")
+                        .UseCollation("utf8mb4_0900_ai_ci")
+                        .HasCharSet("utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "GraduationWorkId" }, "graduation_work_id");
+
+                    b.HasIndex(new[] { "TeacherId" }, "teacher_id");
+
+                    b.ToTable("assigned_staff");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.Discipline", b =>
@@ -224,7 +257,8 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
                     b.HasIndex(new[] { "EventId" }, "event_id");
 
-                    b.HasIndex(new[] { "GraduationWorkId" }, "graduation_work_id");
+                    b.HasIndex(new[] { "GraduationWorkId" }, "graduation_work_id")
+                        .HasDatabaseName("graduation_work_id1");
 
                     b.ToTable("event_log");
                 });
@@ -267,14 +301,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("result");
 
-                    b.Property<int?>("ReviewerId")
-                        .HasColumnType("int")
-                        .HasColumnName("reviewer_id");
-
-                    b.Property<int?>("ScientificAdviserId")
-                        .HasColumnType("int")
-                        .HasColumnName("scientific_adviser_id");
-
                     b.Property<int>("StudentId")
                         .HasColumnType("int")
                         .HasColumnName("student_id");
@@ -286,10 +312,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasCharSet("utf8mb4");
 
                     b.HasKey("Id");
-
-                    b.HasIndex(new[] { "ReviewerId" }, "reviewer_id");
-
-                    b.HasIndex(new[] { "ScientificAdviserId" }, "scientific_adviser_id");
 
                     b.HasIndex(new[] { "StudentId" }, "student_id")
                         .HasDatabaseName("student_id1");
@@ -341,42 +363,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.ToTable("proposed_topic");
                 });
 
-            modelBuilder.Entity("BestStudentCafedra.Models.RatingControl", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CompletionDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("completion_date");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int")
-                        .HasColumnName("group_id");
-
-                    b.Property<int>("Number")
-                        .HasColumnType("int")
-                        .HasColumnName("number");
-
-                    b.Property<int>("SemesterDisciplineId")
-                        .HasColumnType("int")
-                        .HasColumnName("semester_discipline_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex(new[] { "SemesterDisciplineId" }, "group_id")
-                        .HasDatabaseName("group_id1");
-
-                    b.HasIndex(new[] { "SemesterDisciplineId" }, "semester_discipline_id")
-                        .HasDatabaseName("semester_discipline_id1");
-
-                    b.ToTable("rating_control");
-                });
-
             modelBuilder.Entity("BestStudentCafedra.Models.SchedulePlan", b =>
                 {
                     b.Property<int>("Id")
@@ -405,7 +391,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "GroupId" }, "group_id")
-                        .HasDatabaseName("group_id2");
+                        .HasDatabaseName("group_id1");
 
                     b.ToTable("schedule_plan");
                 });
@@ -501,37 +487,9 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                         .HasName("PRIMARY");
 
                     b.HasIndex(new[] { "GroupId" }, "group_id")
-                        .HasDatabaseName("group_id3");
+                        .HasDatabaseName("group_id2");
 
                     b.ToTable("student");
-                });
-
-            modelBuilder.Entity("BestStudentCafedra.Models.StudentRating", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<float>("Points")
-                        .HasColumnType("float")
-                        .HasColumnName("points");
-
-                    b.Property<int>("RatingId")
-                        .HasColumnType("int")
-                        .HasColumnName("rating_id");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int")
-                        .HasColumnName("student_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "RatingId" }, "sr_rating_id");
-
-                    b.HasIndex(new[] { "StudentId" }, "sr_student_id");
-
-                    b.ToTable("student_rating");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.Teacher", b =>
@@ -587,144 +545,10 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.HasIndex(new[] { "DisciplineId" }, "discipline_id")
                         .HasDatabaseName("discipline_id2");
 
-                    b.HasIndex(new[] { "TeacherId" }, "teacher_id");
-
-                    b.ToTable("teacher_disciplines");
-                });
-
-            modelBuilder.Entity("BestStudentCafedra.Models.TeacherRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatingDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("creating_date");
-
-                    b.Property<int>("GraduationWorkId")
-                        .HasColumnType("int")
-                        .HasColumnName("graduation_work_id");
-
-                    b.Property<string>("Motivation")
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("motivation")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<string>("RejectReason")
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("reject_reason")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<string>("RequestType")
-                        .IsRequired()
-                        .HasColumnType("enum('ADVISER','REVIEWER')")
-                        .HasColumnName("request_type")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<DateTime?>("ResponseDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("response_date");
-
-                    b.Property<string>("ResponsePersonName")
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("response_person_name")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("enum('APPROVED','REJECTED')")
-                        .HasColumnName("status")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int")
-                        .HasColumnName("teacher_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "GraduationWorkId" }, "graduation_work_id")
-                        .HasDatabaseName("graduation_work_id1");
-
                     b.HasIndex(new[] { "TeacherId" }, "teacher_id")
                         .HasDatabaseName("teacher_id1");
 
-                    b.ToTable("teacher_request");
-                });
-
-            modelBuilder.Entity("BestStudentCafedra.Models.ThemeRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<string>("CafedraResponse")
-                        .HasColumnType("enum('APPROVED','REJECTED')")
-                        .HasColumnName("cafedra_response")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<DateTime>("CreatingDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("creating_date");
-
-                    b.Property<int>("GraduationWorkId")
-                        .HasColumnType("int")
-                        .HasColumnName("graduation_work_id");
-
-                    b.Property<string>("Motivation")
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("motivation")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<string>("RejectReason")
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("reject_reason")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<DateTime?>("ResponseDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("response_date");
-
-                    b.Property<string>("ResponsePersonName")
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("response_person_name")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("enum('APPROVED','REJECTED')")
-                        .HasColumnName("status")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<string>("TeacherResponse")
-                        .HasColumnType("enum('APPROVED','REJECTED')")
-                        .HasColumnName("teacher_response")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.Property<string>("Theme")
-                        .IsRequired()
-                        .HasColumnType("varchar(150)")
-                        .HasColumnName("theme")
-                        .UseCollation("utf8mb4_0900_ai_ci")
-                        .HasCharSet("utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "GraduationWorkId" }, "graduation_work_id")
-                        .HasDatabaseName("graduation_work_id2");
-
-                    b.ToTable("theme_request");
+                    b.ToTable("teacher_disciplines");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.AcademicGroup", b =>
@@ -775,17 +599,38 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("BestStudentCafedra.Models.AssignedStaff", b =>
+                {
+                    b.HasOne("BestStudentCafedra.Models.GraduationWork", "GraduationWork")
+                        .WithMany("AssignedStaffs")
+                        .HasForeignKey("GraduationWorkId")
+                        .HasConstraintName("assigned_staff_ibfk_1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BestStudentCafedra.Models.Teacher", "Teacher")
+                        .WithMany("AssignedStaff")
+                        .HasForeignKey("TeacherId")
+                        .HasConstraintName("assigned_staff_ibfk_2")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GraduationWork");
+
+                    b.Navigation("Teacher");
+                });
+
             modelBuilder.Entity("BestStudentCafedra.Models.Event", b =>
                 {
                     b.HasOne("BestStudentCafedra.Models.Teacher", "ResponsibleTeacher")
                         .WithMany("Events")
                         .HasForeignKey("ResponsibleTeacherId")
-                        .HasConstraintName("event_ibfk_2");
+                        .HasConstraintName("schedule_plan_event_ibfk_2");
 
                     b.HasOne("BestStudentCafedra.Models.SchedulePlan", "SchedulePlan")
                         .WithMany("Events")
                         .HasForeignKey("SchedulePlanId")
-                        .HasConstraintName("event_ibfk_1")
+                        .HasConstraintName("schedule_plan_event_ibfk_1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -817,28 +662,11 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
             modelBuilder.Entity("BestStudentCafedra.Models.GraduationWork", b =>
                 {
-                    b.HasOne("BestStudentCafedra.Models.Teacher", "Reviewer")
-                        .WithMany("GraduationWorksReview")
-                        .HasForeignKey("ReviewerId")
-                        .HasConstraintName("graduation_works_ibfk_3")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("BestStudentCafedra.Models.Teacher", "ScientificAdviser")
-                        .WithMany("GraduationWorksAdvice")
-                        .HasForeignKey("ScientificAdviserId")
-                        .HasConstraintName("graduation_works_ibfk_2")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("BestStudentCafedra.Models.Student", "Student")
                         .WithMany("GraduationWorks")
                         .HasForeignKey("StudentId")
                         .HasConstraintName("graduation_works_ibfk_1")
-                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Reviewer");
-
-                    b.Navigation("ScientificAdviser");
 
                     b.Navigation("Student");
                 });
@@ -860,25 +688,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.Navigation("AcademicGroup");
 
                     b.Navigation("Discipline");
-                });
-
-            modelBuilder.Entity("BestStudentCafedra.Models.RatingControl", b =>
-                {
-                    b.HasOne("BestStudentCafedra.Models.AcademicGroup", "AcademicGroup")
-                        .WithMany("RatingControls")
-                        .HasForeignKey("GroupId")
-                        .HasConstraintName("rating_control_ibfk_3")
-                        .IsRequired();
-
-                    b.HasOne("BestStudentCafedra.Models.SemesterDiscipline", "SemesterDiscipline")
-                        .WithMany("RatingControls")
-                        .HasForeignKey("SemesterDisciplineId")
-                        .HasConstraintName("rating_control_ibfk_2")
-                        .IsRequired();
-
-                    b.Navigation("AcademicGroup");
-
-                    b.Navigation("SemesterDiscipline");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.SchedulePlan", b =>
@@ -917,25 +726,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("BestStudentCafedra.Models.StudentRating", b =>
-                {
-                    b.HasOne("BestStudentCafedra.Models.RatingControl", "RatingControl")
-                        .WithMany("StudentRatings")
-                        .HasForeignKey("RatingId")
-                        .HasConstraintName("student_rating_ibfk_2")
-                        .IsRequired();
-
-                    b.HasOne("BestStudentCafedra.Models.Student", "Student")
-                        .WithMany("StudentRatings")
-                        .HasForeignKey("StudentId")
-                        .HasConstraintName("student_rating_ibfk_1")
-                        .IsRequired();
-
-                    b.Navigation("RatingControl");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("BestStudentCafedra.Models.TeacherDiscipline", b =>
                 {
                     b.HasOne("BestStudentCafedra.Models.Discipline", "Discipline")
@@ -955,44 +745,9 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("BestStudentCafedra.Models.TeacherRequest", b =>
-                {
-                    b.HasOne("BestStudentCafedra.Models.GraduationWork", "GraduationWork")
-                        .WithMany("TeacherRequests")
-                        .HasForeignKey("GraduationWorkId")
-                        .HasConstraintName("teacher_request_ibfk_1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BestStudentCafedra.Models.Teacher", "Teacher")
-                        .WithMany("TeacherRequests")
-                        .HasForeignKey("TeacherId")
-                        .HasConstraintName("teacher_request_ibfk_2")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GraduationWork");
-
-                    b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("BestStudentCafedra.Models.ThemeRequest", b =>
-                {
-                    b.HasOne("BestStudentCafedra.Models.GraduationWork", "GraduationWork")
-                        .WithMany("ThemeRequests")
-                        .HasForeignKey("GraduationWorkId")
-                        .HasConstraintName("theme_request_ibfk_1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GraduationWork");
-                });
-
             modelBuilder.Entity("BestStudentCafedra.Models.AcademicGroup", b =>
                 {
                     b.Navigation("GroupDiscipline");
-
-                    b.Navigation("RatingControls");
 
                     b.Navigation("SchedulePlans");
 
@@ -1025,16 +780,9 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
 
             modelBuilder.Entity("BestStudentCafedra.Models.GraduationWork", b =>
                 {
+                    b.Navigation("AssignedStaffs");
+
                     b.Navigation("EventLogs");
-
-                    b.Navigation("TeacherRequests");
-
-                    b.Navigation("ThemeRequests");
-                });
-
-            modelBuilder.Entity("BestStudentCafedra.Models.RatingControl", b =>
-                {
-                    b.Navigation("StudentRatings");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.SchedulePlan", b =>
@@ -1045,8 +793,6 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
             modelBuilder.Entity("BestStudentCafedra.Models.SemesterDiscipline", b =>
                 {
                     b.Navigation("Activities");
-
-                    b.Navigation("RatingControls");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.Specialty", b =>
@@ -1059,21 +805,15 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     b.Navigation("ActivityProtections");
 
                     b.Navigation("GraduationWorks");
-
-                    b.Navigation("StudentRatings");
                 });
 
             modelBuilder.Entity("BestStudentCafedra.Models.Teacher", b =>
                 {
+                    b.Navigation("AssignedStaff");
+
                     b.Navigation("Events");
 
-                    b.Navigation("GraduationWorksAdvice");
-
-                    b.Navigation("GraduationWorksReview");
-
                     b.Navigation("TeacherDisciplines");
-
-                    b.Navigation("TeacherRequests");
                 });
 #pragma warning restore 612, 618
         }

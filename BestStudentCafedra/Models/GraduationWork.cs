@@ -11,14 +11,19 @@ namespace BestStudentCafedra.Models
     {
         public GraduationWork()
         {
-            AssignedStaffs = new HashSet<AssignedStaff>();
             EventLogs = new HashSet<EventLog>();
+            TeacherRequests = new HashSet<TeacherRequest>();
+            ThemeRequests = new HashSet<ThemeRequest>();
         }
 
         public int Id { get; set; }
         [Display(Name = "Студент")]
         [Required(ErrorMessage = "Не указан студент")]
         public int StudentId { get; set; }
+
+        public int? ScientificAdviserId { get; set; }
+        public int? ReviewerId { get; set; }
+
         [Display(Name = "Тема")]
         public string Theme { get; set; }
         [Display(Name = "Дата архивации")]
@@ -28,8 +33,11 @@ namespace BestStudentCafedra.Models
 
         [Display(Name = "Студент")]
         public virtual Student Student { get; set; }
-        public virtual ICollection<AssignedStaff> AssignedStaffs { get; set; }
-        public virtual ICollection<EventLog> EventLogs { get; set; } = new List<EventLog>();
+        public virtual Teacher ScientificAdviser { get; set; }
+        public virtual Teacher Reviewer { get; set; }
+        public virtual ICollection<EventLog> EventLogs { get; set; }
+        public virtual ICollection<TeacherRequest> TeacherRequests { get; set; }
+        public virtual ICollection<ThemeRequest> ThemeRequests { get; set; }
 
         public bool hasMarkForEvent(Event @event)
         {

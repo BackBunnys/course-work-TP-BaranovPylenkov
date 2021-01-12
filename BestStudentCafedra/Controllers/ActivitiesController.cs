@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using BestStudentCafedra.Models.ViewModels;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -27,23 +28,85 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Protect(int? id, int? groupId)
         {
-            if (id == null)
+            if (id == null || !ActivityExists((int)id))
             {
                 return NotFound();
             }
 
             var activity = await _context.Activities
                 .Include(a => a.SemesterDiscipline)
+                    .ThenInclude(b => b.Discipline)
+                    .ThenInclude(b => b.GroupDiscipline)
                 .Include(a => a.Type)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (activity == null)
+
+            var groups = _context.AcademicGroups
+                .Include(x => x.GroupDiscipline)
+                .Where(x => x.GroupDiscipline.Any(y => y.DisciplineId == activity.SemesterDiscipline.DisciplineId))
+                .AsNoTracking().ToList();
+
+            ViewData["GroupId"] = new SelectList(groups, "Id", "Name", groupId);
+
+            if (groupId != null)
             {
-                return NotFound();
+                groups = groups.Where(x => x.Id == groupId).ToList();
             }
 
-            return View(activity);
+            var students = _context.Students
+                .Include(x => x.ActivityProtections.Where(y => y.ActivityId == id).OrderByDescending(y => y.ProtectionDate))
+                .Include(x => x.Group)
+                .OrderBy(x => x.Group.Name)
+                .ThenBy(x => x.FullName)
+                .Where(x => groups.Contains(x.Group))
+                .AsNoTracking()
+                .ToList();
+
+            var activityProtections = new StudentActivityViewModel() { Activity = activity, Students = students };
+
+            return View(activityProtections);
+        }
+
+        // POST: Activities/Details/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Protect(int? id,[Bind("Id,StudentId,ActivityId,Points")] ActivityProtection activityProtection, int? groupId)
+        {
+            if (ModelState.IsValid)
+            {
+                if (activityProtection.Points > _context.Activities.Find(activityProtection.ActivityId).MaxPoints || activityProtection.Points < 0)
+                {
+                    ModelState.AddModelError($"student-{activityProtection.StudentId}", "Оценка должна быть в диапозоне от 0 до " + _context.Activities.Find(activityProtection.ActivityId).MaxPoints);
+                }
+
+                activityProtection.ProtectionDate = DateTime.Now;
+                if (_context.ActivityProtections.Any(x => x.ActivityId == activityProtection.ActivityId && x.StudentId == activityProtection.StudentId))
+                {
+                    try
+                    {
+                        _context.Update(activityProtection);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!ActivityProtectionExists(activityProtection.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
+                else
+                {
+                    activityProtection.Id = 0;
+                    _context.Add(activityProtection);
+                }
+                await _context.SaveChangesAsync();
+            }
+            return await Protect(id, groupId);
         }
 
         // GET: Activities/Create
@@ -161,6 +224,11 @@ namespace BestStudentCafedra.Controllers
         private bool ActivityExists(int id)
         {
             return _context.Activities.Any(e => e.Id == id);
+        }
+
+        private bool ActivityProtectionExists(int id)
+        {
+            return _context.ActivityProtections.Any(e => e.Id == id);
         }
     }
 }

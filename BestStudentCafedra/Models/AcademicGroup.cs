@@ -27,6 +27,8 @@ namespace BestStudentCafedra.Models
 
         [Display(Name = "Специальность")]
         public virtual Specialty Specialty { get; set; }
+        public virtual ICollection<GroupDiscipline> GroupDiscipline { get; set; }
+        public virtual ICollection<RatingControl> RatingControls { get; set; }
         public virtual ICollection<SchedulePlan> SchedulePlans { get; set; }
         [Display(Name = "Студенты")]
         public virtual ICollection<Student> Students { get; set; }
