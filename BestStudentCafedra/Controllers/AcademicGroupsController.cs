@@ -70,7 +70,7 @@ namespace BestStudentCafedra.Controllers
         // GET: AcademicGroups/Create
         public ActionResult Create()
         {
-            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code");
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code).Select(x => new SelectListItem { Text = $"{x.Code} - {x.Name}" }), "Value", "Text");
             return View();
         }
 
@@ -86,7 +86,7 @@ namespace BestStudentCafedra.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code");
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code).Select(x => new SelectListItem { Text = $"{x.Code} - {x.Name}" }), "Value", "Text");
             return View(group);
         }
 
@@ -108,7 +108,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code");
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code).Select(x => new SelectListItem { Text = $"{x.Code} - {x.Name}" }), "Value", "Text");
             return View(group);
         }
 
@@ -143,7 +143,7 @@ namespace BestStudentCafedra.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code), "Code", "Code", group.SpecialtyId);
+            ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code).Select(x => new SelectListItem { Text = $"{x.Code} - {x.Name}" }), "Value", "Text");
             return View(group);
         }
 
