@@ -60,6 +60,13 @@ namespace BestStudentCafedra.Controllers
             return View(groups);
         }
 
+        public async Task<IActionResult> Semesters(int id, int groupId)
+        {
+            var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
+            ViewData["GroupId"] = groupId;
+            return PartialView("_Semesters", semesterDisciplines);
+        }
+
         // GET: AcademicGroups/Create
         public ActionResult Create()
         {
