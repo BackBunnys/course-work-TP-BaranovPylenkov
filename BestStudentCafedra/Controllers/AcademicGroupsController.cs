@@ -23,9 +23,9 @@ namespace BestStudentCafedra.Controllers
         // GET: AcademicGroups
         public async Task<IActionResult> Index(int? formYear)
         {
-            var groups = _context.AcademicGroups
+            var groups = await _context.AcademicGroups
                 .Include(s => s.Specialty)
-                .ToList();
+                .ToListAsync();
 
             ViewData["formYears"] = new SelectList(groups.Select(y => y.FormationYear).Distinct(), formYear);
 
