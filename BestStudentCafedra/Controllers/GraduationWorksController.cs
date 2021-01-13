@@ -61,9 +61,9 @@ namespace BestStudentCafedra.Controllers
         // GET: GraduationWorks/Create
         public IActionResult Create()
         {
-            ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName", graduationWork.StudentId);
-            ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ScientificAdviserId);
-            ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ReviewerId);
+            ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName");
+            ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName");
+            ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName");
             return View();
         }
 

@@ -1,0 +1,69 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.Event>
+
+@{
+    bool isComing = !Model.Any(x => x.Date < DateTime.Now);
+    var ev = new Event();
+    var eventLog = new EventLog();
+}
+
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => ev.EventDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => ev.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => ev.Class)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => ev.ResponsibleTeacher)
+            </th>
+            @if (!isComing)
+            {
+                <th>
+                    @Html.DisplayNameFor(model => eventLog.Mark)
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var isMarked = item.EventLogs.Count > 0;
+            <tr>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.EventDescription)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.ResponsibleTeacher.FullName)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Class)
+                </td>
+                @if (!isComing)
+                {
+                    <td class="align-middle">
+                        @if (item.EventLogs.Count > 0)
+                        {
+                            @Html.DisplayFor(modelItem => item.EventLogs.FirstOrDefault().Mark);
+                        }
+                        else if (User.IsInRole("teacher"))
+                        {
+                            <a asp-controller="Events" asp-action="Mark" asp-route-id="@item.Id">Оценить</a>
+                        }
+                        else
+                        {
+                            <span>Ещё не оценено</span>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
