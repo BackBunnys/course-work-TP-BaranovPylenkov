@@ -145,16 +145,35 @@ namespace BestStudentCafedra.Controllers
             _context.Add(newRatingControl);
             await _context.SaveChangesAsync();
 
-            var students = await _context.Students
-                .Where(x => x.GroupId == groupId)
-                .ToListAsync();
+            var activities = _context.SemesterDiscipline
+                .Include(x => x.Activities)
+                    .ThenInclude(y => y.Type)
+                .Where(x => x.Id == disciplineId)
+                .SelectMany(x => x.Activities)
+                .AsNoTracking()
+                .AsEnumerable();
 
-            var activityProtections = await _context.Activities
-                .Where(x => x.SemesterDisciplineId == disciplineId)
-                .Include(x => x.ActivityProtections.Where(y => y.Student.GroupId == groupId))
-                .SelectMany(x => x.ActivityProtections)
-                .ToListAsync();
+            var pointMultiplier = 0;
+            if (_context.SemesterDiscipline.Find(disciplineId).ControlType == ControlType.Exam)
+            {
+                var exam = activities.FirstOrDefault(x => x.Type.Name == EXAMTYPENAME);
+                if (exam != null)
+                {
+                    activities.ToList().Remove(exam);
+                }
+                pointMultiplier = (int)(60 / activities.Select(x => x.MaxPoints).Sum());
+            }
+            else
+            {
+                pointMultiplier = (int)(100 / activities.Select(x => x.MaxPoints).Sum());
+            }
 
+            var students = _context.AcademicGroups
+                .Include(x => x.Students)
+                    .ThenInclude(x => x.ActivityProtections
+                        .Where(y => activities
+                            .Any(z => y.ActivityId == z.Id)))
+                .SelectMany(x => x.Students);
 
             var studentsRating = new List<StudentRating>();
             foreach (var student in students)
@@ -162,10 +181,9 @@ namespace BestStudentCafedra.Controllers
                 var studentRating = new StudentRating();
                 studentRating.RatingId = newRatingControl.Id;
                 studentRating.StudentId = student.GradebookNumber;
-                studentRating.Points = activityProtections
-                    .Where(x => x.StudentId == student.GradebookNumber)
+                studentRating.Points = student.ActivityProtections
                     .Select(x => x.Points)
-                    .Sum();
+                    .Sum() * pointMultiplier;
 
                 studentsRating.Add(studentRating);
             }
