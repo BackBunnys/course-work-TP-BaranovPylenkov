@@ -38,51 +38,6 @@
     <a asp-action="Index">Вернуться в список групп</a>
 </div>
 
-</br>
-<h4>Студенты:</h4>
-<p>Список студентов, которые обучаются в данной группе по образовательной программаме</p>
-<p>
-    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id">Добавить</a>
-</p>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().GradebookNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Students.FirstOrDefault().PhoneNumber)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Student item in Model.Students)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.GradebookNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a> |
-                    <a asp-controller="Student" asp-action="Edit" asp-route-id="@item.GradebookNumber">Изменить</a> |
-                    <a asp-action="DeleteStudent" asp-route-id="@item.GradebookNumber">Удалить</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
