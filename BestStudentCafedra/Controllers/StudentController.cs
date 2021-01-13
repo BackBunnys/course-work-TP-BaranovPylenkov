@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -20,6 +21,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Students
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var subjectAreaDbContext = _context.Students.Include(s => s.Group);
@@ -27,6 +29,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Students/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,6 +49,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Students/Create
+        [Authorize(Roles = "methodist")]
         public IActionResult Create()
         {
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name");
@@ -57,6 +61,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
         {
             if (ModelState.IsValid)
@@ -70,6 +75,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Students/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -91,6 +97,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
         {
             if (id != student.GradebookNumber)
@@ -123,6 +130,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Students/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -144,6 +152,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Students/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var student = await _context.Students.FindAsync(id);
