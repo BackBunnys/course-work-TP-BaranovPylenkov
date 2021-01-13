@@ -10,6 +10,13 @@ namespace BestStudentCafedra.Models.ViewModels
     {
         public AcademicGroup Group;
         public SemesterDiscipline SemesterDiscipline;
-        public IEnumerable<RatingControl> RatingControls;
+
+        [Display(Name = "Рейтинг контроль")]
+        public ICollection<RatingControl> RatingControls { get; set; }
+
+        public GroupRatingViewModel()
+        {
+            RatingControls = new HashSet<RatingControl>();
+        }
     }
 }
