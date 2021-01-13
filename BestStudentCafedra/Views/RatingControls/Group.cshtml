@@ -1,0 +1,296 @@
+﻿@model BestStudentCafedra.Models.ViewModels.GroupRatingViewModel
+@using System.Globalization
+@using BestStudentCafedra.Controllers
+@{
+    ViewData["Title"] = "Рейтинг группы";
+
+    var pointMultiplier = 0; var examMultiplier = 0;
+    Activity exam = null;
+    if (Model.SemesterDiscipline.ControlType == ControlType.Exam)
+    {
+        exam = Model.SemesterDiscipline.Activities.FirstOrDefault(x => x.Type.Name == RatingControlsController.EXAMTYPENAME);
+        Model.SemesterDiscipline.Activities.Remove(exam);
+        pointMultiplier = (int)(60 / Model.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+        examMultiplier = (int)(40 / exam.MaxPoints);
+    } else {
+        pointMultiplier = (int)(100 / Model.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+    }
+}
+
+<h1>Рейтинг контроль</h1>
+
+<div>
+    <dl class="row">
+        <div class="col-sm">
+            <h4>Подробности о группе</h4>
+            <hr />
+
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Group.Specialty.Code)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.Group.Specialty.Code)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Group.Specialty.AcademicDegree)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.Group.Specialty.AcademicDegree)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Group.Specialty.Name)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.Group.Specialty.Name)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Group.Name)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.Group.Name)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Group.FormationYear)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.Group.FormationYear)
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm">
+            <h4>Подробности о дисциплине</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.SemesterDiscipline.Discipline.Name)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.SemesterDiscipline.Discipline.Name)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.SemesterDiscipline.Year)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.SemesterDiscipline.Year)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.SemesterDiscipline.Semester)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.SemesterDiscipline.Semester)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.SemesterDiscipline.ControlType)
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.SemesterDiscipline.ControlType)
+                </dd>
+            </dl>
+        </div>
+    </dl>
+    <dl class="row">
+        <div class="col-sm">
+            <div>
+                <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@Model.Group.Id">Подробнее</a> |
+                <a asp-controller="AcademicGroups" asp-action="Index">Список групп</a>
+            </div>
+        </div>
+        <div class="col-sm">
+            <div>
+                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@Model.SemesterDiscipline.Id">Подробнее</a> |
+                <a asp-controller="Disciplines" asp-action="Index">Список дисциплин</a>
+            </div>
+        </div>
+    </dl>
+</div>
+<br />
+
+<h4>Промежуточный рейтинг (Рубежный контроль)</h4>
+<p>Контроль знаний студетов по окончанию изучения темы или модуля, определенных учебным планом</p>
+<p>
+    <a href="#" onclick="loadAndShowModal('../Create?groupId=@Model.Group.Id&disciplineId=@Model.SemesterDiscipline.Id')">Сформировать</a>
+</p>
+
+<table class="table border rounded">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RatingControls.FirstOrDefault().Number)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RatingControls.FirstOrDefault().CompletionDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.RatingControls)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Number)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompletionDate)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
+                        <a asp-action="DownloadRating" asp-route-id="@item.Id" class="btn btn-outline-secondary">Скачать</a>
+                        <a href="#" onclick="loadAndShowModal('../Delete/@item.Id')" class="btn btn-outline-danger">&times;</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="modDialog" class="modal modal-removable fade">
+    <div class="spinner-border text-light fixed-top mt-5 mx-auto" style="z-index: -1;" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
+<br />
+<div class="align-items-center">
+    <h4 class="d-inline-block">Текущий рейтинг контроль</h4>
+    <a asp-action="DownloadCurrentRating" asp-route-groupId="@Model.Group.Id" asp-route-disciplineId="@Model.SemesterDiscipline.Id" class="btn btn-sm btn-outline-primary ml-2 mb-1">Скачать</a>
+</div>
+<p>Уровень знаний студентов на данный момент по лекциям, лабораторным, практическим и самостоятельным работам</p>
+
+<table class="table table-sm table-bordered rounded" id="ratingTable">
+    <thead>
+        <tr>
+            <th rowspan="2">#</th>
+            <th rowspan="2">@Html.DisplayNameFor(model => model.Group.Students.FirstOrDefault().FullName)</th>
+            @foreach (var item in Model.SemesterDiscipline.Activities.Select(x => x.Type).Distinct())
+            {
+                <th colspan="@Model.SemesterDiscipline.Activities.Where(x => x.TypeId == item.Id).Count()">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </th>
+            }
+            @if(exam != null) { <th rowspan="2">Экз</th> }
+            <th rowspan="2">Итого</th>
+            <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
+            <th rowspan="2">Оценка</th>
+        </tr>
+
+        <tr>
+            @foreach (var item in Model.SemesterDiscipline.Activities)
+            {
+                <th>
+                    №@Html.DisplayFor(modelItem => item.Number)
+                </th>
+            }
+
+            @foreach (var item in Model.RatingControls)
+            {
+                <th>
+                    №@Html.DisplayFor(modelItem => item.Number)
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @{ int i = 1; }
+
+        @foreach (var student in Model.Group.Students)
+        {
+        <tr>
+            <td>@i</td>
+            @{ float total = 0; i++; }
+            <td>
+                @Html.DisplayFor(modelItem => student.FullName)
+            </td>
+            @foreach (var item in Model.SemesterDiscipline.Activities)
+            {
+                <td>
+                    @{
+                        ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == item);
+                        if (activityProtection != null)
+                        {
+                            var points = activityProtection.Points * pointMultiplier;
+                            total += points;
+                            @Html.Raw(points.ToString(new CultureInfo("en-US")));
+                        }
+                    }
+                </td>
+            }
+            @if (exam != null)
+            {
+                <td>
+                    @{
+                        ActivityProtection examProtection = exam.ActivityProtections.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
+                        if (examProtection != null)
+                        {
+                            var points = examProtection.Points * examMultiplier;
+                            total += points;
+                            @Html.Raw(points.ToString(new CultureInfo("en-US")));
+                        }
+                    }
+                </td>
+            }
+            <td>@total.ToString(new CultureInfo("en-US"))</td>
+            @foreach (var item in Model.RatingControls)
+            {
+                <td>
+                    @{
+                        StudentRating studentRating = item.StudentRatings.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
+                        if (studentRating != null)
+                        {
+                            @Html.Raw(studentRating.Points.ToString(new CultureInfo("en-US")));
+                        }
+                    }
+                </td>
+            }
+        <td>
+            @{
+                if (exam != null)
+                {
+                    var mark = 2;
+                    if (total > 90)
+                        mark = 5;
+                    else if (total > 73)
+                        mark = 4;
+                    else if (total > 60)
+                        mark = 3;
+                    @Html.Raw(mark.ToString());
+                }
+                else
+                {
+                    var mark = "Незачет";
+                    if (total > 60)
+                        mark = "Зачет";  
+                    @Html.Raw(mark);
+                }
+            }
+        </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script src="~/js/site.js"></script>
+    <script src="//cdn.datatables.net/plug-ins/1.10.22/sorting/formatted-numbers.js"></script>
+    <script>
+        var table = $('#ratingTable').DataTable({
+            columnDefs: [
+                {
+                    type: 'formatted-num', targets: [
+                        @for(var i = 0; i < Model.SemesterDiscipline.Activities.Count() + 1 + Model.RatingControls.Count(); i++)
+                        {
+                            @Html.Raw($",{i + 2} ");
+                        }
+                    ]
+                }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

@@ -44,7 +44,8 @@
 <h4>Работы:</h4>
 <p>Список учебных деятельностей на которые разделена дисциплина по образовательной программаме</p>
 <p>
-    <a asp-controller="Activities" asp-action="Create">Добавить</a>
+    <a asp-controller="Activities" asp-action="Create">Добавить</a> |
+    <a asp-controller="RatingControls" asp-action="Index" asp-route-disciplineId="@Model.Id">Рейтинг</a>
 </p>
 
 <table class="table border rounded" id="activitiesTable">

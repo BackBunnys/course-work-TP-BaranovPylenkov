@@ -39,6 +39,7 @@
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Activity.Id">Изменить</a> |
+    <a asp-controller="RatingControls" asp-action="Index" asp-route-disciplineId="@Model.Activity.SemesterDisciplineId">Рейтинг</a> |
     <a asp-action="Index">Вернуться в список работ</a>
 </div>
 
