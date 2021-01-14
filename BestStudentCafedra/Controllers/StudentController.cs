@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -20,14 +21,17 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index()
+        [Authorize]
+        public async Task<IActionResult> Index(string ReturnUrl)
         {
             var subjectAreaDbContext = _context.Students.Include(s => s.Group);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(await subjectAreaDbContext.ToListAsync());
         }
 
         // GET: Students/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [Authorize]
+        public async Task<IActionResult> Details(int? id, string ReturnUrl, string From)
         {
             if (id == null)
             {
@@ -41,14 +45,17 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["ReturnUrl"] = ReturnUrl;
+            ViewData["From"] = From;
             return View(student);
         }
 
         // GET: Students/Create
-        public IActionResult Create()
+        [Authorize(Roles = "methodist")]
+        public IActionResult Create(string ReturnUrl)
         {
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name");
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View();
         }
 
@@ -57,20 +64,26 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Create([Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student, string ReturnUrl)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(student);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    return Redirect(ReturnUrl);
+                else
+                    return RedirectToAction(nameof(Index));
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
         // GET: Students/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Edit(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -83,6 +96,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
@@ -91,7 +105,8 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Edit(int id, [Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student, string ReturnUrl)
         {
             if (id != student.GradebookNumber)
             {
@@ -116,13 +131,18 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    return Redirect(ReturnUrl);
+                else
+                    return RedirectToAction(nameof(Index));
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
         // GET: Students/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -144,6 +164,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Students/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var student = await _context.Students.FindAsync(id);

@@ -12,6 +12,7 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="GradebookNumber" />
+            <input hidden name="ReturnUrl" value="@ViewBag.ReturnUrl" />
             <div class="form-group">
                 <label asp-for="GroupId" class="control-label"></label>
                 <select asp-for="GroupId" class="form-control" asp-items="ViewBag.GroupId"></select>
@@ -35,7 +36,14 @@
 </div>
 
 <div>
-    <a asp-action="Index">Вернуться</a>
+    @if (ViewBag.ReturnUrl != null && ViewBag.From == null)
+    {
+        <a href="@ViewBag.ReturnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-action="Index" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Вернуться</a>
+    }
 </div>
 
 @section Scripts {

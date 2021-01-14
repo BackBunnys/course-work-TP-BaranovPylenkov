@@ -1,5 +1,6 @@
 ﻿using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,11 +22,12 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: AcademicGroups
+        [Authorize]
         public async Task<IActionResult> Index(int? formYear)
         {
-            var groups = _context.AcademicGroups
+            var groups = await _context.AcademicGroups
                 .Include(s => s.Specialty)
-                .ToList();
+                .ToListAsync();
 
             ViewData["formYears"] = new SelectList(groups.Select(y => y.FormationYear).Distinct(), formYear);
 
@@ -38,6 +40,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: AcademicGroups/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -60,6 +63,7 @@ namespace BestStudentCafedra.Controllers
             return View(groups);
         }
 
+        [Authorize]
         public async Task<IActionResult> Semesters(int id, int groupId)
         {
             var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
@@ -68,6 +72,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: AcademicGroups/Create
+        [Authorize(Roles = "methodist")]
         public ActionResult Create()
         {
             ViewData["SpecialtyId"] = new SelectList(_context.Specialties.OrderBy(c => c.Code).Select(x => new SelectListItem { Text = $"{x.Code} - {x.Name}", Value = x.Code }), "Value", "Text");
@@ -77,6 +82,7 @@ namespace BestStudentCafedra.Controllers
         // POST: AcademicGroups/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("Id,SpecialtyId,Name,FormationYear")] AcademicGroup group)
         {
             if (ModelState.IsValid)
@@ -91,6 +97,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: AcademicGroups/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -115,6 +122,7 @@ namespace BestStudentCafedra.Controllers
         // POST: AcademicGroups/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,SpecialtyId,Name,FormationYear")] AcademicGroup group)
         {
             if (id != group.Id)
@@ -147,6 +155,7 @@ namespace BestStudentCafedra.Controllers
             return View(group);
         }
 
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int? id)
         {
             if (id == null || !GroupExists((int)id))
@@ -166,6 +175,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int id, int disciplineId)
         {
             if (GroupExists(id))
@@ -190,6 +200,7 @@ namespace BestStudentCafedra.Controllers
             } 
         }
 
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DropDiscipline(int? id, int? disciplineId)
         {
             if (id == null || disciplineId == null || !GroupExists((int)id))
@@ -210,6 +221,7 @@ namespace BestStudentCafedra.Controllers
         // POST: AcademicGroups/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DropDiscipline(int id)
         {
             var discipline = await _context.GroupDisciplines.FindAsync(id);
@@ -219,6 +231,7 @@ namespace BestStudentCafedra.Controllers
             return RedirectToAction(nameof(Details), new { id = groupId });
         }
 
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -239,6 +252,7 @@ namespace BestStudentCafedra.Controllers
         // POST: AcademicGroups/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var group = await _context.AcademicGroups.FindAsync(id);
