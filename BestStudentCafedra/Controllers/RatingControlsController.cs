@@ -73,7 +73,7 @@ namespace BestStudentCafedra.Controllers
 
             groupRating.SemesterDiscipline = await _context.SemesterDiscipline
                 .Include(x => x.Discipline)
-                .Include(x => x.Activities)
+                .Include(x => x.Activities.OrderBy(x => x.Type).ThenBy(x => x.Number))
                     .ThenInclude(y => y.Type)
                 .FirstOrDefaultAsync(x => x.Id == disciplineId);
 
