@@ -8,7 +8,7 @@
 <h1>Академические группы</h1>
 
 <p>
-    @if (User.IsInRole("methodist"))
+    @if (isAccessAllowed)
     {
         <a asp-action="Create">Добавить</a> <span> | </span>
     }
