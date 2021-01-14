@@ -7,29 +7,61 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
     public class DisciplinesController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public DisciplinesController(SubjectAreaDbContext context)
+        public DisciplinesController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Disciplines
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            var discipline = _context.Disciplines
-                .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
-                .ThenInclude(d => d.Discipline)
-                .OrderBy(x => x.Name);
-            return View(discipline.ToList());
+            List<Discipline> disciplines = null;
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (User.IsInRole("student"))
+            {
+                var group = await _context.Students
+                    .Include(x => x.Group)
+                        .ThenInclude(y => y.GroupDiscipline)
+                            .ThenInclude(z => z.Discipline)
+                    .Where(x => x.GradebookNumber == user.SubjectAreaId)
+                    .Select(x => x.Group)
+                    .FirstOrDefaultAsync();
+
+                disciplines = group.GroupDiscipline.Select(x => x.Discipline).ToList();
+            } 
+            else if(User.IsInRole("teacher"))
+            {
+                disciplines = await _context.TeacherDisciplines
+                    .Include(x => x.Discipline)
+                    .Where(x => x.TeacherId == user.SubjectAreaId)
+                    .Select(x => x.Discipline)
+                    .ToListAsync();
+            }
+            else
+            {
+                disciplines = await _context.Disciplines
+                    .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
+                    .ThenInclude(d => d.Discipline)
+                    .ToListAsync();
+            }
+            return View(disciplines.OrderBy(x => x.Name));
         }
 
         // GET: Disciplines/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null)
@@ -38,8 +70,10 @@ namespace BestStudentCafedra.Controllers
             }
 
             var discipline = await _context.Disciplines
+                .Include(x => x.TeacherDisciplines)
+                    .ThenInclude(x => x.Teacher)
                 .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
-                .ThenInclude(d => d.Discipline)
+                    .ThenInclude(d => d.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (discipline == null)
@@ -51,6 +85,7 @@ namespace BestStudentCafedra.Controllers
             return View(discipline);
         }
 
+        [Authorize]
         public async Task<IActionResult> Semesters(int id)
         {
             var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
@@ -58,6 +93,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Disciplines/Create
+        [Authorize(Roles = "methodist")]
         public IActionResult Create()
         {
             return View();
@@ -68,6 +104,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline, string returnUrl)
         {
             if (ModelState.IsValid)
@@ -81,6 +118,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Disciplines/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id, string returnUrl)
         {
             if (id == null)
@@ -107,6 +145,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Discipline discipline, string returnUrl)
         {
             if (id != discipline.Id)
@@ -140,6 +179,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Disciplines/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -160,6 +200,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Disciplines/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var discipline = await _context.Disciplines.FindAsync(id);
