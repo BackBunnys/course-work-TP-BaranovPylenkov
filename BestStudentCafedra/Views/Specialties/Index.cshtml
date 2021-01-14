@@ -9,7 +9,7 @@
 <p>
     <a asp-action="Create">Создать новую</a>
 </p>
-<table class="table">
+<table class="table border rounded" id="specialtyTable">
     <thead>
         <tr>
             <th>
@@ -25,23 +25,37 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Code)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcademicDegree)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Code">Подробнее</a> |
-                <a asp-action="Edit" asp-route-id="@item.Code">Изменить</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Удалить</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AcademicDegree)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Code">Подробнее</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Code">Изменить</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Code">Удалить</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#specialtyTable').DataTable({
+            order: [[2, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
