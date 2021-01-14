@@ -7,26 +7,55 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class DisciplinesController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public DisciplinesController(SubjectAreaDbContext context)
+        public DisciplinesController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Disciplines
         public async Task<IActionResult> Index()
         {
-            var discipline = _context.Disciplines
-                .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
-                .ThenInclude(d => d.Discipline)
-                .OrderBy(x => x.Name);
-            return View(discipline.ToList());
+            List<Discipline> disciplines = null;
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (User.IsInRole("student"))
+            {
+                var group = await _context.Students
+                    .Include(x => x.Group)
+                        .ThenInclude(y => y.GroupDiscipline)
+                            .ThenInclude(z => z.Discipline)
+                    .Where(x => x.GradebookNumber == user.SubjectAreaId)
+                    .Select(x => x.Group)
+                    .FirstOrDefaultAsync();
+
+                disciplines = group.GroupDiscipline.Select(x => x.Discipline).ToList();
+            } 
+            else if(User.IsInRole("teacher"))
+            {
+                disciplines = await _context.TeacherDisciplines
+                    .Include(x => x.Discipline)
+                    .Where(x => x.TeacherId == user.SubjectAreaId)
+                    .Select(x => x.Discipline)
+                    .ToListAsync();
+            }
+            else
+            {
+                disciplines = await _context.Disciplines
+                    .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
+                    .ThenInclude(d => d.Discipline)
+                    .ToListAsync();
+            }
+            return View(disciplines.OrderBy(x => x.Name));
         }
 
         // GET: Disciplines/Details/5
