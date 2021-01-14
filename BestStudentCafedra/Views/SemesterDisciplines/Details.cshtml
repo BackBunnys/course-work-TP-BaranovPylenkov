@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Данные о дисциплине определенного семестра";
+    var isAccessAllowed = User.IsInRole("methodist") || User.IsInRole("teacher");
 }
 
 <h1>Данные о дисциплине опредленного сесметра</h1>
@@ -36,15 +37,22 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    @if (User.IsInRole("methodist"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> <span> | </span>
+    }   
     <a href="@ViewBag.returnUrl" />Вернуться</a>
 </div>
 
 <br />
 <h4>Работы:</h4>
 <p>Список учебных деятельностей на которые разделена дисциплина по образовательной программаме</p>
+
 <p>
-    <a asp-controller="Activities" asp-action="Create">Добавить</a> |
+    @if (isAccessAllowed)
+    {
+        <a asp-controller="Activities" asp-action="Create">Добавить</a> <span> | </span>
+    }
     <a asp-controller="RatingControls" asp-action="Index" asp-route-disciplineId="@Model.Id">Рейтинг</a>
 </p>
 
