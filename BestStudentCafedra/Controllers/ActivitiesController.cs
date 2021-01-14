@@ -110,10 +110,10 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Create
-        public IActionResult Create()
+        public IActionResult Create(int SemesterDisciplineId)
         {
-            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id");
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name");
+            ViewData["SemesterDisciplineId"] = SemesterDisciplineId;
             return View();
         }
 
@@ -128,7 +128,7 @@ namespace BestStudentCafedra.Controllers
             {
                 _context.Add(activity);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "SemesterDisciplines", new { id = activity.SemesterDisciplineId });
             }
             ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.SemesterDisciplineId);
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name", activity.TypeId);
@@ -185,7 +185,6 @@ namespace BestStudentCafedra.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SemesterDisciplineId"] = new SelectList(_context.SemesterDiscipline, "Id", "Id", activity.SemesterDisciplineId);
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name", activity.TypeId);
             return View(activity);
         }
@@ -218,7 +217,7 @@ namespace BestStudentCafedra.Controllers
             var activity = await _context.Activities.FindAsync(id);
             _context.Activities.Remove(activity);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "SemesterDisciplines", new { id = activity.SemesterDisciplineId });
         }
 
         private bool ActivityExists(int id)

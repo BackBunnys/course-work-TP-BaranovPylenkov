@@ -11,13 +11,10 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input hidden name="SemesterDisciplineId" value="@ViewBag.SemesterDisciplineId" />
             <div class="form-group">
                 <label asp-for="TypeId" class="control-label"></label>
                 <select asp-for="TypeId" class ="form-control" asp-items="ViewBag.TypeId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="SemesterDisciplineId" class="control-label"></label>
-                <select asp-for="SemesterDisciplineId" class ="form-control" asp-items="ViewBag.SemesterDisciplineId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Number" class="control-label"></label>
