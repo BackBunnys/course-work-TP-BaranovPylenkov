@@ -40,8 +40,16 @@
     @if (User.IsInRole("methodist"))
     {
         <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> <span> | </span>
-    }   
-    <a href="@ViewBag.returnUrl" />Вернуться</a>
+    }
+
+    @if (ViewBag.ReturnUrl != null)
+    {
+        <a href="@ViewBag.ReturnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@Model.DisciplineId">Вернуться</a>
+    }
 </div>
 
 <br />

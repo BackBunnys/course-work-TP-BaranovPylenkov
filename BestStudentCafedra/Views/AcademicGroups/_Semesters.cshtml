@@ -34,7 +34,7 @@
                         <td>
                             <div class="btn-group btn-group-sm float-right">
                                 <a asp-controller="RatingControls" asp-action="Group" asp-route-id="@ViewBag.GroupId" asp-route-disciplineId="@sem.Id" class="btn btn-sm btn-outline-primary float-right">Рейтинг</a>
-                                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@sem.Id" class="btn btn-sm btn-outline-secondary float-right">Подробнее</a>
+                                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@sem.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl" class="btn btn-sm btn-outline-secondary float-right">Подробнее</a>
                             </div>
                         </td>
                     </tr>
