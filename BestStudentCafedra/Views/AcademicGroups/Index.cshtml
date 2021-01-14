@@ -2,13 +2,17 @@
 
 @{
     ViewData["Title"] = "Академические группы";
+    var isAccessAllowed = User.IsInRole("methodist");
 }
 
 <h1>Академические группы</h1>
 
-<p>
-    <a asp-action="Create">Добавить</a>
-</p>
+@if (User.IsInRole("methodist"))
+{
+    <p>
+        <a asp-action="Create">Добавить</a>
+    </p>
+}
 
 <form asp-action="Index" method="get">
     <div class="input-group mb-3" style="max-width: 300px">
@@ -42,26 +46,29 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Specialty.Code)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Specialty.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FormationYear)
-            </td>
-            <td>
-                <div class="btn-group btn-group-sm float-right" role="group">
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
-                </div>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Specialty.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Specialty.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FormationYear)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                        @if (isAccessAllowed)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                        }
+                    </div>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
