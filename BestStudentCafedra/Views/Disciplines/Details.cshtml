@@ -27,6 +27,53 @@
 </div>
 
 </br>
+<h4>Преподаватели:</h4>
+<table class="table border rounded">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Teacher.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Teacher.Post)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Teacher.AcademicDegree)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.TeacherDisciplines.Count() > 0)
+        {
+            @foreach (var item in Model.TeacherDisciplines)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => item.Teacher.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Teacher.Post)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Teacher.AcademicDegree)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.TeacherId" class="btn btn-outline-primary">Подробнее</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="4"><p class="text-info text-center">Преподаватели для данной дисциплины ещё не добавлены!</p></td></tr>
+        }
+    </tbody>
+</table>
+
+</br>
 <h4>Семестры:</h4>
 <p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
 
@@ -51,25 +98,25 @@
     <tbody>
         @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Year)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Semester)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ControlType)
-            </td>
-            <td>
-                <div class="btn-group btn-group-sm float-right" role="group">
-                    <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
-                </div>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Year)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Semester)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ControlType)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
+                    </div>
+                </td>
+            </tr>
         }
     </tbody>
 </table>

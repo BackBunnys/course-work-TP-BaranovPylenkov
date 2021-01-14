@@ -70,8 +70,10 @@ namespace BestStudentCafedra.Controllers
             }
 
             var discipline = await _context.Disciplines
+                .Include(x => x.TeacherDisciplines)
+                    .ThenInclude(x => x.Teacher)
                 .Include(s => s.SemesterDisciplines.OrderBy(x => x.Year).ThenBy(y => y.Semester))
-                .ThenInclude(d => d.Discipline)
+                    .ThenInclude(d => d.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (discipline == null)
