@@ -229,6 +229,37 @@ namespace BestStudentCafedra.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> DropTeacher(int? id, int? teacherId)
+        {
+            if (id == null || teacherId == null )
+                return NotFound();
+
+            var teacherDiscipline = await _context.TeacherDisciplines
+                .Include(x => x.Teacher)
+                .Include(x => x.Discipline)
+                .FirstOrDefaultAsync(x => x.DisciplineId == id && x.TeacherId == teacherId);
+            if (teacherDiscipline == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_DropTeacher", teacherDiscipline);
+        }
+
+        // POST: AcademicGroups/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> DropTeacher(int id)
+        {
+            var teacherDiscipline = await _context.TeacherDisciplines.FindAsync(id);
+            var disciplineId = teacherDiscipline.DisciplineId;
+            _context.Remove(teacherDiscipline);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Edit), new { id = disciplineId });
+        }
+
         // GET: Disciplines/Delete/5
         [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
