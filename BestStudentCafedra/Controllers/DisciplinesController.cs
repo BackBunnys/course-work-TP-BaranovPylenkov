@@ -128,7 +128,9 @@ namespace BestStudentCafedra.Controllers
 
             var discipline = await _context.Disciplines
                 .Include(s => s.SemesterDisciplines)
-                .ThenInclude(d => d.Discipline)
+                    .ThenInclude(d => d.Discipline)
+                .Include(x => x.TeacherDisciplines)
+                    .ThenInclude(x => x.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (discipline == null)
@@ -176,6 +178,55 @@ namespace BestStudentCafedra.Controllers
 
             ViewData["returnUrl"] = returnUrl;
             return View(discipline);
+        }
+
+        // GET: Disciplines/AddTeacher?groupId=5
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> AddTeacher(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var teacherDisciplines = _context.TeacherDisciplines
+                .Include(x => x.Teacher)
+                .Include(x => x.Discipline)
+                .Where(x => x.DisciplineId == id)
+                .AsEnumerable();
+
+            var teachers = await _context.Teachers
+                .Where(x => teacherDisciplines.Any(y => x.Id != y.TeacherId))
+                .ToListAsync();
+
+            if (teachers == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["disсiplineId"] = id;
+            ViewData["disсiplineName"] = teacherDisciplines.FirstOrDefault().Discipline.Name;
+            return View(teachers);
+        }
+
+        // POST: Disciplines/AddTeacher/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> AddTeacher(int id, int teacherId)
+        {
+            if (_context.TeacherDisciplines.Where(x => x.DisciplineId == id && x.TeacherId == teacherId).Count() > 0)
+            {
+                return Conflict();    
+            }
+
+            var teacherDiscipline = new TeacherDiscipline();
+            teacherDiscipline.DisciplineId = id;
+            teacherDiscipline.TeacherId = teacherId;
+
+            _context.Add(teacherDiscipline);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Disciplines/Delete/5
