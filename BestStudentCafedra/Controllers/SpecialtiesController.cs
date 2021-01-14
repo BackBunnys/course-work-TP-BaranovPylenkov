@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -44,6 +45,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Specialties/Create
+        [Authorize(Roles = "methodist")]
         public IActionResult Create()
         {
             return View();
@@ -54,6 +56,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("Code,AcademicDegree,Name")] Specialty specialty)
         {
             if (ModelState.IsValid)
@@ -66,6 +69,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Specialties/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -86,6 +90,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(string id, [Bind("Code,AcademicDegree,Name")] Specialty specialty)
         {
             if (id != specialty.Code)
@@ -117,6 +122,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Specialties/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -137,6 +143,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Specialties/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var specialty = await _context.Specialties.FindAsync(id);
