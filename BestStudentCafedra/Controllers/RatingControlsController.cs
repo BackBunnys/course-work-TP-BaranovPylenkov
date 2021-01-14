@@ -333,7 +333,7 @@ namespace BestStudentCafedra.Controllers
                 currentRow++;
 
                 var i = 1;
-                foreach (var studentRating in ratingControl.StudentRatings)
+                foreach (var studentRating in ratingControl.StudentRatings.OrderBy(x => x.Student.FullName))
                 {
                     worksheet.Cell(currentRow, 1).Value = i; worksheet.Cell(currentRow, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     worksheet.Cell(currentRow, 2).Value = studentRating.Student.GradebookNumber; worksheet.Cell(currentRow, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
