@@ -30,6 +30,13 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.GradebookNumber">Изменить</a> |
-    <a asp-action="Index">Вернуться</a>
+    <a asp-action="Edit" asp-route-id="@Model.GradebookNumber" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Изменить</a> |
+    @if (ViewBag.ReturnUrl != null && ViewBag.From == null)
+    {
+        <a href="@ViewBag.ReturnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-action="Index" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Вернуться</a>
+    }
 </div>

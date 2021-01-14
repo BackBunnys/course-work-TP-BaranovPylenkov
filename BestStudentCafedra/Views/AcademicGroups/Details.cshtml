@@ -65,8 +65,8 @@
                 @if (isAccessAllowed)
                 {
                     <div class="btn-group pb-3" role="group" aria-label="Basic example">
-                        <a asp-controller="Student" asp-action="Index" class="btn btn-secondary" role="button">Перевести</a>
-                        <a asp-controller="Student" asp-action="Create" class="btn btn-secondary" role="button">Создать нового</a>
+                        <a asp-controller="Student" asp-action="Index" class="btn btn-secondary" asp-route-ReturnUrl="@Context.Request.Path" role="button">Перевести</a>
+                        <a asp-controller="Student" asp-action="Create" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-secondary" role="button">Создать нового</a>
                     </div>
                 }
 
@@ -99,7 +99,7 @@
                                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                                 </td>
                                 <td>
-                                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber" class="btn btn-outline-primary btn-sm float-right">Подробнее</a>
+                                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.GradebookNumber" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-outline-primary btn-sm float-right">Подробнее</a>
                                 </td>
                             </tr>
                         }

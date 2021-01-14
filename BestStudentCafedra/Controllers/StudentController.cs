@@ -22,15 +22,16 @@ namespace BestStudentCafedra.Controllers
 
         // GET: Students
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string ReturnUrl)
         {
             var subjectAreaDbContext = _context.Students.Include(s => s.Group);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(await subjectAreaDbContext.ToListAsync());
         }
 
         // GET: Students/Details/5
         [Authorize]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string ReturnUrl, string From)
         {
             if (id == null)
             {
@@ -44,15 +45,17 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["ReturnUrl"] = ReturnUrl;
+            ViewData["From"] = From;
             return View(student);
         }
 
         // GET: Students/Create
         [Authorize(Roles = "methodist")]
-        public IActionResult Create()
+        public IActionResult Create(string ReturnUrl)
         {
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name");
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View();
         }
 
@@ -62,21 +65,25 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Create([Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
+        public async Task<IActionResult> Create([Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student, string ReturnUrl)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(student);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    return Redirect(ReturnUrl);
+                else
+                    return RedirectToAction(nameof(Index));
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
         // GET: Students/Edit/5
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -89,6 +96,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
@@ -98,7 +106,7 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Edit(int id, [Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
+        public async Task<IActionResult> Edit(int id, [Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student, string ReturnUrl)
         {
             if (id != student.GradebookNumber)
             {
@@ -123,9 +131,13 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    return Redirect(ReturnUrl);
+                else
+                    return RedirectToAction(nameof(Index));
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 

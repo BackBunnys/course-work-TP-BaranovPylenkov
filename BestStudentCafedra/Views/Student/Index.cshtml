@@ -45,8 +45,8 @@
                     @Html.DisplayFor(modelItem => item.Group.Name)
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.GradebookNumber">Подробнее</a> |
-                    <a asp-action="Edit" asp-route-id="@item.GradebookNumber">Изменить</a> |
+                    <a asp-action="Details" asp-route-id="@item.GradebookNumber" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-From="Index">Подробнее</a> |
+                    <a asp-action="Edit" asp-route-id="@item.GradebookNumber" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Изменить</a> |
                     <a asp-action="Delete" asp-route-id="@item.GradebookNumber">Удалить</a>
                 </td>
             </tr>
