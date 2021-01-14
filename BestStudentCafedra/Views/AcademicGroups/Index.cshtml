@@ -7,13 +7,14 @@
 
 <h1>Академические группы</h1>
 
-@if (User.IsInRole("methodist"))
-{
 <p>
-    <a asp-action="Create">Добавить</a> <span> | </span>
+    @if (User.IsInRole("methodist"))
+    {
+        <a asp-action="Create">Добавить</a> <span> | </span>
+    }
     <a asp-controller="Specialties" asp-action="Index">Специальности</a>
 </p>
-}
+
 
 <form asp-action="Index" method="get">
     <div class="input-group mb-3" style="max-width: 300px">

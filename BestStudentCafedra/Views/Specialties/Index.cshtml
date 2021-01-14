@@ -2,13 +2,18 @@
 
 @{
     ViewData["Title"] = "Специальности";
+    var isAccessAllowed = User.IsInRole("methodist");
 }
 
 <h1>Специальности</h1>
 
-<p>
-    <a asp-action="Create">Создать новую</a>
-</p>
+@if (User.IsInRole("methodist"))
+{ 
+    <p>
+        <a asp-action="Create">Создать новую</a>
+    </p>
+}
+
 <table class="table border rounded" id="specialtyTable">
     <thead>
         <tr>
@@ -38,9 +43,13 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Code">Подробнее</a> |
-                    <a asp-action="Edit" asp-route-id="@item.Code">Изменить</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Code">Удалить</a>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-outline-secondary">Подробнее</a>
+                        @if (isAccessAllowed)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-outline-danger">&times;</a>
+                        }
+                    </div>
                 </td>
             </tr>
         }

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Подробности о специальности";
+    var isAccessAllowed = User.IsInRole("methodist");
 }
 
 <h1>Подробности о специальности</h1>
@@ -25,6 +26,9 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Code">Изменить</a> |
+    @if (isAccessAllowed)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Code">Изменить</a> <span> | </span>
+    }
     <a asp-action="Index">Вернуться в список специальностей</a>
 </div>
