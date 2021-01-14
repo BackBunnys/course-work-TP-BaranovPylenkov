@@ -32,7 +32,7 @@
                             @Html.DisplayFor(semItem => sem.ControlType)
                         </td>
                         <td>
-                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@sem.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-outline-primary float-right">Перейти</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@sem.Id" asp-route-returnUrl="@ViewBag.ReturnUrl" class="btn btn-sm btn-outline-primary float-right">Перейти</a>
                         </td>
                     </tr>
                 }

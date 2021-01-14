@@ -64,10 +64,11 @@ namespace BestStudentCafedra.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Semesters(int id, int groupId)
+        public async Task<IActionResult> Semesters(int id, int groupId, string ReturnUrl)
         {
             var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
             ViewData["GroupId"] = groupId;
+            ViewData["ReturnUrl"] = ReturnUrl; //не работает
             return PartialView("_Semesters", semesterDisciplines);
         }
 
