@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -20,6 +21,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null)
@@ -43,6 +45,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Create
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create(int id, string returnUrl)
         {
             ViewData["returnUrl"] = returnUrl;
@@ -56,6 +59,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string returnUrl)
         {
             ViewData["returnUrl"] = returnUrl;
@@ -87,6 +91,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id, int disciplineId, string returnUrl)
         {
             if (id == null)
@@ -114,6 +119,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string returnUrl)
         {
             if (id != semesterDiscipline.Id)
@@ -155,6 +161,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SemesterDisciplines/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id, string returnUrl)
         {
             if (id == null)
@@ -177,6 +184,7 @@ namespace BestStudentCafedra.Controllers
         // POST: SemesterDisciplines/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl)
         {
             var semesterDiscipline = await _context.SemesterDiscipline.FindAsync(id);
