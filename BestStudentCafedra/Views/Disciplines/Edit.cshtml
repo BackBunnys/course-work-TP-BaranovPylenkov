@@ -74,7 +74,7 @@
         }
         else
         {
-            <tr><td colspan="4"><p class="text-info text-center">Преподаватели для данной дисциплины ещё не добавлены!</p></td></tr>
+            <tr><td colspan="4"><p class="text-info text-center">Преподаватели для данной дисциплины ещё не добавлены</p></td></tr>
         }
     </tbody>
 </table>
@@ -105,30 +105,37 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+        @if (Model.SemesterDisciplines.Count() > 0)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Year)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Semester)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ControlType)
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm float-right" role="group">
-                        <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
-                        <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Изменить</a>
-                        <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-danger">&times;</a>
-                    </div>
+            @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Year)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Semester)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ControlType)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Изменить</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-danger">&times;</a>
+                        </div>
 
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="5"><p class="text-info text-center">Семестры для данной дисциплины ещё не добавлены</p></td></tr>
         }
     </tbody>
 </table>
