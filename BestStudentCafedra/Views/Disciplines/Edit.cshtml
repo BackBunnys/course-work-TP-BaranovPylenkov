@@ -66,7 +66,7 @@
                     <td>
                         <div class="btn-group btn-group-sm float-right" role="group">
                             <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.TeacherId" class="btn btn-outline-primary">Подробнее</a>
-                            <a href="#" onclick="loadAndShowModal('../DropTeacher/@Model.Id?teacherId=@item.Id')" class="btn btn-outline-danger">&times;</a>
+                            <a href="#" onclick="loadAndShowModal('../DropTeacher/@Model.Id?teacherId=@item.TeacherId')" class="btn btn-outline-danger">&times;</a>
                         </div>
                     </td>
                 </tr>
