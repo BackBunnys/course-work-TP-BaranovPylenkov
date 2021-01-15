@@ -30,39 +30,53 @@
     </dl>
 </div>
 
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
-        <a asp-action="Index">Вернуться</a>
-    </div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Index">Вернуться</a>
+</div>
 
     </br>
-    <h4>Дисциплины:</h4>
-    <p>Список дисциплин, которые ведет преподаватель по основным образовательным программам</p>
-    <p>
-        <a asp-action="AddDiscipline" asp-route-id="@Model.Id">Добавить</a>
-    </p>
+<h4>Дисциплины:</h4>
+<p>Список дисциплин, которые ведет преподаватель по основным образовательным программам</p>
+<p>
+    <a asp-action="AddDiscipline" asp-route-id="@Model.Id">Добавить</a>
+</p>
 
-    <table class="table">
-        <thead>
+<table class="table border rounded" id="disciplinesTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (TeacherDiscipline item in Model.TeacherDisciplines)
+        {
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Name)
-                </th>
-                <th></th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discipline.Name)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
+                    </div>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (TeacherDiscipline item in Model.TeacherDisciplines)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Discipline.Name)
-                    </td>
-                    <td>
-                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path">Подробнее</a>
-                    </td>
-                </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#disciplinesTable').DataTable({
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }
-        </tbody>
-    </table>
+        });
+    </script>
+}
 
