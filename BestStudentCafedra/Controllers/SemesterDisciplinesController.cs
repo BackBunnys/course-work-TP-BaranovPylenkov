@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class SemesterDisciplinesController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public SemesterDisciplinesController(SubjectAreaDbContext context)
+        public SemesterDisciplinesController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: SemesterDisciplines/Details/5
@@ -38,6 +41,24 @@ namespace BestStudentCafedra.Controllers
             if (semesterDiscipline == null)
             {
                 return NotFound();
+            }
+
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var teacherDisciplines = await _context.TeacherDisciplines
+                    .Where(x => x.TeacherId == user.SubjectAreaId && x.DisciplineId == semesterDiscipline.DisciplineId)
+                    .ToListAsync();
+                if (teacherDisciplines.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+            else if (User.IsInRole("student"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var student = await _context.Students.FirstOrDefaultAsync(x => x.GradebookNumber == user.SubjectAreaId);
+                var groupDiscipline = await _context.GroupDisciplines
+                    .Where(x => x.GroupId == student.GroupId && x.DisciplineId == semesterDiscipline.DisciplineId)
+                    .ToListAsync();
+                if (groupDiscipline.Count() == 0) return Redirect("/Account/AccessDenied");
             }
 
             ViewData["returnUrl"] = returnUrl;
