@@ -94,8 +94,9 @@ namespace BestStudentCafedra.Controllers
 
         // GET: Disciplines/Create
         [Authorize(Roles = "methodist")]
-        public IActionResult Create()
+        public IActionResult Create(int? ForGroup)
         {
+            ViewData["ForGroup"] = ForGroup;
             return View();
         }
 
@@ -105,15 +106,28 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline, string returnUrl)
+        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline, string returnUrl, int? ForGroup)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(discipline);
                 await _context.SaveChangesAsync();
+
+                if(ForGroup != null)
+                {
+                    var groupDiscipline = new GroupDiscipline();
+                    groupDiscipline.DisciplineId = discipline.Id;
+                    groupDiscipline.GroupId = (int)ForGroup;
+                    _context.Add(groupDiscipline);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Details", "AcademicGroups", new { id = ForGroup });
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["returnUrl"] = returnUrl;
+            ViewData["ForGroup"] = ForGroup;
             return View(discipline);
         }
 
@@ -189,14 +203,14 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var teacherDisciplines = _context.TeacherDisciplines
-                .Include(x => x.Teacher)
-                .Include(x => x.Discipline)
-                .Where(x => x.DisciplineId == id)
-                .AsEnumerable();
+            var discipline = await _context.Disciplines
+                .Include(x => x.TeacherDisciplines)
+                    .ThenInclude(x => x.Teacher)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             var teachers = await _context.Teachers
-                .Where(x => teacherDisciplines.Any(y => x.Id != y.TeacherId))
+                .Include(x => x.TeacherDisciplines)
+                .Where(x => x.TeacherDisciplines.Any(y => y.DisciplineId != id) || x.TeacherDisciplines.Count() == 0)
                 .ToListAsync();
 
             if (teachers == null)
@@ -205,7 +219,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             ViewData["disсiplineId"] = id;
-            ViewData["disсiplineName"] = teacherDisciplines.FirstOrDefault().Discipline.Name;
+            ViewData["disсiplineName"] = discipline.Name;
             return View(teachers);
         }
 
@@ -226,7 +240,7 @@ namespace BestStudentCafedra.Controllers
 
             _context.Add(teacherDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Edit), new { id = id });
         }
 
         [Authorize(Roles = "methodist")]

@@ -103,27 +103,34 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+        @if (Model.TeacherDisciplines.Count() > 0)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Year)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Semester)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ControlType)
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm float-right" role="group">
-                        <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
-                    </div>
-                </td>
-            </tr>
+            @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Year)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Semester)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ControlType)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="5"><p class="text-info text-center">Преподаватели для данной дисциплины ещё не добавлены</p></td></tr>
         }
     </tbody>
 </table>

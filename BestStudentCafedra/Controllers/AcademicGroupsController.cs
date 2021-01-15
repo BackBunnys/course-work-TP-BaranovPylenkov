@@ -170,7 +170,7 @@ namespace BestStudentCafedra.Controllers
             disciplines.RemoveAll(x => groupDisciplines.Any(y => y.Id == x.Id));
 
             ViewData["DisciplineName"] = _context.AcademicGroups.FirstOrDefault(x => x.Id == id).Name;
-
+            ViewData["GroupId"] = id;
             return View(disciplines);
         }
 

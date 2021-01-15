@@ -116,7 +116,7 @@
                 {
                     <div class="btn-group pb-3" role="group" aria-label="Basic example">
                         <a asp-action="AddDiscipline" asp-route-id="@Model.Id" class="btn btn-secondary" role="button">Добавить</a>
-                        <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Создать новую</a>
+                        <a asp-controller="Disciplines" asp-action="Create" asp-route-ForGroup="@Model.Id" class="btn btn-secondary" role="button">Создать новую</a>
                     </div>
                 }
 
