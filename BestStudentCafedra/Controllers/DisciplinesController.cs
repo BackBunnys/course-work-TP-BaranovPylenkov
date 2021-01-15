@@ -226,7 +226,7 @@ namespace BestStudentCafedra.Controllers
 
             _context.Add(teacherDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Edit), new { id = id });
         }
 
         [Authorize(Roles = "methodist")]
