@@ -84,7 +84,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Discipline");
+                    return RedirectToAction("Edit", "Disciplines", new { id = semesterDiscipline.DisciplineId });
                 }
             }
             return View(semesterDiscipline);
