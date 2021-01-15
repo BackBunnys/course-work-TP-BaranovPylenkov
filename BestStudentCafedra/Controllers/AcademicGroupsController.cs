@@ -2,6 +2,7 @@
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,12 @@ namespace BestStudentCafedra.Controllers
     public class AcademicGroupsController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public AcademicGroupsController(SubjectAreaDbContext context)
+        public AcademicGroupsController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: AcademicGroups
@@ -58,6 +61,22 @@ namespace BestStudentCafedra.Controllers
             if (groups == null)
             {
                 return NotFound();
+            }
+
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var disciplines = groups.GroupDiscipline.Select(x => x.Discipline).AsEnumerable();
+                var teacherDiscplines = _context.TeacherDisciplines.AsEnumerable()
+                    .Where(x => x.TeacherId == user.SubjectAreaId && disciplines.Any(y => x.DisciplineId == y.Id))
+                    .ToList();
+                if (teacherDiscplines.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+            else if (User.IsInRole("student"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var students = groups.Students.Where(x => x.GroupId == id && x.GradebookNumber == user.SubjectAreaId);
+                if (students.Count() == 0) return Redirect("/Account/AccessDenied");
             }
 
             return View(groups);
