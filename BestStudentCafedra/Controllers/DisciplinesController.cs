@@ -189,14 +189,14 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
-            var teacherDisciplines = _context.TeacherDisciplines
-                .Include(x => x.Teacher)
-                .Include(x => x.Discipline)
-                .Where(x => x.DisciplineId == id)
-                .AsEnumerable();
+            var discipline = await _context.Disciplines
+                .Include(x => x.TeacherDisciplines)
+                    .ThenInclude(x => x.Teacher)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             var teachers = await _context.Teachers
-                .Where(x => teacherDisciplines.Any(y => x.Id != y.TeacherId))
+                .Include(x => x.TeacherDisciplines)
+                .Where(x => x.TeacherDisciplines.Any(y => y.DisciplineId != id) || x.TeacherDisciplines.Count() == 0)
                 .ToListAsync();
 
             if (teachers == null)
@@ -205,7 +205,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             ViewData["disсiplineId"] = id;
-            ViewData["disсiplineName"] = teacherDisciplines.FirstOrDefault().Discipline.Name;
+            ViewData["disсiplineName"] = discipline.Name;
             return View(teachers);
         }
 
