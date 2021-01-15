@@ -46,9 +46,9 @@ namespace BestStudentCafedra.Controllers
 
         // GET: SemesterDisciplines/Create
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Create(int id, string returnUrl)
+        public async Task<IActionResult> Create(int id, string ReturnUrl)
         {
-            ViewData["returnUrl"] = returnUrl;
+            ViewData["ReturnUrl"] = ReturnUrl;
             Discipline discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == id);
             SemesterDiscipline semesterDiscipline = new SemesterDiscipline() { Discipline = discipline };
             return View(semesterDiscipline);
@@ -60,9 +60,9 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string returnUrl)
+        public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string ReturnUrl)
         {
-            ViewData["returnUrl"] = returnUrl;
+            ViewData["ReturnUrl"] = ReturnUrl;
             semesterDiscipline.Discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == semesterDiscipline.DisciplineId);
 
             if (_context.SemesterDiscipline
@@ -78,9 +78,9 @@ namespace BestStudentCafedra.Controllers
             {
                 _context.Add(semesterDiscipline);
                 await _context.SaveChangesAsync();
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
                 {
-                    return Redirect(returnUrl);
+                    return Redirect(ReturnUrl);
                 }
                 else
                 {
