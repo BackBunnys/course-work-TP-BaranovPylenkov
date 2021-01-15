@@ -69,6 +69,17 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var teacherDisciplines = await _context.TeacherDisciplines
+                    .Include(x => x.Discipline)
+                    .Where(x => x.TeacherId == user.SubjectAreaId && x.DisciplineId == id)
+                    .Select(x => x.Discipline)
+                    .ToListAsync();
+                if (teacherDisciplines.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+
             var discipline = await _context.Disciplines
                 .Include(x => x.TeacherDisciplines)
                     .ThenInclude(x => x.Teacher)
