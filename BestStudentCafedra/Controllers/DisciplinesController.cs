@@ -94,8 +94,9 @@ namespace BestStudentCafedra.Controllers
 
         // GET: Disciplines/Create
         [Authorize(Roles = "methodist")]
-        public IActionResult Create()
+        public IActionResult Create(int? ForGroup)
         {
+            ViewData["ForGroup"] = ForGroup;
             return View();
         }
 
@@ -105,15 +106,28 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline, string returnUrl)
+        public async Task<IActionResult> Create([Bind("Id,Name")] Discipline discipline, string returnUrl, int? ForGroup)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(discipline);
                 await _context.SaveChangesAsync();
+
+                if(ForGroup != null)
+                {
+                    var groupDiscipline = new GroupDiscipline();
+                    groupDiscipline.DisciplineId = discipline.Id;
+                    groupDiscipline.GroupId = (int)ForGroup;
+                    _context.Add(groupDiscipline);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Details", "AcademicGroups", new { id = ForGroup });
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["returnUrl"] = returnUrl;
+            ViewData["ForGroup"] = ForGroup;
             return View(discipline);
         }
 
