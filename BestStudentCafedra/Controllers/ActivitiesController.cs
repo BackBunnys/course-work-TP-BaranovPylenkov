@@ -88,6 +88,7 @@ namespace BestStudentCafedra.Controllers
                     try
                     {
                         _context.Update(activityProtection);
+                        await _context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
                     {
@@ -105,8 +106,8 @@ namespace BestStudentCafedra.Controllers
                 {
                     activityProtection.Id = 0;
                     _context.Add(activityProtection);
+                    await _context.SaveChangesAsync();
                 }
-                await _context.SaveChangesAsync();
             }
 
             ViewData["groupId"] = groupId;
