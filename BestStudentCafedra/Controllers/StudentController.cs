@@ -133,9 +133,9 @@ namespace BestStudentCafedra.Controllers
                     }
                 }
                 if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-                    return Redirect(ReturnUrl);
+                    return RedirectToAction(nameof(Details), new { id = id, ReturnUrl = ReturnUrl });
                 else
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Details), new { id = id });
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
             ViewData["ReturnUrl"] = ReturnUrl;
