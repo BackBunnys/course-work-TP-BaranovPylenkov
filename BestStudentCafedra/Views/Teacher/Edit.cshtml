@@ -65,7 +65,7 @@
                 <td>
                     <div class="btn-group btn-group-sm float-right" role="group">
                         <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Подробнее</a>
-                        <a href="#" onclick="loadAndShowModal('../DropDiscipline/@item.Id')" class="btn btn-outline-danger">&times;</a>
+                        <a href="#" onclick="loadAndShowModal('../DropDiscipline/@item.Id?ReturnUrl=@ViewBag.ReturnUrl')" class="btn btn-outline-danger">&times;</a>
                     </div>
                 </td>
             </tr>

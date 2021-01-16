@@ -28,6 +28,7 @@
             <div class="modal-footer">
                 <form asp-action="DropDiscipline">
                     <input hidden name="id" value="@Model.Id" />
+                    <input hidden name="ReturnUrl" value="@ViewContext.ViewBag.ReturnUrl" />
                     <input type="submit" value="Удалить" class="btn btn-danger" />
                 </form>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal()">Отмена</button>

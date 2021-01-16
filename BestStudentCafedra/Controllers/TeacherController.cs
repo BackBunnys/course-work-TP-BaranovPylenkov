@@ -87,7 +87,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> DropDiscipline(int? id)
+        public async Task<IActionResult> DropDiscipline(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -104,6 +104,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            ViewData["ReturnUrl"] = ReturnUrl;
             return PartialView("_DropDiscipline", teacherDiscipline);
         }
 
@@ -111,13 +112,13 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> DropDiscipline(int id)
+        public async Task<IActionResult> DropDiscipline(int id, string ReturnUrl)
         {
             var teacherDiscipline = await _context.TeacherDisciplines.FirstOrDefaultAsync(x => x.Id == id);
             var teacherId = teacherDiscipline.TeacherId;
             _context.TeacherDisciplines.Remove(teacherDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Edit), new { id = teacherId });
+            return RedirectToAction(nameof(Edit), new { id = teacherId, ReturnUrl = ReturnUrl });
         }
 
         // GET: Teachers/Create
