@@ -52,10 +52,11 @@ namespace BestStudentCafedra.Controllers
 
         // GET: Students/Create
         [Authorize(Roles = "methodist")]
-        public IActionResult Create(string ReturnUrl)
+        public IActionResult Create(string ReturnUrl, int? ForGroup = null)
         {
-            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name");
+            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", ForGroup);
             ViewData["ReturnUrl"] = ReturnUrl;
+            ViewData["ForGroup"] = ForGroup;
             return View();
         }
 
@@ -74,7 +75,7 @@ namespace BestStudentCafedra.Controllers
                 if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
                     return Redirect(ReturnUrl);
                 else
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", "AcademicGroups", new { id = student.GroupId });
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
             ViewData["ReturnUrl"] = ReturnUrl;
@@ -132,9 +133,9 @@ namespace BestStudentCafedra.Controllers
                     }
                 }
                 if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-                    return Redirect(ReturnUrl);
+                    return RedirectToAction(nameof(Details), new { id = id, ReturnUrl = ReturnUrl });
                 else
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Details), new { id = id });
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
             ViewData["ReturnUrl"] = ReturnUrl;

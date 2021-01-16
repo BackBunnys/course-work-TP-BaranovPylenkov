@@ -25,7 +25,14 @@
 </div>
 
 <div>
-    <a asp-action="Index">Вернуться</a>
+    @if (ViewBag.ForGroup != null)
+    {
+        <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@ViewBag.ForGroup">Вернуться</a>
+    }
+    else
+    {
+        <a asp-action="Index">Вернуться</a>
+    }
 </div>
 
 @section Scripts {

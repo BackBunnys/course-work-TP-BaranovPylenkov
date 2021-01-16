@@ -36,13 +36,13 @@
 </div>
 
 <div>
-    @if (ViewBag.ReturnUrl != null && ViewBag.From == null)
+    @if (ViewBag.ReturnUrl != null)
     {
-        <a href="@ViewBag.ReturnUrl">Вернуться</a>
+        <a asp-action="Details" asp-route-id="@Model.GradebookNumber" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Вернуться</a>
     }
     else
     {
-        <a asp-action="Index" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Вернуться</a>
+        <a asp-controller="AcademicGroups" asp-action="Index">Вернуться</a>
     }
 </div>
 
