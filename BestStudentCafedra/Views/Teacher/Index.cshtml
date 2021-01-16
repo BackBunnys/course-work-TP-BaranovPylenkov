@@ -2,13 +2,18 @@
 
 @{
     ViewData["Title"] = "Преподаватели";
+    var isAccessAllowed = User.IsInRole("methodist");
 }
 
 <h1>Преподаватели</h1>
 
 <p>
-    <a asp-action="Create">Добавить</a>
+    @if (isAccessAllowed)
+    {
+        <a asp-action="Create">Добавить</a>
+    }
 </p>
+
 <table class="table border rounded" id="teachersTable">
     <thead>
         <tr>
@@ -40,7 +45,10 @@
                 <td>
                     <div class="btn-group btn-group-sm float-right" role="group">
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                        @if (isAccessAllowed)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                        }
                     </div>
                 </td>
             </tr>
