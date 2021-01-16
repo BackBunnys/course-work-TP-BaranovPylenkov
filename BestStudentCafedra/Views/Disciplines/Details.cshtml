@@ -67,7 +67,7 @@
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm float-right" role="group">
-                            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.TeacherId" asp-route-ReturnUrl="@ViewBag.ReturnUrl" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.TeacherId" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
                         </div>
                     </td>
                 </tr>

@@ -9,7 +9,7 @@
 <p>
     <a asp-action="Create">Добавить</a>
 </p>
-<table class="table">
+<table class="table border rounded" id="teachersTable">
     <thead>
         <tr>
             <th>
@@ -25,23 +25,37 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Post)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcademicDegree)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Post)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AcademicDegree)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#teachersTable').DataTable({
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

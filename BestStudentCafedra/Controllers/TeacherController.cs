@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -26,7 +27,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -42,12 +43,12 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddDiscipline(int? id)
+        public async Task<IActionResult> AddDiscipline(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -63,13 +64,12 @@ namespace BestStudentCafedra.Controllers
             List<Discipline> disciplines = await _context.Disciplines.ToListAsync();
             disciplines.RemoveAll(x => teacherDisciplines.Any(y => y.Id == x.Id));
 
-            ViewData["DisciplinesId"] = new SelectList(disciplines, "Id", "Name");
-
-            return View();
+            ViewData["ReturnUrl"] = ReturnUrl;
+            return View(disciplines);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDiscipline(int id, int DisciplineId)
+        public async Task<IActionResult> AddDiscipline(int id, int DisciplineId, string ReturnUrl)
         {
             if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Count() > 0)
             {
@@ -82,19 +82,45 @@ namespace BestStudentCafedra.Controllers
 
             _context.Add(newTeacherDisp);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { id = id });
+            ViewData["ReturnUrl"] = ReturnUrl;
+            return RedirectToAction(nameof(Edit), new { id = id, ReturnUrl = ReturnUrl });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> DeleteDiscipline(int id)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> DropDiscipline(int? id, string ReturnUrl)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var teacherDiscipline = await _context.TeacherDisciplines
+                .Include(x => x.Teacher)
+                .Include(x => x.Discipline)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (teacherDiscipline == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["ReturnUrl"] = ReturnUrl;
+            return PartialView("_DropDiscipline", teacherDiscipline);
+        }
+
+        // POST: AcademicGroups/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> DropDiscipline(int id, string ReturnUrl)
         {
             var teacherDiscipline = await _context.TeacherDisciplines.FirstOrDefaultAsync(x => x.Id == id);
             var teacherId = teacherDiscipline.TeacherId;
             _context.TeacherDisciplines.Remove(teacherDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { id = teacherId });
+            return RedirectToAction(nameof(Edit), new { id = teacherId, ReturnUrl = ReturnUrl });
         }
-        
+
         // GET: Teachers/Create
         public IActionResult Create()
         {
@@ -118,7 +144,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -133,6 +159,7 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
         }
 
@@ -141,7 +168,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher, string ReturnUrl)
         {
             if (id != teacher.Id)
             {
@@ -166,8 +193,9 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = id, ReturnUrl = ReturnUrl });
             }
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
         }
 
