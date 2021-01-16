@@ -177,7 +177,8 @@
         });
 
         var table = $('#disciplineTable').DataTable({
-            columnDefs: [{ orderable: false, targets: [-1] }],
+            order: [[1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1, 0] }],
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }
