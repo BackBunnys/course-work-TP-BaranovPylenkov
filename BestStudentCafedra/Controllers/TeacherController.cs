@@ -21,12 +21,14 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Teachers.ToListAsync());
         }
 
         // GET: Teachers/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id, string ReturnUrl)
         {
             if (id == null)
@@ -48,6 +50,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int? id, string ReturnUrl)
         {
             if (id == null)
@@ -69,6 +72,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int id, int DisciplineId, string ReturnUrl)
         {
             if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Count() > 0)
@@ -122,6 +126,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Create
+        [Authorize(Roles = "methodist")]
         public IActionResult Create()
         {
             return View();
@@ -132,6 +137,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher)
         {
             if (ModelState.IsValid)
@@ -144,6 +150,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id, string ReturnUrl)
         {
             if (id == null)
@@ -168,6 +175,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher, string ReturnUrl)
         {
             if (id != teacher.Id)
@@ -200,6 +208,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -220,6 +229,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Teachers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var teacher = await _context.Teachers.FindAsync(id);
