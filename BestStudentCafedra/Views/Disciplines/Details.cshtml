@@ -122,7 +122,7 @@
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm float-right" role="group">
-                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-groupId="@ViewBag.groupId" class="btn btn-outline-primary">Подробнее</a>
                         </div>
                     </td>
                 </tr>

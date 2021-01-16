@@ -140,7 +140,7 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm float-right" role="group">
-                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Подробнее</a>
+                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-ReturnUrl="@Context.Request.Path" asp-route-groupId="@Model.Id" class="btn btn-outline-secondary">Подробнее</a>
                                         @if (isAccessAllowed)
                                         {
                                             <a href="#" onclick="loadAndShowModal('../DropDiscipline/@Model.Id?disciplineId=@item.DisciplineId')" class="btn btn-outline-danger">&times;</a>
