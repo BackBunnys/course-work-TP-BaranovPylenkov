@@ -20,16 +20,18 @@ namespace BestStudentCafedra.Models
         [Display(Name = "Студент")]
         [Required(ErrorMessage = "Не указан студент")]
         public int StudentId { get; set; }
-
+        [Display(Name = "Научный руководитель")]
         public int? ScientificAdviserId { get; set; }
+        [Display(Name = "Рецензент")]
         public int? ReviewerId { get; set; }
 
         [Display(Name = "Тема")]
         public string Theme { get; set; }
-        [Display(Name = "Дата архивации")]
+        [Display(Name = "Дата сдачи")]
+        [DataType(DataType.Date)]
         public DateTime? ArchievedDate { get; set; }
         [Display(Name = "Результат")]
-        public short? Result { get; set; }
+        public int? Result { get; set; }
 
         [Display(Name = "Студент")]
         public virtual Student Student { get; set; }
@@ -38,6 +40,12 @@ namespace BestStudentCafedra.Models
         public virtual ICollection<EventLog> EventLogs { get; set; }
         public virtual ICollection<TeacherRequest> TeacherRequests { get; set; }
         public virtual ICollection<ThemeRequest> ThemeRequests { get; set; }
+
+        public void Archive(int result, DateTime date)
+        {
+            Result = result;
+            ArchievedDate = date;
+        }
 
         public bool hasMarkForEvent(Event @event)
         {
