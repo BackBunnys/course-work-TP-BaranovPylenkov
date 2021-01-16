@@ -8,23 +8,57 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class TeacherController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public TeacherController(SubjectAreaDbContext context)
+        public TeacherController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Teachers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Teachers.ToListAsync());
+            List<Teacher> teachers = null;
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (User.IsInRole("student"))
+            {
+                var disciplines = await _context.AcademicGroups
+                    .Include(x => x.GroupDiscipline)
+                        .ThenInclude(y => y.Discipline)
+                            .ThenInclude(z => z.TeacherDisciplines)
+                                .ThenInclude(h => h.Teacher)
+                    .SelectMany(x => x.GroupDiscipline)
+                    .ToListAsync();
+
+                var teacherDisciplines = disciplines.SelectMany(x => x.Discipline.TeacherDisciplines);
+                teachers = teacherDisciplines.Select(x => x.Teacher).Distinct().ToList();
+            }
+            else if (User.IsInRole("teacher"))
+            {
+                var teacherDisciplines = await _context.Disciplines
+                    .Include(x => x.TeacherDisciplines)
+                        .ThenInclude(x => x.Teacher)
+                    .Where(x => x.TeacherDisciplines.Any(y => y.TeacherId == user.SubjectAreaId))
+                    .SelectMany(x => x.TeacherDisciplines)
+                    .ToListAsync();
+                teachers = teacherDisciplines.Select(x => x.Teacher).Distinct().ToList();
+            }
+            else
+            {
+                teachers = await _context.Teachers.ToListAsync();
+            }
+
+            return View(teachers);
         }
 
         // GET: Teachers/Details/5
