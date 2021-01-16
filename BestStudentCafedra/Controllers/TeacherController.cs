@@ -167,7 +167,7 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = id, ReturnUrl = ReturnUrl });
             }
             ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);

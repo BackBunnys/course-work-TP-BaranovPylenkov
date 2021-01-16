@@ -12,7 +12,7 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" value="@ViewBag.returnUrl" name="returnUrl" />
+            <input type="hidden" value="@ViewBag.ReturnUrl" name="ReturnUrl" />
             <div class="form-group">
                 <label asp-for="FullName" class="control-label"></label>
                 <input asp-for="FullName" class="form-control" />
@@ -36,7 +36,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Вернуться в список преподавателей</a>
+    <a asp-action="Details" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Вернуться</a>
 </div>
 
 </br>

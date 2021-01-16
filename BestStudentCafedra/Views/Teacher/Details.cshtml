@@ -31,7 +31,7 @@
 </div>
 
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Изменить</a> |
     @if (ViewBag.ReturnUrl != null)
     {
         <a href="@ViewBag.ReturnUrl">Вернуться</a>
