@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -85,16 +86,40 @@ namespace BestStudentCafedra.Controllers
             return RedirectToAction(nameof(Edit), new { id = id, ReturnUrl = ReturnUrl });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> DeleteDiscipline(int id)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> DropDiscipline(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var teacherDiscipline = await _context.TeacherDisciplines
+                .Include(x => x.Teacher)
+                .Include(x => x.Discipline)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (teacherDiscipline == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_DropDiscipline", teacherDiscipline);
+        }
+
+        // POST: AcademicGroups/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> DropDiscipline(int id)
         {
             var teacherDiscipline = await _context.TeacherDisciplines.FirstOrDefaultAsync(x => x.Id == id);
             var teacherId = teacherDiscipline.TeacherId;
             _context.TeacherDisciplines.Remove(teacherDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { id = teacherId });
+            return RedirectToAction(nameof(Edit), new { id = teacherId });
         }
-        
+
         // GET: Teachers/Create
         public IActionResult Create()
         {
