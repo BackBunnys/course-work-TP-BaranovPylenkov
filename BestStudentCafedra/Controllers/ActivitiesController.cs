@@ -9,6 +9,7 @@ using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using BestStudentCafedra.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -35,11 +36,21 @@ namespace BestStudentCafedra.Controllers
             if (User.IsInRole("student"))
             {
                 User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var student = await _context.Students.FindAsync(user.SubjectAreaId);
                 var activityProtect = await _context.Activities
+                    .Include(x => x.SemesterDiscipline)
+                        .ThenInclude(x => x.Discipline)
+                            .ThenInclude(x => x.GroupDiscipline)
                     .Include(x => x.ActivityProtections.Where(x => x.StudentId == user.SubjectAreaId))
                     .Include(x => x.Type)
-                    .Where(x => x.Id == id)
+                    .Where(x => x.Id == id && x.SemesterDiscipline.Discipline.GroupDiscipline.Any(x => x.GroupId == student.GroupId))
                     .FirstOrDefaultAsync();
+
+                if (activityProtect == null)
+                {
+                    return Redirect("/Account/AccessDenied");
+                }
+
                 return View("ProtectResult", activityProtect);
             }
 
