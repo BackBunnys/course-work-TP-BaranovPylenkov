@@ -63,9 +63,8 @@ namespace BestStudentCafedra.Controllers
             List<Discipline> disciplines = await _context.Disciplines.ToListAsync();
             disciplines.RemoveAll(x => teacherDisciplines.Any(y => y.Id == x.Id));
 
-            ViewData["DisciplinesId"] = new SelectList(disciplines, "Id", "Name");
             ViewData["ReturnUrl"] = ReturnUrl;
-            return View();
+            return View(disciplines);
         }
 
         [HttpPost]
