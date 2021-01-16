@@ -20,13 +20,6 @@ namespace BestStudentCafedra.Controllers
             _context = context;
         }
 
-        // GET: Activities
-        public async Task<IActionResult> Index()
-        {
-            var subjectAreaDbContext = _context.Activities.Include(a => a.SemesterDiscipline).Include(a => a.Type);
-            return View(await subjectAreaDbContext.ToListAsync());
-        }
-
         // GET: Activities/Details/5
         public async Task<IActionResult> Protect(int? id, string ReturnUrl, int? groupId)
         {
