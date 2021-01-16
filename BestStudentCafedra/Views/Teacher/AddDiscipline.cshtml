@@ -11,6 +11,7 @@
     <div class="col-md-4">
         <form asp-action="AddDiscipline">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input hidden name="ReturnUrl" value="@ViewBag.ReturnUrl" />
             <div class="form-group">
                 <label asp-for="DisciplineId" class="control-label"></label>
                 <select asp-for="DisciplineId" class="form-control" asp-items="ViewBag.DisciplinesId"></select>

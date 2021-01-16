@@ -47,7 +47,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddDiscipline(int? id)
+        public async Task<IActionResult> AddDiscipline(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -64,12 +64,12 @@ namespace BestStudentCafedra.Controllers
             disciplines.RemoveAll(x => teacherDisciplines.Any(y => y.Id == x.Id));
 
             ViewData["DisciplinesId"] = new SelectList(disciplines, "Id", "Name");
-
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDiscipline(int id, int DisciplineId)
+        public async Task<IActionResult> AddDiscipline(int id, int DisciplineId, string ReturnUrl)
         {
             if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Count() > 0)
             {
@@ -82,7 +82,8 @@ namespace BestStudentCafedra.Controllers
 
             _context.Add(newTeacherDisp);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details), new { id = id });
+            ViewData["ReturnUrl"] = ReturnUrl;
+            return RedirectToAction(nameof(Edit), new { id = id, ReturnUrl = ReturnUrl });
         }
 
         [HttpGet]
