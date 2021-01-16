@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Identity;
+using BestStudentCafedra.Models.ViewModels;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -26,16 +27,24 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Index()
         {
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (User.IsInRole("student"))
+            {
+                GraduationWork graduationWork = await _context.GraduationWorks.FirstOrDefaultAsync(x => x.StudentId == user.SubjectAreaId);
+                return await Details(graduationWork?.Id);
+            }
+
             IQueryable<GraduationWork> graduationWorks = _context.GraduationWorks
-                    .Include(x => x.Student.Group)
+                    .Include(x => x.Student.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
+                    .ThenInclude(x => x.Events.Where(x => x.Date <= DateTime.Now))
+                    .Include(x => x.EventLogs)
                     .Include(x => x.Reviewer)
                     .Include(x => x.ScientificAdviser);
 
-            if (User.IsInRole("teacher")) {
+            if (User.IsInRole("teacher")) 
                 graduationWorks = graduationWorks.Where(x => x.ScientificAdviserId == user.SubjectAreaId);
-            }
 
-            return View(await graduationWorks.OrderByDescending(x => x.ArchievedDate).ToListAsync());
+            return View(await graduationWorks.OrderByDescending(x => x.ArchievedDate).ThenBy(x => x.Student.FullName).ToListAsync());
         }
 
         // GET: GraduationWorks/Details/5
@@ -55,13 +64,13 @@ namespace BestStudentCafedra.Controllers
                 .Include(x => x.ScientificAdviser)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            return View(graduationWork);
+            return View("Details", graduationWork);
         }
 
         // GET: GraduationWorks/Create
         public IActionResult Create()
         {
-            ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName");
+            ViewData["StudentId"] = new SelectList(_context.Students.Include(x => x.GraduationWorks).Where(x => x.GraduationWorks.Count == 0), "GradebookNumber", "FullName");
             ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName");
             ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName");
             return View();
@@ -70,7 +79,7 @@ namespace BestStudentCafedra.Controllers
         // POST: GraduationWorks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,StudentId,Theme,ArchievedDate,Result")] GraduationWork graduationWork)
+        public async Task<IActionResult> Create([Bind("StudentId, Theme, ScientificAdviserId, ReviewerId")]GraduationWork graduationWork)
         {
             if (ModelState.IsValid)
             {
@@ -87,16 +96,13 @@ namespace BestStudentCafedra.Controllers
         // GET: GraduationWorks/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null || !GraduationWorkExists((int)id))
             {
                 return NotFound();
             }
 
-            var graduationWork = await _context.GraduationWorks.FindAsync(id);
-            if (graduationWork == null)
-            {
-                return NotFound();
-            }
+            var graduationWork = await _context.GraduationWorks.Include(x => x.Student).FirstOrDefaultAsync(x => x.Id == id);
+
             ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName", graduationWork.StudentId);
             ViewData["ScientificAdviserId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ScientificAdviserId);
             ViewData["ReviewerId"] = new SelectList(_context.Teachers, "Id", "FullName", graduationWork.ReviewerId);
@@ -106,31 +112,18 @@ namespace BestStudentCafedra.Controllers
         // POST: GraduationWorks/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, GraduationWork graduationWork)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,StudentId,Theme,ScientificAdviserId,ReviewerId")]GraduationWork graduationWork)
         {
-            if (id != graduationWork.Id)
+            if (id != graduationWork.Id || !GraduationWorkExists(id))
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(graduationWork);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GraduationWorkExists(graduationWork.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                 _context.Update(graduationWork);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["StudentId"] = new SelectList(_context.Students, "GradebookNumber", "FullName", graduationWork.StudentId);
@@ -139,21 +132,64 @@ namespace BestStudentCafedra.Controllers
             return View(graduationWork);
         }
 
+        // GET: GraduationWorks/Archive/5
+        public async Task<IActionResult> Archive(int? id)
+        {
+            if (id == null || !GraduationWorkExists((int)id))
+            {
+                return NotFound();
+            }
+
+            var graduationWork = await _context.GraduationWorks.Include(x => x.Student).FirstOrDefaultAsync(x => x.Id == id);
+
+            return View(new ArchiveWorkViewModel { GraduationWorkId = graduationWork.Id, GraduationWork = graduationWork, ArchievedDate = DateTime.Now });
+        }
+
+        // POST: GraduationWorks/Archive/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int id, [Bind("GraduationWorkId,ArchievedDate,Result")]ArchiveWorkViewModel archiveViewModel)
+        {
+            if (id != archiveViewModel.GraduationWorkId || !GraduationWorkExists(id))
+            {
+                return NotFound();
+            }
+
+            var gw = await _context.GraduationWorks.Include(x => x.EventLogs)
+                .Include(x => x.Student.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
+                .ThenInclude(x => x.Events)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (gw.EventLogs.Count < gw.Student.Group.SchedulePlans.FirstOrDefault()?.Events.Count)
+                ModelState.AddModelError("", "Нельзя отправить в архив работу, не прошедшую все мероприятия.");
+
+            if (ModelState.IsValid)
+            {
+                gw.Archive(archiveViewModel.Result, archiveViewModel.ArchievedDate);
+
+                _context.Update(gw);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            archiveViewModel.GraduationWork = gw;
+            return View(archiveViewModel);
+        }
+
         // GET: GraduationWorks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (id == null || !GraduationWorkExists((int)id))
             {
                 return NotFound();
             }
 
             var graduationWork = await _context.GraduationWorks
                 .Include(g => g.Student)
+                .Include(g => g.ScientificAdviser)
+                .Include(g => g.Reviewer)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (graduationWork == null)
-            {
-                return NotFound();
-            }
 
             return View(graduationWork);
         }
