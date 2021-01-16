@@ -56,6 +56,7 @@ namespace BestStudentCafedra.Controllers
         {
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", ForGroup);
             ViewData["ReturnUrl"] = ReturnUrl;
+            ViewData["ForGroup"] = ForGroup;
             return View();
         }
 
