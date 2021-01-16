@@ -26,7 +26,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -42,7 +42,7 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
         }
 
@@ -118,7 +118,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -133,6 +133,7 @@ namespace BestStudentCafedra.Controllers
             {
                 return NotFound();
             }
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
         }
 
@@ -141,7 +142,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher, string ReturnUrl)
         {
             if (id != teacher.Id)
             {
@@ -168,6 +169,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
         }
 
