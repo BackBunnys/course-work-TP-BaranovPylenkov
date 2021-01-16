@@ -28,7 +28,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Details/5
-        public async Task<IActionResult> Protect(int? id, int? groupId)
+        public async Task<IActionResult> Protect(int? id, string ReturnUrl, int? groupId)
         {
             if (id == null || !ActivityExists((int)id))
             {
@@ -66,13 +66,14 @@ namespace BestStudentCafedra.Controllers
             var activityProtections = new StudentActivityViewModel() { Activity = activity, Students = students };
 
             ViewData["groupId"] = groupId;
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(activityProtections);
         }
 
         // POST: Activities/Details/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Protect(int? id,[Bind("Id,StudentId,ActivityId,Points")] ActivityProtection activityProtection, int? groupId)
+        public async Task<IActionResult> Protect(int? id,[Bind("Id,StudentId,ActivityId,Points")] ActivityProtection activityProtection, string ReturnUrl, int? groupId)
         {
             if (ModelState.IsValid)
             {
@@ -109,6 +110,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             ViewData["groupId"] = groupId;
+            ViewData["ReturnUrl"] = ReturnUrl;
             return RedirectToAction(nameof(Protect), new { id = id, groupId = groupId });
         }
 
