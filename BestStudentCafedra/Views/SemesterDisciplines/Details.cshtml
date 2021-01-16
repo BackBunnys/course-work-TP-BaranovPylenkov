@@ -94,8 +94,11 @@
             </td>
             <td>
                 <div class="btn-group btn-group-sm float-right" role="group">
-                    <a asp-controller="Activities" asp-action="Protect" asp-route-id="@item.Id" class="btn btn-outline-primary">Перейти</a>
-                    <a asp-controller="Activities" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                    <a asp-controller="Activities" asp-action="Protect" asp-route-id="@item.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-groupId="@ViewBag.groupId" class="btn btn-outline-primary">Перейти</a>
+                    @if (isAccessAllowed)
+                    {
+                        <a asp-controller="Activities" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                    }
                 </div>
             </td>
         </tr>

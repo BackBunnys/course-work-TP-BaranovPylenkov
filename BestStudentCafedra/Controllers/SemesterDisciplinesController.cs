@@ -25,7 +25,7 @@ namespace BestStudentCafedra.Controllers
 
         // GET: SemesterDisciplines/Details/5
         [Authorize]
-        public async Task<IActionResult> Details(int? id, string returnUrl)
+        public async Task<IActionResult> Details(int? id, string returnUrl, string groupId)
         {
             if (id == null)
             {
@@ -62,6 +62,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             ViewData["returnUrl"] = returnUrl;
+            ViewData["groupId"] = groupId;
             return View(semesterDiscipline);
         }
 
@@ -99,6 +100,23 @@ namespace BestStudentCafedra.Controllers
             {
                 _context.Add(semesterDiscipline);
                 await _context.SaveChangesAsync();
+
+                if (semesterDiscipline.ControlType == ControlType.Exam)
+                {
+                    var type = _context.ActivityTypes.FirstOrDefault(x => x.Name == RatingControlsController.EXAMTYPENAME);
+                    if (type != null)
+                    {
+                        var exam = new Activity();
+                        exam.MaxPoints = 40;
+                        exam.Number = 1;
+                        exam.SemesterDisciplineId = semesterDiscipline.Id;
+                        exam.Title = "Экзамен";
+                        exam.TypeId = type.Id;
+                        _context.Add(exam);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
                 {
                     return Redirect(ReturnUrl);
