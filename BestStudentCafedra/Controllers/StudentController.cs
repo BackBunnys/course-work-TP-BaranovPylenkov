@@ -8,20 +8,23 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class StudentController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public StudentController(SubjectAreaDbContext context)
+        public StudentController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Students
-        [Authorize]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Index(string ReturnUrl)
         {
             var subjectAreaDbContext = _context.Students.Include(s => s.Group);
@@ -30,7 +33,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Students/Details/5
-        [Authorize]
+        [Authorize(Roles = "methodist, teacher")]
         public async Task<IActionResult> Details(int? id, string ReturnUrl, string From)
         {
             if (id == null)
@@ -41,10 +44,24 @@ namespace BestStudentCafedra.Controllers
             var student = await _context.Students
                 .Include(s => s.Group)
                 .FirstOrDefaultAsync(m => m.GradebookNumber == id);
+
             if (student == null)
             {
                 return NotFound();
             }
+
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var teacherDiscplines = _context.TeacherDisciplines
+                    .Include(x => x.Discipline)
+                        .ThenInclude(x => x.GroupDiscipline)
+                            .ThenInclude(x => x.AcademicGroup)
+                    .Where(x => x.TeacherId == user.SubjectAreaId && x.Discipline.GroupDiscipline.Any(y => y.GroupId == student.GroupId))
+                    .ToList();
+                if (teacherDiscplines.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+
             ViewData["ReturnUrl"] = ReturnUrl;
             ViewData["From"] = From;
             return View(student);

@@ -28,9 +28,25 @@ namespace BestStudentCafedra.Controllers
         [Authorize]
         public async Task<IActionResult> Index(int? formYear)
         {
-            var groups = await _context.AcademicGroups
-                .Include(s => s.Specialty)
-                .ToListAsync();
+            List<AcademicGroup> groups = null;
+
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                groups = _context.AcademicGroups
+                    .Include(x => x.Specialty)
+                    .Include(x => x.GroupDiscipline)
+                        .ThenInclude(x => x.Discipline)
+                            .ThenInclude(x => x.TeacherDisciplines)
+                    .Where(x => x.GroupDiscipline.Any(y => y.Discipline.TeacherDisciplines.Any(z => z.TeacherId == user.SubjectAreaId)))
+                    .ToList();
+            }
+            else
+            {
+                groups = await _context.AcademicGroups
+                    .Include(s => s.Specialty)
+                    .ToListAsync();
+            }
 
             ViewData["formYears"] = new SelectList(groups.Select(y => y.FormationYear).Distinct(), formYear);
 
