@@ -24,6 +24,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Details/5
+        [Authorize]
         public async Task<IActionResult> Protect(int? id, string ReturnUrl, int? groupId)
         {
             if (id == null || !ActivityExists((int)id))
@@ -80,6 +81,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Activities/Details/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "teacher, methodist")]
         public async Task<IActionResult> Protect(int? id,[Bind("Id,StudentId,ActivityId,Points")] ActivityProtection activityProtection, string ReturnUrl, int? groupId)
         {
             if (ModelState.IsValid)
@@ -123,6 +125,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Create
+        [Authorize(Roles = "teacher, methodist")]
         public IActionResult Create(int SemesterDisciplineId)
         {
             ViewData["TypeId"] = new SelectList(_context.ActivityTypes, "Id", "Name");
@@ -135,6 +138,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "teacher, methodist")]
         public async Task<IActionResult> Create([Bind("Id,TypeId,SemesterDisciplineId,Number,Title,MaxPoints")] Activity activity)
         {
             if (ModelState.IsValid)
@@ -149,6 +153,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Edit/5
+        [Authorize(Roles = "teacher, methodist")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -171,6 +176,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "teacher, methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,TypeId,SemesterDisciplineId,Number,Title,MaxPoints")] Activity activity)
         {
             if (id != activity.Id)
@@ -203,6 +209,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Activities/Delete/5
+        [Authorize(Roles = "teacher, methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -225,6 +232,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Activities/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "teacher, methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var activity = await _context.Activities.FindAsync(id);
