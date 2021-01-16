@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Подробности о преподавателе";
+    var isAccessAllowed = User.IsInRole("methodist");
 }
 
 <h1>Подробности о преподавателе</h1>
@@ -31,7 +32,10 @@
 </div>
 
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Изменить</a> |
+    @if (isAccessAllowed)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Изменить</a> <span> | </span>
+    }
     @if (ViewBag.ReturnUrl != null)
     {
         <a href="@ViewBag.ReturnUrl">Вернуться</a>

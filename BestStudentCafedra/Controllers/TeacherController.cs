@@ -8,25 +8,61 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class TeacherController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public TeacherController(SubjectAreaDbContext context)
+        public TeacherController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Teachers
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Teachers.ToListAsync());
+            List<Teacher> teachers = null;
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (User.IsInRole("student"))
+            {
+                var disciplines = await _context.AcademicGroups
+                    .Include(x => x.GroupDiscipline)
+                        .ThenInclude(y => y.Discipline)
+                            .ThenInclude(z => z.TeacherDisciplines)
+                                .ThenInclude(h => h.Teacher)
+                    .SelectMany(x => x.GroupDiscipline)
+                    .ToListAsync();
+
+                var teacherDisciplines = disciplines.SelectMany(x => x.Discipline.TeacherDisciplines);
+                teachers = teacherDisciplines.Select(x => x.Teacher).Distinct().ToList();
+            }
+            else if (User.IsInRole("teacher"))
+            {
+                var teacherDisciplines = await _context.Disciplines
+                    .Include(x => x.TeacherDisciplines)
+                        .ThenInclude(x => x.Teacher)
+                    .Where(x => x.TeacherDisciplines.Any(y => y.TeacherId == user.SubjectAreaId))
+                    .SelectMany(x => x.TeacherDisciplines)
+                    .ToListAsync();
+                teachers = teacherDisciplines.Select(x => x.Teacher).Distinct().ToList();
+            }
+            else
+            {
+                teachers = await _context.Teachers.ToListAsync();
+            }
+
+            return View(teachers);
         }
 
         // GET: Teachers/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id, string ReturnUrl)
         {
             if (id == null)
@@ -39,6 +75,30 @@ namespace BestStudentCafedra.Controllers
                 .ThenInclude(sc => sc.Discipline)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var teacherDisciplines = await _context.TeacherDisciplines
+                    .Include(x => x.Teacher)
+                    .Where(x => x.TeacherId == user.SubjectAreaId)
+                    .ToListAsync();
+                if (!teacherDisciplines.Any(x => x.Teacher.Id == teacher.Id)) return Redirect("/Account/AccessDenied");
+            }
+            else if (User.IsInRole("student"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var disciplines = await _context.AcademicGroups
+                    .Include(x => x.GroupDiscipline)
+                        .ThenInclude(y => y.Discipline)
+                            .ThenInclude(z => z.TeacherDisciplines)
+                                .ThenInclude(h => h.Teacher)
+                    .SelectMany(x => x.GroupDiscipline)
+                    .ToListAsync();
+
+                var teacherDisciplines = disciplines.SelectMany(x => x.Discipline.TeacherDisciplines);
+                if (!teacherDisciplines.Any(x => x.Teacher.Id == teacher.Id)) return Redirect("/Account/AccessDenied");
+            }
+
             if (teacher == null)
             {
                 return NotFound();
@@ -48,6 +108,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int? id, string ReturnUrl)
         {
             if (id == null)
@@ -69,6 +130,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int id, int DisciplineId, string ReturnUrl)
         {
             if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Count() > 0)
@@ -122,6 +184,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Create
+        [Authorize(Roles = "methodist")]
         public IActionResult Create()
         {
             return View();
@@ -132,6 +195,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher)
         {
             if (ModelState.IsValid)
@@ -144,6 +208,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id, string ReturnUrl)
         {
             if (id == null)
@@ -168,6 +233,7 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Post,AcademicDegree")] Teacher teacher, string ReturnUrl)
         {
             if (id != teacher.Id)
@@ -200,6 +266,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: Teachers/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -220,6 +287,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Teachers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var teacher = await _context.Teachers.FindAsync(id);
