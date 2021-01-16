@@ -47,7 +47,7 @@ namespace BestStudentCafedra.Controllers
                 .Where(x => x.GroupDiscipline.Any(y => y.DisciplineId == activity.SemesterDiscipline.DisciplineId))
                 .AsNoTracking().ToList();
 
-            ViewData["GroupId"] = new SelectList(groups, "Id", "Name", groupId);
+            ViewData["Groups"] = new SelectList(groups, "Id", "Name", groupId);
 
             if (groupId != null)
             {
@@ -65,6 +65,7 @@ namespace BestStudentCafedra.Controllers
 
             var activityProtections = new StudentActivityViewModel() { Activity = activity, Students = students };
 
+            ViewData["groupId"] = groupId;
             return View(activityProtections);
         }
 
@@ -106,7 +107,9 @@ namespace BestStudentCafedra.Controllers
                 }
                 await _context.SaveChangesAsync();
             }
-            return await Protect(id, groupId);
+
+            ViewData["groupId"] = groupId;
+            return RedirectToAction(nameof(Protect), new { id = id, groupId = groupId });
         }
 
         // GET: Activities/Create

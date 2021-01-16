@@ -49,7 +49,7 @@
 
 <form asp-action="Protect" method="get">
     <div class="input-group mb-3" style="max-width: 300px">
-        <select class="custom-select" id="inputGroupSelect" name="groupId" asp-items="ViewBag.GroupId">
+        <select class="custom-select" id="inputGroupSelect" name="groupId" asp-items="ViewBag.Groups">
             <option selected>Все группы</option>
         </select>
         <div class="input-group-append">
@@ -92,6 +92,7 @@
                     <form asp-action="Protect" class="float-right">
                         <input hidden name="StudentId" value='@item.GradebookNumber' />
                         <input hidden name="ActivityId" value='@Model.Activity.Id' />
+                        <input hidden name="groupId" value='@ViewBag.groupId' />
                         <div class="input-group float-left" style="max-width: 120px;">
                             <input name="Points" type="number" step="0.1" min="0" max="@Model.Activity.MaxPoints" class="form-control" aria-describedby="basic-addon1" title="Введите здесь оценку для ответа студента" value='@(item.ActivityProtections.Count != 0 ? item.ActivityProtections.FirstOrDefault().Points.ToString("G", new CultureInfo("en-US")) : null)' />
                             <div class="input-group-append">

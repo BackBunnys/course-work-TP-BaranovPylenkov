@@ -25,7 +25,7 @@ namespace BestStudentCafedra.Controllers
 
         // GET: SemesterDisciplines/Details/5
         [Authorize]
-        public async Task<IActionResult> Details(int? id, string returnUrl)
+        public async Task<IActionResult> Details(int? id, string returnUrl, string groupId)
         {
             if (id == null)
             {
@@ -62,6 +62,7 @@ namespace BestStudentCafedra.Controllers
             }
 
             ViewData["returnUrl"] = returnUrl;
+            ViewData["groupId"] = groupId;
             return View(semesterDiscipline);
         }
 
