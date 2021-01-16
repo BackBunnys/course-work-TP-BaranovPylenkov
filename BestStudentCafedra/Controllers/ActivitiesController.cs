@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using BestStudentCafedra.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class ActivitiesController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public ActivitiesController(SubjectAreaDbContext context)
+        public ActivitiesController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Activities/Details/5
@@ -26,6 +29,17 @@ namespace BestStudentCafedra.Controllers
             if (id == null || !ActivityExists((int)id))
             {
                 return NotFound();
+            }
+
+            if (User.IsInRole("student"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var activityProtect = await _context.Activities
+                    .Include(x => x.ActivityProtections.Where(x => x.StudentId == user.SubjectAreaId))
+                    .Include(x => x.Type)
+                    .Where(x => x.Id == id)
+                    .FirstOrDefaultAsync();
+                return View("ProtectResult", activityProtect);
             }
 
             var activity = await _context.Activities
