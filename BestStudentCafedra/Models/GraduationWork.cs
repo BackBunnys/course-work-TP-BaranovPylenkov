@@ -53,6 +53,13 @@ namespace BestStudentCafedra.Models
             ArchievedDate = null;
         }
 
+        public int NumOfEventPassed(ICollection<Event> events = null)
+        {
+            if (events == null)
+                events = Student.Group.SchedulePlans.FirstOrDefault().Events;
+            return events.Where(x => this.hasMarkForEvent(x)).Count();
+        }
+
         public bool hasMarkForEvent(Event @event)
         {
             return EventLogs.Any(x => x.EventId == @event.Id);
