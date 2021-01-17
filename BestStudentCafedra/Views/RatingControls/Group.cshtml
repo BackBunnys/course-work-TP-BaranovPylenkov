@@ -113,23 +113,31 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.RatingControls)
+        @if (Model.RatingControls.Count() > 0)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CompletionDate)
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm float-right" role="group">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
-                        <a asp-action="DownloadRating" asp-route-id="@item.Id" class="btn btn-outline-secondary">Скачать</a>
-                        <a href="#" onclick="loadAndShowModal('../Delete/@item.Id')" class="btn btn-outline-danger">&times;</a>
-                    </div>
-                </td>
-            </tr>
+            @foreach (var item in Model.RatingControls)
+            {
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Number)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CompletionDate)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-action="DownloadRating" asp-route-id="@item.Id" class="btn btn-outline-secondary">Скачать</a>
+                            <a href="#" onclick="loadAndShowModal('../Delete/@item.Id')" class="btn btn-outline-danger">&times;</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="3"><p class="text-info text-center mb-0">Результаты рейтинг контролей ещё не сформированы!</p></td></tr>
         }
     </tbody>
 </table>
