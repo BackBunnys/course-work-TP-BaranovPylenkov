@@ -6,81 +6,120 @@
 
 @if (Model.Count() > 0)
 {
-    <table class="table table-borderless text-center">
-        <thead>
-            <tr>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.Student.Group)
-                </th>
-                <th class="text-center">
-                    @Html.DisplayNameFor(model => model.Student)
-                </th>
-                <th class="text-center">
-                    Научный руководитель
-                </th>
-                <th class="text-center">
-                    Рецензент
-                </th>
-                @if (isArchieved)
-                {
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.ArchievedDate)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Result)
-                    </th>
-                }
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<table class="table border rounded" id='@(isArchieved? "currentWorkTable" : "archievedWorkTable")'>
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Student.Group)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Student)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Theme)
+            </th>
+            @if (User.IsInRole("methodist"))
             {
-            <tr>
-                <td>
-                    <a asp-controller="Groups" asp-action="Details" asp-route-id="@item.Student.Group.Id">@item.Student.Group.Name</a>
-                </td>
-                <td>
-                    <a asp-controller="Student" asp-action="Details" asp-route-id="@item.StudentId">@item.Student.FullName</a>
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.ScientificAdviserId)
+                </th>
+            }
+            else if (!isArchieved)
+            {
+                <th>
+                    Оценено мероприятий
+                </th>
+            }
+            @if (isArchieved)
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.ArchievedDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Result)
+                </th>
+            }
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var events = @item.Student.Group.SchedulePlans.DefaultIfEmpty(new SchedulePlan()).First().Events;
+            var numOfEventPassed = @item.NumOfEventPassed(events);
+        <tr>
+            <td>
+                <a asp-controller="Groups" asp-action="Details" asp-route-id="@item.Student.Group.Id">@item.Student.Group.Name</a>
+            </td>
+            <td>
+                <a asp-controller="Student" asp-action="Details" asp-route-id="@item.StudentId">@item.Student.FullName</a>
+            </td>
+            <td>
+                <span>@(item.Theme == null? "Не закреплена" : item.Theme)</span>
+            </td>
+            @if (User.IsInRole("methodist"))
+            {
                 <td>
                     @if (item.ScientificAdviser != null)
                     {
-                        <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.ScientificAdviser.Id">@(item.ScientificAdviser.FullName)</a>
+                        <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.ScientificAdviserId">@(item.ScientificAdviser.FullName)</a>
                     }
                     else
                     {
                         <span>Не закреплён</span>
                     }
                 </td>
-                <td>
-                    @if (item.Reviewer != null)
-                    {
-                        <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.Reviewer.Id">@item.Reviewer.FullName</a>
-                    }
-                    else
-                    {
-                        <span>Не закреплён</span>
-                    }
-                </td>
-                @if (isArchieved)
-                {
-                    <td class="text-center">
-                        @Html.DisplayFor(model => item.ArchievedDate)
-                    </td>
-                    <td class="text-center">
-                        @Html.DisplayFor(model => item.Result)
-                    </td>
-                }
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
-                </td>
-            </tr>
             }
-        </tbody>
-    </table>
+            else if (!isArchieved)
+            {<td>
+                @if (events.Count != 0) {
+                    @numOfEventPassed<span> / </span>@events.Count
+                }
+                else
+                {
+                    <span>План-график ещё не составлен</span>
+                }
+            </td>
+            }
+            @if(isArchieved)
+            {
+                <td>
+                    @Html.DisplayFor(model => item.ArchievedDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.Result)
+                </td>
+            }
+            <td>
+                @if (User.IsInRole("methodist"))
+                {
+                <div class="btn-group btn-group-sm float-right" role="group">
+                    @if (!isArchieved)
+                    {
+                        if (events.Count != 0 && numOfEventPassed == events.Count)
+                        {
+                            <a href="#" onclick="loadAndShowModal('@Context.Request.Path/Archive/@item.Id?returnUrl=@Context.Request.Path')" class='btn btn-outline-primary'>В архив</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">Изменить</a>
+                        }
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                </div>
+                }
+                else
+                {
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                }
+            </td>
+        </tr>
+            }
+    </tbody>
+</table>
 }
 else
 {
-    <span>Отсутствуют.</span>
+<span>Отсутствуют.</span>
 }

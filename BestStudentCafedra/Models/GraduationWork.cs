@@ -19,7 +19,7 @@ namespace BestStudentCafedra.Models
         public int Id { get; set; }
         [Display(Name = "Студент")]
         [Required(ErrorMessage = "Не указан студент")]
-        public int StudentId { get; set; }
+        public int? StudentId { get; set; }
         [Display(Name = "Научный руководитель")]
         public int? ScientificAdviserId { get; set; }
         [Display(Name = "Рецензент")]

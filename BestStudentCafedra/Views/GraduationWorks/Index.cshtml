@@ -1,15 +1,27 @@
 ﻿@model IEnumerable<BestStudentCafedra.Models.GraduationWork>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Выпускные квалификационные работы";
     var currentWorks = Model.Where(x => x.ArchievedDate == null).ToList();
     var finishedWorks = Model.Where(x => x.ArchievedDate != null).ToList();
 }
 
-<h1>Ваши работы</h1>
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (User.IsInRole("teacher"))
+{
+    <h1>Ваши работы</h1>
+}
+else if (User.IsInRole("methodist"))
+{
+    <h1>Выпускные работы</h1>
+    <p>
+        <a asp-action="Create">Добавить работу</a>
+    </p>
+}
+
+<div id="modDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div id="dialogContent" class="modal-dialog modal-dialog-centered" role="document"></div>
+</div>
+
 <div id="accordion">
     <div class="card">
         <div class="card-header" id="headingOne">
@@ -29,15 +41,38 @@
     <div class="card">
         <div class="card-header" id="headingThree">
             <h5 class="mb-0">
-                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="@(currentWorks.Count != 0 ? "false" : "true")" aria-controls="collapseThree">
                     Законченные (@finishedWorks.Count)
                 </button>
             </h5>
         </div>
-        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+        <div id="collapseThree" class="collapse @(currentWorks.Count != 0 ? "" : "show")" aria-labelledby="headingThree" data-parent="#accordion">
             <div class="card-body">
                 @{await Html.RenderPartialAsync("_List", finishedWorks);}
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var currentWorkTable = $('#currentWorkTable').DataTable({
+            order: [],
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+        var archievedWorkTable = $('#archievedWorkTable').DataTable({
+            order: [],
+            searching: false,
+            paging: false,
+            info: false,
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

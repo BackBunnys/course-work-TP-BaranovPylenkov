@@ -1,12 +1,11 @@
 ﻿@model BestStudentCafedra.Models.GraduationWork
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Добавление ВКР";
 }
 
-<h1>Create</h1>
+<h1>@ViewData["Title"]</h1>
 
-<h4>GraduationWork</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -14,7 +13,10 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="StudentId" class="control-label"></label>
-                <select asp-for="StudentId" class ="form-control" asp-items="ViewBag.StudentId"></select>
+                <select asp-for="StudentId" class="form-control" asp-items="ViewBag.StudentId">
+                    <option selected disabled value="">Выберите студента...</option>
+                </select>
+                <span asp-validation-for="StudentId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Theme" class="control-label"></label>
@@ -22,24 +24,28 @@
                 <span asp-validation-for="Theme" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ArchievedDate" class="control-label"></label>
-                <input asp-for="ArchievedDate" class="form-control" />
-                <span asp-validation-for="ArchievedDate" class="text-danger"></span>
+                <label asp-for="ScientificAdviserId" class="control-label"></label>
+                <select asp-for="ScientificAdviserId" class="form-control" asp-items="ViewBag.ScientificAdviserId">
+                    <option value="">Выберите научного руководителя...</option>
+                </select>
+                <span asp-validation-for="ScientificAdviserId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Result" class="control-label"></label>
-                <input asp-for="Result" class="form-control" />
-                <span asp-validation-for="Result" class="text-danger"></span>
+                <label asp-for="ReviewerId" class="control-label"></label>
+                <select asp-for="ReviewerId" class="form-control" asp-items="ViewBag.ReviewerId">
+                    <option value="">Выберите рецензента...</option>
+                </select>
+                <span asp-validation-for="ReviewerId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Добавить" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">К списку работ</a>
 </div>
 
 @section Scripts {

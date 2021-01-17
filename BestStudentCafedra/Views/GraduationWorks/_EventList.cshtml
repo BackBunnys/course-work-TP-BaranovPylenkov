@@ -1,29 +1,31 @@
 ﻿@model IEnumerable<BestStudentCafedra.Models.Event>
 
 @{
-    bool isComing = !Model.Any(x => x.Date < DateTime.Now);
+    bool isComing = !Model.Any(x => x.Date < DateTime.Now || x.Date == null);
     var ev = new Event();
     var eventLog = new EventLog();
 }
 
-<table class="table table-borderless">
+@if (Model.Count() != 0)
+{
+<table class="table table-borderless text-center">
     <thead>
         <tr>
-            <th>
+            <th class="text-center">
                 @Html.DisplayNameFor(model => ev.EventDescription)
             </th>
-            <th>
+            <th class="text-center">
                 @Html.DisplayNameFor(model => ev.Date)
             </th>
-            <th>
+            <th class="text-center">
                 @Html.DisplayNameFor(model => ev.Class)
             </th>
-            <th>
+            <th class="text-center">
                 @Html.DisplayNameFor(model => ev.ResponsibleTeacher)
             </th>
             @if (!isComing)
             {
-                <th>
+                <th class="text-center">
                     @Html.DisplayNameFor(model => eventLog.Mark)
                 </th>
             }
@@ -38,13 +40,20 @@
                     @Html.DisplayFor(modelItem => item.EventDescription)
                 </td>
                 <td class="align-middle">
-                    @Html.DisplayFor(modelItem => item.Date)
-                </td>
-                <td class="align-middle">
-                    @Html.DisplayFor(modelItem => item.ResponsibleTeacher.FullName)
+                    @if (item.Date != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Date)
+                    }
+                    else
+                    {
+                        <span>Уточнится позже</span>
+                    }
                 </td>
                 <td class="align-middle">
                     @Html.DisplayFor(modelItem => item.Class)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.ResponsibleTeacher.FullName)
                 </td>
                 @if (!isComing)
                 {
@@ -59,7 +68,7 @@
                         }
                         else
                         {
-                            <span>Ещё не оценено</span>
+                            <span>Ждёт отметки</span>
                         }
                     </td>
                 }
@@ -67,3 +76,8 @@
         }
     </tbody>
 </table>
+}
+else
+{
+    <div class="text-center">Отсутствуют.</div>
+}
