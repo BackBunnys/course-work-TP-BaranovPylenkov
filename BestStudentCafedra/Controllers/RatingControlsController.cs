@@ -48,7 +48,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: RatingControls/Details/5
-        public async Task<IActionResult> Group(int? id, int? disciplineId)
+        public async Task<IActionResult> Group(int? id, int? disciplineId, string ReturnUrl)
         {
             if (id == null || disciplineId == null)
             {
@@ -138,6 +138,7 @@ namespace BestStudentCafedra.Controllers
                 }
             }
 
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(groupRating);
         }
 

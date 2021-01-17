@@ -92,6 +92,17 @@
         </div>
     </dl>
 </div>
+<div>
+    @if (ViewBag.ReturnUrl != null)
+    {
+        <a href="@ViewBag.returnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@Model.Group.Id">Вернуться</a>
+    }
+
+</div>
 <br />
 
 <h4>Промежуточный рейтинг (Рубежный контроль)</h4>

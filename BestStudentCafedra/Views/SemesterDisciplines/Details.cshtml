@@ -63,7 +63,7 @@
     }
     @if (ViewBag.groupId != null)
     {
-        <a asp-controller="RatingControls" asp-action="Group" asp-route-id="@ViewBag.groupId" asp-route-disciplineId="@Model.Id">Рейтинг</a>
+        <a asp-controller="RatingControls" asp-action="Group" asp-route-id="@ViewBag.groupId" asp-route-disciplineId="@Model.Id" asp-route-ReturnUrl="@Context.Request.Path@Context.Request.QueryString">Рейтинг</a>
     }
     else
     {
