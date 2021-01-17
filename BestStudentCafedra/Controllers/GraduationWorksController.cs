@@ -36,7 +36,7 @@ namespace BestStudentCafedra.Controllers
 
             IQueryable<GraduationWork> graduationWorks = _context.GraduationWorks
                     .Include(x => x.Student.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
-                    .ThenInclude(x => x.Events.Where(x => x.Date <= DateTime.Now))
+                    .ThenInclude(x => x.Events)
                     .Include(x => x.EventLogs)
                     .Include(x => x.Reviewer)
                     .Include(x => x.ScientificAdviser);
@@ -57,8 +57,8 @@ namespace BestStudentCafedra.Controllers
 
             var graduationWork = await _context.GraduationWorks
                 .Include(g => g.Student)
-                .ThenInclude(g => g.Group.SchedulePlans)
-                .ThenInclude(g => g.Events.Where(e => e.Date != null))
+                .ThenInclude(g => g.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
+                .ThenInclude(g => g.Events)
                 .ThenInclude(g => g.EventLogs.Where(e => e.GraduationWorkId == id))
                 .Include(x => x.Reviewer)
                 .Include(x => x.ScientificAdviser)
@@ -133,22 +133,28 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: GraduationWorks/Archive/5
-        public async Task<IActionResult> Archive(int? id)
+        public async Task<IActionResult> Archive(int? id, string returnUrl)
         {
             if (id == null || !GraduationWorkExists((int)id))
             {
                 return NotFound();
             }
 
+            ViewData["returnUrl"] = returnUrl;
+
             var graduationWork = await _context.GraduationWorks.Include(x => x.Student).FirstOrDefaultAsync(x => x.Id == id);
 
-            return PartialView("_Archive", new ArchiveWorkViewModel { GraduationWorkId = graduationWork.Id, GraduationWork = graduationWork, ArchievedDate = DateTime.Now });
+            return PartialView("_Archive", new ArchiveWorkViewModel { 
+                GraduationWorkId = graduationWork.Id, 
+                GraduationWork = graduationWork, 
+                ArchievedDate = DateTime.Now
+            });
         }
 
         // POST: GraduationWorks/Archive/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Archive(int id, [Bind("GraduationWorkId,ArchievedDate,Result")]ArchiveWorkViewModel archiveViewModel)
+        public async Task<IActionResult> Archive(int id, [Bind("GraduationWorkId,ArchievedDate,Result")]ArchiveWorkViewModel archiveViewModel, string returnUrl)
         {
             if (id != archiveViewModel.GraduationWorkId || !GraduationWorkExists(id))
             {
@@ -170,7 +176,10 @@ namespace BestStudentCafedra.Controllers
                 _context.Update(gw);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Details), new { id = id });
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
+                else
+                    return RedirectToAction(nameof(Details), new { id = id });
             }
 
             return await Details(id);
