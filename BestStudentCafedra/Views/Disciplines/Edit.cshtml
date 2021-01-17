@@ -25,7 +25,7 @@
 </div>
 
 <div>
-    <a href="@ViewBag.returnUrl">Вернуться</a>
+    <a asp-action="Details" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.returnUrl">Вернуться</a>
 </div>
 
 </br>
