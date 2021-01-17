@@ -30,8 +30,8 @@
         @foreach (var item in Model)
         {
         <tr class="bg-light">
-            <td class="accordion-button cursor-pointer" onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id }, null)')"></td>
-            <td onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id }, null)')" class="cursor-pointer">
+            <td class="accordion-button cursor-pointer" onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id, ReturnUrl = Context.Request.Path }, null)')"></td>
+            <td onclick="loadChildRow(this,'@Url.Action("Semesters", "Disciplines", new { id = item.Id, ReturnUrl = Context.Request.Path }, null)')" class="cursor-pointer">
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
