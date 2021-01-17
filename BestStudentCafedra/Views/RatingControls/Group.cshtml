@@ -220,7 +220,14 @@
             }
             <td>
                 @{
-                    if (Model.SemesterDiscipline.ControlType == ControlType.Exam)
+                    if (Model.SemesterDiscipline.ControlType == ControlType.Credit)
+                    {
+                        var mark = "Незачет";
+                        if (total > 60)
+                            mark = "Зачет";  
+                        @Html.Raw(mark);
+                    }
+                    else
                     {
                         var mark = 2;
                         if (total > 90)
@@ -230,13 +237,6 @@
                         else if (total > 60)
                             mark = 3;
                         @Html.Raw(mark.ToString());
-                    }
-                    else
-                    {
-                        var mark = "Незачет";
-                        if (total > 60)
-                            mark = "Зачет";  
-                        @Html.Raw(mark);
                     }
                 }
             </td>
