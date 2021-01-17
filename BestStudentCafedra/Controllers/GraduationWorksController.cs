@@ -142,7 +142,7 @@ namespace BestStudentCafedra.Controllers
 
             var graduationWork = await _context.GraduationWorks.Include(x => x.Student).FirstOrDefaultAsync(x => x.Id == id);
 
-            return View(new ArchiveWorkViewModel { GraduationWorkId = graduationWork.Id, GraduationWork = graduationWork, ArchievedDate = DateTime.Now });
+            return PartialView("_Archive", new ArchiveWorkViewModel { GraduationWorkId = graduationWork.Id, GraduationWork = graduationWork, ArchievedDate = DateTime.Now });
         }
 
         // POST: GraduationWorks/Archive/5
@@ -170,17 +170,34 @@ namespace BestStudentCafedra.Controllers
                 _context.Update(gw);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = id });
             }
 
-            archiveViewModel.GraduationWork = gw;
-            return View(archiveViewModel);
+            return await Details(id);
+        }
+
+        // GET: GraduationWorks/Unarchive/5
+        public async Task<IActionResult> Unarchive(int? id)
+        {
+            if (id == null || !GraduationWorkExists((int)id))
+            {
+                return NotFound();
+            }
+
+            var graduationWork = await _context.GraduationWorks.FindAsync(id);
+
+            return PartialView("_Unarchive", new ArchiveWorkViewModel
+            {
+                GraduationWorkId = graduationWork.Id,
+                ArchievedDate = (DateTime)graduationWork.ArchievedDate,
+                Result = (int)graduationWork.Result
+            });
         }
 
         // POST: GraduationWorks/Unarchive/5
-        [HttpPost]
+        [HttpPost, ActionName("Unarchive")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Unarchive(int id)
+        public async Task<IActionResult> UnarchiveConfirmed(int id)
         {
             if (!GraduationWorkExists(id))
             {
