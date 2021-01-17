@@ -21,7 +21,7 @@
 <div>
     @if (isAccessAllowed)
     {
-        <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Изменить</a> <span>|</span>
+        <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-groupId="@ViewBag.groupId">Изменить</a> <span>|</span>
     }
     @if (ViewBag.ReturnUrl != null)
     {

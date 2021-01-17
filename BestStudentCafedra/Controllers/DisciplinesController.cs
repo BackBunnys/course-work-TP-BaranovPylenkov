@@ -152,7 +152,7 @@ namespace BestStudentCafedra.Controllers
 
         // GET: Disciplines/Edit/5
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Edit(int? id, string returnUrl)
+        public async Task<IActionResult> Edit(int? id, string returnUrl, int? groupId = null)
         {
             if (id == null)
             {
@@ -171,6 +171,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            ViewData["groupId"] = groupId;
             ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
@@ -181,7 +182,7 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Discipline discipline, string returnUrl)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Discipline discipline, string returnUrl, int? groupId = null)
         {
             if (id != discipline.Id)
             {
@@ -206,9 +207,10 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = id, returnUrl = returnUrl, groupId = groupId });
             }
 
+            ViewData["groupId"] = groupId;
             ViewData["returnUrl"] = returnUrl;
             return View(discipline);
         }
