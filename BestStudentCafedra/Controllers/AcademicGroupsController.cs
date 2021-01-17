@@ -103,7 +103,7 @@ namespace BestStudentCafedra.Controllers
         {
             var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
             ViewData["GroupId"] = groupId;
-            ViewData["ReturnUrl"] = ReturnUrl; //не работает
+            ViewData["ReturnUrl"] = ReturnUrl;
             return PartialView("_Semesters", semesterDisciplines);
         }
 
