@@ -84,7 +84,7 @@
 <h4>Семестры:</h4>
 <p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
 
-<table class="table border rounded">
+<table class="table border rounded" id="semestersTable">
     <thead>
         <tr>
             <th>
@@ -134,3 +134,18 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#semestersTable').DataTable({
+            searching: false,
+            paging: false,
+            order: [[1, 'asc'], [2, 'asc']],
+            columnDefs: [{ orderable: false, targets: [-1, 0] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
