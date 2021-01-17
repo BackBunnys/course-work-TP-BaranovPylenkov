@@ -47,6 +47,12 @@ namespace BestStudentCafedra.Models
             ArchievedDate = date;
         }
 
+        public void Unarchive()
+        {
+            Result = null;
+            ArchievedDate = null;
+        }
+
         public bool hasMarkForEvent(Event @event)
         {
             return EventLogs.Any(x => x.EventId == @event.Id);
