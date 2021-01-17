@@ -23,9 +23,9 @@
     {
         <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-groupId="@ViewBag.groupId">Изменить</a> <span>|</span>
     }
-    @if (ViewBag.ReturnUrl != null)
+    @if (ViewBag.groupId != null)
     {
-        <a href="@ViewBag.ReturnUrl">Вернуться</a>
+        <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@ViewBag.groupId">Вернуться</a>
     }
     else
     {
@@ -122,7 +122,7 @@
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm float-right" role="group">
-                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-groupId="@ViewBag.groupId" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-groupId="@ViewBag.groupId" class="btn btn-outline-primary">Подробнее</a>
                         </div>
                     </td>
                 </tr>

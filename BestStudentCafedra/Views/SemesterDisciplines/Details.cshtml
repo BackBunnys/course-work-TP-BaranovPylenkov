@@ -46,13 +46,9 @@
     {
         <a href="@ViewBag.ReturnUrl">Вернуться</a>
     }
-    else if (ViewBag.groupId != null)
-    {
-        <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@ViewBag.groupId">Вернуться</a>
-    }
     else
     {
-        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@Model.DisciplineId">Вернуться</a>
+        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@Model.DisciplineId" asp-route-groupId="@ViewBag.groupId">Вернуться</a>
     }
 </div>
 
