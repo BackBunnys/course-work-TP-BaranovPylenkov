@@ -160,7 +160,10 @@
                 </th>
             }
             <th rowspan="2">Итого</th>
-            <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
+            @if (Model.RatingControls.Count() > 0)
+            { 
+                <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
+            }
             <th rowspan="2">Оценка</th>
         </tr>
 
