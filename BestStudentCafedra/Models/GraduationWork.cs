@@ -56,7 +56,8 @@ namespace BestStudentCafedra.Models
         public int NumOfEventPassed(ICollection<Event> events = null)
         {
             if (events == null)
-                events = Student.Group.SchedulePlans.FirstOrDefault().Events;
+                events = Student?.Group?.SchedulePlans?.FirstOrDefault()?.Events;
+            if (events == null) return 0;
             return events.Where(x => this.hasMarkForEvent(x)).Count();
         }
 
