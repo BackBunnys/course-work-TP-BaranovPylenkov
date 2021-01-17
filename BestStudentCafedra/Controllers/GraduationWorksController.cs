@@ -177,6 +177,28 @@ namespace BestStudentCafedra.Controllers
             return View(archiveViewModel);
         }
 
+        // POST: GraduationWorks/Unarchive/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            if (!GraduationWorkExists(id))
+            {
+                return NotFound();
+            }
+
+            var gw = await _context.GraduationWorks.Include(x => x.EventLogs)
+                .Include(x => x.Student)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            gw.Unarchive();
+
+            _context.Update(gw);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = id });
+        }
+
         // GET: GraduationWorks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
