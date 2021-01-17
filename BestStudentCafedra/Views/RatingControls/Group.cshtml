@@ -209,7 +209,7 @@
                         ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == item);
                         if (activityProtection != null)
                         {
-                            var points = activityProtection.Points;
+                            var points = (float)(Math.Round(activityProtection.Points, 1));
                             total += points;
                             @Html.Raw(points.ToString(new CultureInfo("en-US")));
                         }
