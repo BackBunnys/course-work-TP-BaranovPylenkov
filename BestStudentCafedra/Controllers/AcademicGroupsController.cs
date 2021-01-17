@@ -2,6 +2,7 @@
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,19 +16,37 @@ namespace BestStudentCafedra.Controllers
     public class AcademicGroupsController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public AcademicGroupsController(SubjectAreaDbContext context)
+        public AcademicGroupsController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: AcademicGroups
         [Authorize]
         public async Task<IActionResult> Index(int? formYear)
         {
-            var groups = await _context.AcademicGroups
-                .Include(s => s.Specialty)
-                .ToListAsync();
+            List<AcademicGroup> groups = null;
+
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                groups = _context.AcademicGroups
+                    .Include(x => x.Specialty)
+                    .Include(x => x.GroupDiscipline)
+                        .ThenInclude(x => x.Discipline)
+                            .ThenInclude(x => x.TeacherDisciplines)
+                    .Where(x => x.GroupDiscipline.Any(y => y.Discipline.TeacherDisciplines.Any(z => z.TeacherId == user.SubjectAreaId)))
+                    .ToList();
+            }
+            else
+            {
+                groups = await _context.AcademicGroups
+                    .Include(s => s.Specialty)
+                    .ToListAsync();
+            }
 
             ViewData["formYears"] = new SelectList(groups.Select(y => y.FormationYear).Distinct(), formYear);
 
@@ -60,6 +79,22 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var disciplines = groups.GroupDiscipline.Select(x => x.Discipline).AsEnumerable();
+                var teacherDiscplines = _context.TeacherDisciplines.AsEnumerable()
+                    .Where(x => x.TeacherId == user.SubjectAreaId && disciplines.Any(y => x.DisciplineId == y.Id))
+                    .ToList();
+                if (teacherDiscplines.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+            else if (User.IsInRole("student"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var students = groups.Students.Where(x => x.GroupId == id && x.GradebookNumber == user.SubjectAreaId);
+                if (students.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+
             return View(groups);
         }
 
@@ -68,7 +103,7 @@ namespace BestStudentCafedra.Controllers
         {
             var semesterDisciplines = await _context.SemesterDiscipline.Where(x => x.DisciplineId == id).ToListAsync();
             ViewData["GroupId"] = groupId;
-            ViewData["ReturnUrl"] = ReturnUrl; //не работает
+            ViewData["ReturnUrl"] = ReturnUrl;
             return PartialView("_Semesters", semesterDisciplines);
         }
 
@@ -170,7 +205,7 @@ namespace BestStudentCafedra.Controllers
             disciplines.RemoveAll(x => groupDisciplines.Any(y => y.Id == x.Id));
 
             ViewData["DisciplineName"] = _context.AcademicGroups.FirstOrDefault(x => x.Id == id).Name;
-
+            ViewData["GroupId"] = id;
             return View(disciplines);
         }
 

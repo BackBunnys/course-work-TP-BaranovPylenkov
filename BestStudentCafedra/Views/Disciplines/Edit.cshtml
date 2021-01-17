@@ -25,7 +25,7 @@
 </div>
 
 <div>
-    <a href="@ViewBag.returnUrl">Вернуться</a>
+    <a asp-action="Details" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.returnUrl" asp-route-groupId="@ViewBag.groupId">Вернуться</a>
 </div>
 
 </br>
@@ -65,8 +65,8 @@
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm float-right" role="group">
-                            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.TeacherId" class="btn btn-outline-primary">Подробнее</a>
-                            <a href="#" onclick="loadAndShowModal('../DropTeacher/@Model.Id?teacherId=@item.Id')" class="btn btn-outline-danger">&times;</a>
+                            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.TeacherId" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
+                            <a href="#" onclick="loadAndShowModal('../DropTeacher/@Model.Id?teacherId=@item.TeacherId')" class="btn btn-outline-danger">&times;</a>
                         </div>
                     </td>
                 </tr>
@@ -74,7 +74,7 @@
         }
         else
         {
-            <tr><td colspan="4"><p class="text-info text-center">Преподаватели для данной дисциплины ещё не добавлены!</p></td></tr>
+            <tr><td colspan="4"><p class="text-info text-center">Преподаватели для данной дисциплины ещё не добавлены</p></td></tr>
         }
     </tbody>
 </table>
@@ -83,10 +83,10 @@
 <h4>Семестры:</h4>
 <p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
 <p>
-    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id">Добавить</a>
+    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id" asp-route-ReturnUrl="@Context.Request.Path">Добавить</a>
 </p>
 
-<table class="table border rounded">
+<table class="table border rounded" id="semestersTable">
     <thead>
         <tr>
             <th>
@@ -105,30 +105,37 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+        @if (Model.SemesterDisciplines.Count() > 0)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Year)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Semester)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ControlType)
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm float-right" role="group">
-                        <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
-                        <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Изменить</a>
-                        <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-danger">&times;</a>
-                    </div>
+            @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Year)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Semester)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ControlType)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Изменить</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-danger">&times;</a>
+                        </div>
 
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="5"><p class="text-info text-center">Семестры для данной дисциплины ещё не добавлены</p></td></tr>
         }
     </tbody>
 </table>
@@ -144,4 +151,15 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
     <script src="~/js/site.js"></script>
+    <script>
+        var table = $('#semestersTable').DataTable({
+            searching: false,
+            paging: false,
+            order: [[1, 'asc'], [2, 'asc']],
+            columnDefs: [{ orderable: false, targets: [-1, 0] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
 }

@@ -8,21 +8,24 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class SemesterDisciplinesController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public SemesterDisciplinesController(SubjectAreaDbContext context)
+        public SemesterDisciplinesController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: SemesterDisciplines/Details/5
         [Authorize]
-        public async Task<IActionResult> Details(int? id, string returnUrl)
+        public async Task<IActionResult> Details(int? id, string returnUrl, string groupId)
         {
             if (id == null)
             {
@@ -40,15 +43,34 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
 
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var teacherDisciplines = await _context.TeacherDisciplines
+                    .Where(x => x.TeacherId == user.SubjectAreaId && x.DisciplineId == semesterDiscipline.DisciplineId)
+                    .ToListAsync();
+                if (teacherDisciplines.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+            else if (User.IsInRole("student"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var student = await _context.Students.FirstOrDefaultAsync(x => x.GradebookNumber == user.SubjectAreaId);
+                var groupDiscipline = await _context.GroupDisciplines
+                    .Where(x => x.GroupId == student.GroupId && x.DisciplineId == semesterDiscipline.DisciplineId)
+                    .ToListAsync();
+                if (groupDiscipline.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+
             ViewData["returnUrl"] = returnUrl;
+            ViewData["groupId"] = groupId;
             return View(semesterDiscipline);
         }
 
         // GET: SemesterDisciplines/Create
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Create(int id, string returnUrl)
+        public async Task<IActionResult> Create(int id, string ReturnUrl)
         {
-            ViewData["returnUrl"] = returnUrl;
+            ViewData["ReturnUrl"] = ReturnUrl;
             Discipline discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == id);
             SemesterDiscipline semesterDiscipline = new SemesterDiscipline() { Discipline = discipline };
             return View(semesterDiscipline);
@@ -60,9 +82,9 @@ namespace BestStudentCafedra.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "methodist")]
-        public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string returnUrl)
+        public async Task<IActionResult> Create([Bind("DisciplineId,Year,Semester,ControlType")] SemesterDiscipline semesterDiscipline, string ReturnUrl)
         {
-            ViewData["returnUrl"] = returnUrl;
+            ViewData["ReturnUrl"] = ReturnUrl;
             semesterDiscipline.Discipline = await _context.Disciplines.FirstOrDefaultAsync(d => d.Id == semesterDiscipline.DisciplineId);
 
             if (_context.SemesterDiscipline
@@ -78,13 +100,30 @@ namespace BestStudentCafedra.Controllers
             {
                 _context.Add(semesterDiscipline);
                 await _context.SaveChangesAsync();
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+
+                if (semesterDiscipline.ControlType == ControlType.Exam)
                 {
-                    return Redirect(returnUrl);
+                    var type = _context.ActivityTypes.FirstOrDefault(x => x.Name == RatingControlsController.EXAMTYPENAME);
+                    if (type != null)
+                    {
+                        var exam = new Activity();
+                        exam.MaxPoints = 40;
+                        exam.Number = 1;
+                        exam.SemesterDisciplineId = semesterDiscipline.Id;
+                        exam.Title = "Экзамен";
+                        exam.TypeId = type.Id;
+                        _context.Add(exam);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                {
+                    return Redirect(ReturnUrl);
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Discipline");
+                    return RedirectToAction("Edit", "Disciplines", new { id = semesterDiscipline.DisciplineId });
                 }
             }
             return View(semesterDiscipline);

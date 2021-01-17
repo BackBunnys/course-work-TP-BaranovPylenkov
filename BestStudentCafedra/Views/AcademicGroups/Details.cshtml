@@ -66,7 +66,7 @@
                 {
                     <div class="btn-group pb-3" role="group" aria-label="Basic example">
                         <a asp-controller="Student" asp-action="Index" class="btn btn-secondary" asp-route-ReturnUrl="@Context.Request.Path" role="button">Перевести</a>
-                        <a asp-controller="Student" asp-action="Create" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-secondary" role="button">Создать нового</a>
+                        <a asp-controller="Student" asp-action="Create" asp-route-ForGroup="@Model.Id" class="btn btn-secondary" role="button">Создать нового</a>
                     </div>
                 }
 
@@ -116,7 +116,7 @@
                 {
                     <div class="btn-group pb-3" role="group" aria-label="Basic example">
                         <a asp-action="AddDiscipline" asp-route-id="@Model.Id" class="btn btn-secondary" role="button">Добавить</a>
-                        <a asp-controller="Disciplines" asp-action="Create" class="btn btn-secondary" role="button">Создать новую</a>
+                        <a asp-controller="Disciplines" asp-action="Create" asp-route-ForGroup="@Model.Id" class="btn btn-secondary" role="button">Создать новую</a>
                     </div>
                 }
 
@@ -135,12 +135,12 @@
                         {
                             <tr class="bg-light">
                                 <td class="accordion-button cursor-pointer" onclick="loadChildRow(this,'@Url.Action("Semesters", "AcademicGroups", new { id = item.DisciplineId, groupId = Model.Id, ReturnUrl = Context.Request.Path }, null)')"></td>
-                                <td onclick="loadChildRow(this,'@Url.Action("Semesters", "AcademicGroups", new { id = item.DisciplineId, groupId = Model.Id }, null)')" class="cursor-pointer">
+                                <td onclick="loadChildRow(this,'@Url.Action("Semesters", "AcademicGroups", new { id = item.DisciplineId, groupId = Model.Id, ReturnUrl = Context.Request.Path }, null)')" class="cursor-pointer">
                                     @Html.DisplayFor(modelItem => item.Discipline.Name)
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm float-right" role="group">
-                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Подробнее</a>
+                                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-groupId="@Model.Id" class="btn btn-outline-secondary">Подробнее</a>
                                         @if (isAccessAllowed)
                                         {
                                             <a href="#" onclick="loadAndShowModal('../DropDiscipline/@Model.Id?disciplineId=@item.DisciplineId')" class="btn btn-outline-danger">&times;</a>
@@ -177,7 +177,8 @@
         });
 
         var table = $('#disciplineTable').DataTable({
-            columnDefs: [{ orderable: false, targets: [-1] }],
+            order: [[1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1, 0] }],
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
             }
