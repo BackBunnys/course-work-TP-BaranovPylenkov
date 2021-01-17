@@ -1,0 +1,37 @@
+﻿@model BestStudentCafedra.Models.ViewModels.ArchiveWorkViewModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <div>
+            <h4>Изменение статуса работы</h4>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div>
+            В результате изменения статуса работы будут удалены следующие данные:
+        </div>
+        <dl class="row">
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.ArchievedDate)
+            </dt>
+            <dd class="col-sm-6">
+                @Html.DisplayFor(model => model.ArchievedDate)
+            </dd>
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.Result)
+            </dt>
+            <dd class="col-sm-6">
+                @Html.DisplayFor(model => model.Result)
+            </dd>
+        </dl>
+        <form asp-action="Unarchive">
+            <div class="form-group w-100 mb-0">
+                <input type="hidden" asp-for="GraduationWorkId" />
+                <input type="submit" value="Изменить статус" class="btn btn-primary w-100" />
+            </div>
+        </form>
+    </div>
+</div>

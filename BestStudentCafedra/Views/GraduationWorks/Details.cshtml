@@ -1,0 +1,112 @@
+﻿@model BestStudentCafedra.Models.GraduationWork
+
+@{
+    ViewData["Title"] = "Выпускная квалификационная работа";
+    var ev = new Event();
+    var eventLog = new EventLog();
+    var schedulePlan = Model.Student.Group.SchedulePlans.FirstOrDefault();
+    var pastEvents = schedulePlan?.Events.Where(x => x.Date <= DateTime.Now).OrderByDescending(x => x.Date).ToList();
+    var comingEvents = schedulePlan?.Events.Except(pastEvents).ToList();
+    var numOfEventPassed = Model.NumOfEventPassed(schedulePlan?.Events);
+    var isArchived = Model.ArchievedDate != null;
+}
+
+<h1>Выпускная квалификационная работа</h1>
+@if (isArchived)
+{
+    <div class="alert alert-secondary" role="alert">
+        Работа архивирована. Дальнейшее редактирование невозможно.
+        @if (User.IsInRole("methodist"))
+        {
+            <span>Для изменения этой работы сначала нужно <a href="#" onclick="loadAndShowModal('../Unarchive/@Model.Id')">убрать её из списка архивных работ.</a></span>
+        }
+    </div>
+}
+else if (User.IsInRole("methodist") && schedulePlan != null && numOfEventPassed >= schedulePlan.Events.Count)
+{
+    <div class="alert alert-primary" role="alert">
+        <span>Данная работа прошла все мероприятия и её можно <a href="#" onclick="loadAndShowModal('../Archive/@Model.Id')">отправить в архив.</a></span>
+    </div>
+}
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<div id="modDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div id="dialogContent" class="modal-dialog modal-dialog-centered" role="document"></div>
+</div>
+
+<div>
+    <hr />
+    @{await Html.RenderPartialAsync("_Details", Model);}
+    @if (User.IsInRole("methodist") && !isArchived)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a><span> | </span>
+    }
+    @if (!User.IsInRole("student"))
+    {
+        <a asp-action="Index">К списку работ</a>
+    }
+</div>
+
+<hr />
+
+@if (schedulePlan == null)
+{
+    <h4>Мероприятия</h4>
+    <span>План-график пока не составлен.</span>
+}
+else if (!isArchived)
+{
+    <h4>Мероприятия</h4>
+    <a asp-controller="SchedulePlan" asp-action="Details" asp-route-id="@schedulePlan.Id"></a>
+    <div id="accordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Предстоящие (@comingEvents.Count)
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    @{await Html.RenderPartialAsync("_EventList", comingEvents);}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h5 class="mb-0">
+                    <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Прошедшие (@pastEvents.Count)
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                <div class="card-body">
+                    @{await Html.RenderPartialAsync("_EventList", pastEvents);}
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div id="accordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Мероприятия
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    @{await Html.RenderPartialAsync("_EventList", schedulePlan.Events);}
+                </div>
+            </div>
+        </div>
+    </div>
+}

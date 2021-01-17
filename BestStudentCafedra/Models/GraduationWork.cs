@@ -17,22 +17,49 @@ namespace BestStudentCafedra.Models
         }
 
         public int Id { get; set; }
-        public int StudentId { get; set; }
-
+        [Display(Name = "Студент")]
+        [Required(ErrorMessage = "Не указан студент")]
+        public int? StudentId { get; set; }
+        [Display(Name = "Научный руководитель")]
         public int? ScientificAdviserId { get; set; }
+        [Display(Name = "Рецензент")]
         public int? ReviewerId { get; set; }
 
         [Display(Name = "Тема")]
         public string Theme { get; set; }
+        [Display(Name = "Дата сдачи")]
+        [DataType(DataType.Date)]
         public DateTime? ArchievedDate { get; set; }
-        public bool? Result { get; set; }
+        [Display(Name = "Результат")]
+        public int? Result { get; set; }
 
+        [Display(Name = "Студент")]
         public virtual Student Student { get; set; }
         public virtual Teacher ScientificAdviser { get; set; }
         public virtual Teacher Reviewer { get; set; }
         public virtual ICollection<EventLog> EventLogs { get; set; }
         public virtual ICollection<TeacherRequest> TeacherRequests { get; set; }
         public virtual ICollection<ThemeRequest> ThemeRequests { get; set; }
+
+        public void Archive(int result, DateTime date)
+        {
+            Result = result;
+            ArchievedDate = date;
+        }
+
+        public void Unarchive()
+        {
+            Result = null;
+            ArchievedDate = null;
+        }
+
+        public int NumOfEventPassed(ICollection<Event> events = null)
+        {
+            if (events == null)
+                events = Student?.Group?.SchedulePlans?.FirstOrDefault()?.Events;
+            if (events == null) return 0;
+            return events.Where(x => this.hasMarkForEvent(x)).Count();
+        }
 
         public bool hasMarkForEvent(Event @event)
         {

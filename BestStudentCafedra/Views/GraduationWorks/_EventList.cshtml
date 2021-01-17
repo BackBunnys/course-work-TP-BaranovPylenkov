@@ -1,0 +1,83 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.Event>
+
+@{
+    bool isComing = !Model.Any(x => x.Date < DateTime.Now || x.Date == null);
+    var ev = new Event();
+    var eventLog = new EventLog();
+}
+
+@if (Model.Count() != 0)
+{
+<table class="table table-borderless text-center">
+    <thead>
+        <tr>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => ev.EventDescription)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => ev.Date)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => ev.Class)
+            </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => ev.ResponsibleTeacher)
+            </th>
+            @if (!isComing)
+            {
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => eventLog.Mark)
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var isMarked = item.EventLogs.Count > 0;
+            <tr>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.EventDescription)
+                </td>
+                <td class="align-middle">
+                    @if (item.Date != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Date)
+                    }
+                    else
+                    {
+                        <span>Уточнится позже</span>
+                    }
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Class)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.ResponsibleTeacher.FullName)
+                </td>
+                @if (!isComing)
+                {
+                    <td class="align-middle">
+                        @if (item.EventLogs.Count > 0)
+                        {
+                            @Html.DisplayFor(modelItem => item.EventLogs.FirstOrDefault().Mark);
+                        }
+                        else if (User.IsInRole("teacher"))
+                        {
+                            <a asp-controller="Events" asp-action="Mark" asp-route-id="@item.Id">Оценить</a>
+                        }
+                        else
+                        {
+                            <span>Ждёт отметки</span>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+}
+else
+{
+    <div class="text-center">Отсутствуют.</div>
+}
