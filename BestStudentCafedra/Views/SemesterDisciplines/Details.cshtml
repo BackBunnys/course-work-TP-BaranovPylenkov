@@ -61,7 +61,14 @@
     {
         <a asp-controller="Activities" asp-action="Create" asp-route-SemesterDisciplineId="@Model.Id">Добавить</a> <span> | </span>
     }
-    <a asp-controller="RatingControls" asp-action="Index" asp-route-disciplineId="@Model.Id">Рейтинг</a>
+    @if (ViewBag.groupId != null)
+    {
+        <a asp-controller="RatingControls" asp-action="Group" asp-route-id="@ViewBag.groupId" asp-route-disciplineId="@Model.Id" asp-route-ReturnUrl="@Context.Request.Path@Context.Request.QueryString">Рейтинг</a>
+    }
+    else
+    {
+        <a asp-controller="RatingControls" asp-action="Index" asp-route-disciplineId="@Model.Id">Рейтинг</a>
+    }
 </p>
 
 <table class="table border rounded" id="activitiesTable">

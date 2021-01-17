@@ -3,18 +3,6 @@
 @using BestStudentCafedra.Controllers
 @{
     ViewData["Title"] = "Рейтинг группы";
-
-    var pointMultiplier = 0; var examMultiplier = 0;
-    Activity exam = null;
-    if (Model.SemesterDiscipline.ControlType == ControlType.Exam)
-    {
-        exam = Model.SemesterDiscipline.Activities.FirstOrDefault(x => x.Type.Name == RatingControlsController.EXAMTYPENAME);
-        Model.SemesterDiscipline.Activities.Remove(exam);
-        pointMultiplier = (int)(60 / Model.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
-        examMultiplier = (int)(40 / exam.MaxPoints);
-    } else {
-        pointMultiplier = (int)(100 / Model.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
-    }
 }
 
 <h1>Рейтинг контроль</h1>
@@ -104,6 +92,17 @@
         </div>
     </dl>
 </div>
+<div>
+    @if (ViewBag.ReturnUrl != null)
+    {
+        <a href="@ViewBag.returnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@Model.Group.Id">Вернуться</a>
+    }
+
+</div>
 <br />
 
 <h4>Промежуточный рейтинг (Рубежный контроль)</h4>
@@ -125,23 +124,31 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.RatingControls)
+        @if (Model.RatingControls.Count() > 0)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CompletionDate)
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm float-right" role="group">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
-                        <a asp-action="DownloadRating" asp-route-id="@item.Id" class="btn btn-outline-secondary">Скачать</a>
-                        <a href="#" onclick="loadAndShowModal('../Delete/@item.Id')" class="btn btn-outline-danger">&times;</a>
-                    </div>
-                </td>
-            </tr>
+            @foreach (var item in Model.RatingControls)
+            {
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Number)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CompletionDate)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-action="DownloadRating" asp-route-id="@item.Id" class="btn btn-outline-secondary">Скачать</a>
+                            <a href="#" onclick="loadAndShowModal('../Delete/@item.Id')" class="btn btn-outline-danger">&times;</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="3"><p class="text-info text-center mb-0">Результаты рейтинг контролей ещё не сформированы!</p></td></tr>
         }
     </tbody>
 </table>
@@ -171,9 +178,11 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </th>
             }
-            @if(exam != null) { <th rowspan="2">Экз</th> }
             <th rowspan="2">Итого</th>
-            <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
+            @if (Model.RatingControls.Count() > 0)
+            { 
+                <th colspan="@Model.RatingControls.Count()">@Html.DisplayNameFor(model => model.RatingControls)</th>
+            }
             <th rowspan="2">Оценка</th>
         </tr>
 
@@ -211,21 +220,7 @@
                         ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == item);
                         if (activityProtection != null)
                         {
-                            var points = activityProtection.Points * pointMultiplier;
-                            total += points;
-                            @Html.Raw(points.ToString(new CultureInfo("en-US")));
-                        }
-                    }
-                </td>
-            }
-            @if (exam != null)
-            {
-                <td>
-                    @{
-                        ActivityProtection examProtection = exam.ActivityProtections.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
-                        if (examProtection != null)
-                        {
-                            var points = examProtection.Points * examMultiplier;
+                            var points = (float)(Math.Round(activityProtection.Points, 1));
                             total += points;
                             @Html.Raw(points.ToString(new CultureInfo("en-US")));
                         }
@@ -245,28 +240,28 @@
                     }
                 </td>
             }
-        <td>
-            @{
-                if (exam != null)
-                {
-                    var mark = 2;
-                    if (total > 90)
-                        mark = 5;
-                    else if (total > 73)
-                        mark = 4;
-                    else if (total > 60)
-                        mark = 3;
-                    @Html.Raw(mark.ToString());
+            <td>
+                @{
+                    if (Model.SemesterDiscipline.ControlType == ControlType.Credit)
+                    {
+                        var mark = "Незачет";
+                        if (total > 60)
+                            mark = "Зачет";  
+                        @Html.Raw(mark);
+                    }
+                    else
+                    {
+                        var mark = 2;
+                        if (total > 90)
+                            mark = 5;
+                        else if (total > 73)
+                            mark = 4;
+                        else if (total > 60)
+                            mark = 3;
+                        @Html.Raw(mark.ToString());
+                    }
                 }
-                else
-                {
-                    var mark = "Незачет";
-                    if (total > 60)
-                        mark = "Зачет";  
-                    @Html.Raw(mark);
-                }
-            }
-        </td>
+            </td>
         </tr>
         }
     </tbody>

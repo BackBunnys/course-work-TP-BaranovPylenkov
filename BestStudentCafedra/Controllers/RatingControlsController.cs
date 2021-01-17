@@ -48,7 +48,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: RatingControls/Details/5
-        public async Task<IActionResult> Group(int? id, int? disciplineId)
+        public async Task<IActionResult> Group(int? id, int? disciplineId, string ReturnUrl)
         {
             if (id == null || disciplineId == null)
             {
@@ -62,21 +62,83 @@ namespace BestStudentCafedra.Controllers
                 .OrderBy(x => x.Number)
                 .ToListAsync();
 
-            groupRating.Group = await _context.AcademicGroups
+            groupRating.Group = _context.AcademicGroups
                 .Include(x => x.Specialty)
                 .Include(x => x.Students.OrderBy(y => y.FullName))
                     .ThenInclude(x => x.ActivityProtections
                         .Where(y => _context.Activities
                             .Where(z => z.SemesterDisciplineId == disciplineId)
                             .Any(h => y.ActivityId == h.Id)))
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefault(x => x.Id == id);
 
-            groupRating.SemesterDiscipline = await _context.SemesterDiscipline
+            groupRating.SemesterDiscipline = _context.SemesterDiscipline
                 .Include(x => x.Discipline)
-                .Include(x => x.Activities)
+                .Include(x => x.Activities.OrderBy(x => x.Type).ThenBy(x => x.Number))
                     .ThenInclude(y => y.Type)
-                .FirstOrDefaultAsync(x => x.Id == disciplineId);
+                .FirstOrDefault(x => x.Id == disciplineId);
 
+            if (groupRating.SemesterDiscipline.Activities.Count() > 0)
+            { 
+                if (groupRating.SemesterDiscipline.ControlType == ControlType.Exam)
+                {
+                    var examMultiplier = 1f;
+                    var pointMultiplier = 1f;
+                    var exam = groupRating.SemesterDiscipline.Activities
+                        .FirstOrDefault(x => x.Type.Name == EXAMTYPENAME);
+
+                    if (exam != null)
+                    {
+                        examMultiplier = (float)(40 / exam.MaxPoints);
+
+                        groupRating.SemesterDiscipline.Activities =
+                            groupRating.SemesterDiscipline.Activities
+                                .Where(x => x.Type.Name != EXAMTYPENAME)
+                                .ToList(); //ToList().RemoveAll() обязательно заработает :/
+
+                        var wttt = groupRating.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum();
+                        if (groupRating.SemesterDiscipline.Activities.Count() > 0)
+                        {
+                            pointMultiplier = (float)(60f / groupRating.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+                        }
+
+                        groupRating.SemesterDiscipline.Activities.Add(exam);
+                        foreach (var student in groupRating.Group.Students)
+                        {
+                            foreach (var protection in student.ActivityProtections)
+                            {
+                                if (protection.ActivityId == exam.Id)
+                                    protection.Points *= examMultiplier;
+                                else
+                                    protection.Points *= pointMultiplier;
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var student in groupRating.Group.Students)
+                        {
+                            foreach (var protection in student.ActivityProtections)
+                            {
+                                protection.Points *= pointMultiplier;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var pointMultiplier = (int)(100 / groupRating.SemesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+                    foreach (var student in groupRating.Group.Students)
+                    {
+                        foreach (var protection in student.ActivityProtections)
+                        {
+                            protection.Points *= pointMultiplier;
+                        }
+                    }
+                }
+            }
+
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(groupRating);
         }
 
@@ -333,7 +395,7 @@ namespace BestStudentCafedra.Controllers
                 currentRow++;
 
                 var i = 1;
-                foreach (var studentRating in ratingControl.StudentRatings)
+                foreach (var studentRating in ratingControl.StudentRatings.OrderBy(x => x.Student.FullName))
                 {
                     worksheet.Cell(currentRow, 1).Value = i; worksheet.Cell(currentRow, 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     worksheet.Cell(currentRow, 2).Value = studentRating.Student.GradebookNumber; worksheet.Cell(currentRow, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
