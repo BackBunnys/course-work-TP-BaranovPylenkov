@@ -29,10 +29,45 @@ namespace BestStudentCafedra.Controllers
 
             var subjectAreaDbContext = _context.TeacherRequests
                 .Include(t => t.GraduationWork)
-                    .ThenInclude(x => x.Student)
+                    .ThenInclude(x => x.Student.Group)
                 .Include(t => t.Teacher)
-                .Where(t => t.Teacher.Id == user.SubjectAreaId);
+                .Where(t => t.Teacher.Id == user.SubjectAreaId && t.Status == null);
             return View(await subjectAreaDbContext.ToListAsync());
+        }
+
+        // GET: TeacherRequests/Create
+        public async Task<IActionResult> Approve(int? id, string returnUrl)
+        {
+            if (id == null || !TeacherRequestExists((int)id))
+                return NotFound();
+
+            ViewData["returnUrl"] = returnUrl;
+
+            return PartialView("_Approve", await _context.TeacherRequests.FindAsync(id));
+        }
+
+        // POST: TeacherRequests/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id, [Bind("Id")]TeacherRequest teacherRequest, string returnUrl)
+        {
+            if (id != teacherRequest.Id && !TeacherRequestExists(id))
+                return NotFound();
+
+            var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).FirstOrDefaultAsync(x => x.Id == id);
+            tR.Status = Status.APPROVED;
+            if (tR.RequestType == RequestType.ADVISER)
+                tR.GraduationWork.ScientificAdviserId = tR.TeacherId;
+            else if(tR.RequestType == RequestType.REVIEWER)
+                tR.GraduationWork.ReviewerId = tR.TeacherId;
+            _context.Update(tR);
+
+            await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction(nameof(Index), new { id = id });
         }
 
         // GET: TeacherRequests/Details/5
@@ -66,7 +101,7 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,GraduationWorkId,TeacherId,Motivation,RequestType,Status,RejectReason,CreatingDate,ResponseDate,ResponsePersonName")] TeacherRequest teacherRequest)
+        public async Task<IActionResult> Create([Bind("GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest)
         {
             if (ModelState.IsValid)
             {
@@ -100,7 +135,7 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,GraduationWorkId,TeacherId,Motivation,RequestType,Status,RejectReason,CreatingDate,ResponseDate,ResponsePersonName")] TeacherRequest teacherRequest)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest)
         {
             if (id != teacherRequest.Id)
             {
