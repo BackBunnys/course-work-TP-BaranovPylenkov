@@ -40,5 +40,11 @@ namespace BestStudentCafedra.Models
         }
     }
 
-    public enum Status { APPROVED, REJECTED };
+    public enum Status 
+    {
+        [Display(Name = "Принят")]
+        APPROVED,
+        [Display(Name = "Отклонён")]
+        REJECTED 
+    };
 }
