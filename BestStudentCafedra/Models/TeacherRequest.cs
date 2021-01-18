@@ -20,7 +20,7 @@ namespace BestStudentCafedra.Models
         public string Motivation { get; set; }
         [Display(Name = "Тип запроса")]
         [Required(ErrorMessage = "Не выбран тип запроса")]
-        public RequestType RequestType { get; set; }
+        public RequestType? RequestType { get; set; }
 
         public override void Approve(Person approvingPerson)
         {
@@ -30,9 +30,10 @@ namespace BestStudentCafedra.Models
                     throw new ArgumentException("Teacher request can be approved only by teacher to which this request is directed");
                 
                 base.Approve(teacher);
-                if (RequestType == RequestType.ADVISER)
+
+                if (RequestType == Models.RequestType.ADVISER)
                     GraduationWork.ScientificAdviserId = TeacherId;
-                else if (RequestType == RequestType.REVIEWER)
+                else if (RequestType == Models.RequestType.REVIEWER)
                     GraduationWork.ReviewerId = TeacherId;
             }
             else throw new ArgumentException("Teacher request can be approved only by teacher");
