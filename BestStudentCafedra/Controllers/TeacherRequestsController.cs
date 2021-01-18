@@ -27,12 +27,13 @@ namespace BestStudentCafedra.Controllers
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            var subjectAreaDbContext = _context.TeacherRequests
+            var requests = _context.TeacherRequests
                 .Include(t => t.GraduationWork)
                     .ThenInclude(x => x.Student.Group)
                 .Include(t => t.Teacher)
                 .Where(t => t.Teacher.Id == user.SubjectAreaId && t.Status == null);
-            return View(await subjectAreaDbContext.ToListAsync());
+
+            return View(await requests.OrderByDescending(x => x.CreatingDate).ToListAsync());
         }
 
         // GET: TeacherRequests/Approve
@@ -127,19 +128,15 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Create
-        public async Task<IActionResult> Create(RequestType? requestType, string returnUrl)
+        public async Task<IActionResult> Create(RequestType requestType, string returnUrl)
         {
             TeacherRequest teacherRequest = new TeacherRequest();
             teacherRequest.RequestType = requestType;
             
-            if(User.IsInRole("student"))
-            {
-                User user = await _userManager.FindByNameAsync(User.Identity.Name);
-                var graduationWork = await _context.GraduationWorks.FirstOrDefaultAsync(x => x.StudentId == user.SubjectAreaId);
-                teacherRequest.GraduationWorkId = graduationWork.Id;
-            }
-            else
-                ViewData["GraduationWorkId"] = new SelectList(_context.GraduationWorks, "Id", "Id");
+            User user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var graduationWork = await _context.GraduationWorks.FirstOrDefaultAsync(x => x.StudentId == user.SubjectAreaId);
+            teacherRequest.GraduationWorkId = graduationWork.Id;
+
             ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FullName");
             ViewData["returnUrl"] = returnUrl;
             return PartialView("_Create", teacherRequest);
@@ -152,9 +149,12 @@ namespace BestStudentCafedra.Controllers
         {
             if (ModelState.IsValid)
             {
-                teacherRequest.CreatingDate = DateTime.Now;
-                _context.Add(teacherRequest);
-                await _context.SaveChangesAsync();
+                if (!_context.TeacherRequests.Any(x => x.GraduationWorkId == teacherRequest.GraduationWorkId && x.Status == null && x.RequestType == teacherRequest.RequestType ))
+                {
+                    teacherRequest.CreatingDate = DateTime.Now;
+                    _context.Add(teacherRequest);
+                    await _context.SaveChangesAsync();
+                }
 
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
@@ -189,7 +189,7 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl)
         {
-            var teacherRequest = await _context.TeacherRequests.FindAsync(id);
+            var teacherRequest = await _context.TeacherRequests.Include(x => x.GraduationWork).FirstOrDefaultAsync(x => x.Id == id);
             _context.TeacherRequests.Remove(teacherRequest);
             await _context.SaveChangesAsync();
 

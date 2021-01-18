@@ -17,6 +17,7 @@ namespace BestStudentCafedra.Models
         [DisplayFormat(DataFormatString = "{0:g}", ApplyFormatInEditMode = true)]
         public DateTime CreatingDate { get; set; } = DateTime.Now;
         [Display(Name = "Дата ответа")]
+        [DisplayFormat(DataFormatString = "{0:g}", ApplyFormatInEditMode = true)]
         public DateTime? ResponseDate { get; set; }
         [Display(Name = "Имя ответившего сотрудника")]
         public string ResponsePersonName { get; set; }
