@@ -1,0 +1,28 @@
+﻿@model BestStudentCafedra.Models.TeacherRequest
+
+<div class="modal-content border-danger">
+    <div class="modal-header">
+        <div>
+            <h4>Отклонение запроса</h4>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="text-center">
+            Вы уверены, что хотите отклонить запрос студента в назначении вас для указанной работы в качестве:
+            <div class="text-info"><b>@Html.DisplayFor(x => x.RequestType)</b></div>
+        </div>
+        <form asp-action="Reject">
+            <div class="mt-2 mb-2">
+                <input required type="hidden" asp-for="Id" />
+                <input hidden name="returnUrl" value="@ViewBag.returnUrl" />
+                <textarea asp-for="RejectReason" class="form-control" placeholder="@Html.DisplayNameFor(x => x.RejectReason)..." ></textarea>
+            </div>
+            <div class="form-group w-100 mb-0">
+                <input type="submit" value="Отклонить" class="btn btn-danger w-100" />
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,24 @@
+﻿@model BestStudentCafedra.Models.TeacherRequest
+<div class="modal-content border-danger">
+    <div class="modal-header">
+        <div>
+            <h4>Отмена запроса</h4>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div>
+            Уверены, что хотите отменить этот запрос? Все введённые данные будут удалены.
+        </div>
+    </div>
+    <div class="modal-footer">
+        <form class="w-100" asp-action="Delete">
+            <input hidden name="returnUrl" value="@ViewBag.returnUrl" />
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Отменить" class="btn btn-danger w-100" />
+        </form>
+    </div>
+</div>
+
