@@ -35,7 +35,7 @@ namespace BestStudentCafedra.Controllers
             return View(await subjectAreaDbContext.ToListAsync());
         }
 
-        // GET: TeacherRequests/Create
+        // GET: TeacherRequests/Approve
         public async Task<IActionResult> Approve(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -46,7 +46,7 @@ namespace BestStudentCafedra.Controllers
             return PartialView("_Approve", await _context.TeacherRequests.FindAsync(id));
         }
 
-        // POST: TeacherRequests/Create
+        // POST: TeacherRequests/Approve
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id, [Bind("Id")]TeacherRequest teacherRequest, string returnUrl)
@@ -60,6 +60,39 @@ namespace BestStudentCafedra.Controllers
                 tR.GraduationWork.ScientificAdviserId = tR.TeacherId;
             else if(tR.RequestType == RequestType.REVIEWER)
                 tR.GraduationWork.ReviewerId = tR.TeacherId;
+            _context.Update(tR);
+
+            await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction(nameof(Index), new { id = id });
+        }
+
+        // GET: TeacherRequests/Reject
+        public async Task<IActionResult> Reject(int? id, string returnUrl)
+        {
+            if (id == null || !TeacherRequestExists((int)id))
+                return NotFound();
+
+            ViewData["returnUrl"] = returnUrl;
+
+            return PartialView("_Reject", await _context.TeacherRequests.FindAsync(id));
+        }
+
+        // POST: TeacherRequests/Reject
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(int id, [Bind("Id,RejectReason")] TeacherRequest teacherRequest, string returnUrl)
+        {
+            if (id != teacherRequest.Id && !TeacherRequestExists(id))
+                return NotFound();
+
+            var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).FirstOrDefaultAsync(x => x.Id == id);
+            tR.Status = Status.REJECTED;
+            tR.RejectReason = teacherRequest.RejectReason;
+            
             _context.Update(tR);
 
             await _context.SaveChangesAsync();
