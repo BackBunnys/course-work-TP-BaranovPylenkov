@@ -10,15 +10,16 @@ namespace BestStudentCafedra.Models
     {
         public int Id { get; set; }
         [Display(Name = "Выпускная квалификационная работа")]
-        [Required]
+        [Required(ErrorMessage = "Не выбрана работа")]
         public int GraduationWorkId { get; set; }
         [Display(Name = "Преподаватель")]
-        [Required]
+        [Required(ErrorMessage = "Не выбран преподаватель")]
         public int TeacherId { get; set; }
         [Display(Name = "Мотивация")]
+        [StringLength(500, ErrorMessage = "Длина мотивации не должна превышать 500 символов.")]
         public string Motivation { get; set; }
         [Display(Name = "Тип запроса")]
-        [Required]
+        [Required(ErrorMessage = "Не выбран тип запроса")]
         public RequestType RequestType { get; set; }
 
         public override void Approve(Person approvingPerson)

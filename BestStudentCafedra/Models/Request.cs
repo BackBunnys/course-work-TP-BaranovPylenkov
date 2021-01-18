@@ -11,9 +11,10 @@ namespace BestStudentCafedra.Models
         [Display(Name="Статус")]
         public Status? Status { get; set; }
         [Display(Name = "Причина отказа")]
+        [StringLength(500, ErrorMessage = "Длина мотивации не должна превышать 500 символов.")]
         public string RejectReason { get; set; }
         [Display(Name = "Дата создания")]
-        [Required]
+        [DisplayFormat(DataFormatString = "{0:g}", ApplyFormatInEditMode = true)]
         public DateTime CreatingDate { get; set; } = DateTime.Now;
         [Display(Name = "Дата ответа")]
         public DateTime? ResponseDate { get; set; }
