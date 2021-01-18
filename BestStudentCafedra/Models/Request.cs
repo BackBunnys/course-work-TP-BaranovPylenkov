@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,10 +8,16 @@ namespace BestStudentCafedra.Models
 {
     public abstract class Request
     {
+        [Display(Name="Статус")]
         public Status? Status { get; set; }
+        [Display(Name = "Причина отказа")]
         public string RejectReason { get; set; }
+        [Display(Name = "Дата создания")]
+        [Required]
         public DateTime CreatingDate { get; set; } = DateTime.Now;
+        [Display(Name = "Дата ответа")]
         public DateTime? ResponseDate { get; set; }
+        [Display(Name = "Имя ответившего сотрудника")]
         public string ResponsePersonName { get; set; }
 
         public virtual void Approve(Person approvingPerson)
