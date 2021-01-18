@@ -51,10 +51,12 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id, [Bind("Id")]TeacherRequest teacherRequest, string returnUrl)
         {
-            if (id != teacherRequest.Id && !TeacherRequestExists(id))
+            if (id != teacherRequest.Id || !TeacherRequestExists(id))
                 return NotFound();
 
-            var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).FirstOrDefaultAsync(x => x.Id == id);
+            var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).Include(x => x.Teacher).FirstOrDefaultAsync(x => x.Id == id);
+            tR.ResponseDate = DateTime.Now;
+            tR.ResponsePersonName = tR.Teacher.FullName;
             tR.Status = Status.APPROVED;
             if (tR.RequestType == RequestType.ADVISER)
                 tR.GraduationWork.ScientificAdviserId = tR.TeacherId;
@@ -86,10 +88,12 @@ namespace BestStudentCafedra.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id, [Bind("Id,RejectReason")] TeacherRequest teacherRequest, string returnUrl)
         {
-            if (id != teacherRequest.Id && !TeacherRequestExists(id))
+            if (id != teacherRequest.Id || !TeacherRequestExists(id))
                 return NotFound();
 
-            var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).FirstOrDefaultAsync(x => x.Id == id);
+            var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).Include(x => x.Teacher).FirstOrDefaultAsync(x => x.Id == id);
+            tR.ResponseDate = DateTime.Now;
+            tR.ResponsePersonName = tR.Teacher.FullName;
             tR.Status = Status.REJECTED;
             tR.RejectReason = teacherRequest.RejectReason;
             
@@ -106,21 +110,18 @@ namespace BestStudentCafedra.Controllers
         // GET: TeacherRequests/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (id == null || !TeacherRequestExists((int)id))
             {
                 return NotFound();
             }
 
             var teacherRequest = await _context.TeacherRequests
                 .Include(t => t.GraduationWork)
+                    .ThenInclude(t => t.Student.Group)
                 .Include(t => t.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (teacherRequest == null)
-            {
-                return NotFound();
-            }
 
-            return View(teacherRequest);
+            return PartialView("_Details", teacherRequest);
         }
 
         // GET: TeacherRequests/Create
@@ -138,6 +139,7 @@ namespace BestStudentCafedra.Controllers
         {
             if (ModelState.IsValid)
             {
+                teacherRequest.CreatingDate = DateTime.Now;
                 _context.Add(teacherRequest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
