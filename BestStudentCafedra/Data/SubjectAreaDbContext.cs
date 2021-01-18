@@ -106,7 +106,7 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.SemesterDiscipline)
                     .WithMany(p => p.Activities)
                     .HasForeignKey(d => d.SemesterDisciplineId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("activity_ibfk_2");
 
                 entity.HasOne(d => d.Type)
@@ -138,13 +138,13 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.Activity)
                     .WithMany(p => p.ActivityProtections)
                     .HasForeignKey(d => d.ActivityId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("activity_protection_ibfk_2");
 
                 entity.HasOne(d => d.Student)
                     .WithMany(p => p.ActivityProtections)
                     .HasForeignKey(d => d.StudentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("activity_protection_ibfk_1");
             });
 
@@ -459,13 +459,13 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.Discipline)
                     .WithMany(p => p.GroupDiscipline)
                     .HasForeignKey(d => d.DisciplineId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("group_discipline_ibfk_1");
 
                 entity.HasOne(d => d.AcademicGroup)
                     .WithMany(p => p.GroupDiscipline)
                     .HasForeignKey(d => d.GroupId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("group_discipline_ibfk_2");
             });
 
@@ -534,13 +534,13 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.SemesterDiscipline)
                     .WithMany(p => p.RatingControls)
                     .HasForeignKey(d => d.SemesterDisciplineId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("rating_control_ibfk_2");
 
                 entity.HasOne(d => d.AcademicGroup)
                     .WithMany(p => p.RatingControls)
                     .HasForeignKey(d => d.GroupId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("rating_control_ibfk_3");
             });
 
@@ -659,13 +659,13 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.RatingControl)
                     .WithMany(p => p.StudentRatings)
                     .HasForeignKey(d => d.RatingId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("student_rating_ibfk_2");
 
                 entity.HasOne(d => d.Student)
                     .WithMany(p => p.StudentRatings)
                     .HasForeignKey(d => d.StudentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("student_rating_ibfk_1");
             });
 
@@ -713,13 +713,13 @@ namespace BestStudentCafedra.Data
                 entity.HasOne(d => d.Discipline)
                     .WithMany(p => p.TeacherDisciplines)
                     .HasForeignKey(d => d.DisciplineId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("teacher_discipline_ibfk_1");
 
                 entity.HasOne(d => d.Teacher)
                     .WithMany(p => p.TeacherDisciplines)
                     .HasForeignKey(d => d.TeacherId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("teacher_discipline_ibfk_2");
             });
 
