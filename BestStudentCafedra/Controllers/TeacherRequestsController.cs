@@ -69,7 +69,7 @@ namespace BestStudentCafedra.Controllers
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             else
-                return RedirectToAction(nameof(Index), new { id = id });
+                return RedirectToAction(nameof(Index));
         }
 
         // GET: TeacherRequests/Reject
@@ -104,16 +104,18 @@ namespace BestStudentCafedra.Controllers
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             else
-                return RedirectToAction(nameof(Index), new { id = id });
+                return RedirectToAction(nameof(Index));
         }
 
         // GET: TeacherRequests/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
             {
                 return NotFound();
             }
+
+            ViewData["returnUrl"] = returnUrl;
 
             var teacherRequest = await _context.TeacherRequests
                 .Include(t => t.GraduationWork)
@@ -146,14 +148,18 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest, string requestUrl)
+        public async Task<IActionResult> Create([Bind("GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest, string returnUrl)
         {
             if (ModelState.IsValid)
             {
                 teacherRequest.CreatingDate = DateTime.Now;
                 _context.Add(teacherRequest);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
+                else
+                    return RedirectToAction(nameof(Index));
             }
             ViewData["GraduationWorkId"] = new SelectList(_context.GraduationWorks, "Id", "Id", teacherRequest.GraduationWorkId);
             ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FullName", teacherRequest.TeacherId);
@@ -161,34 +167,36 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, string returnUrl)
         {
-            if (id == null)
+            if (id == null || !TeacherRequestExists((int)id))
             {
                 return NotFound();
             }
+
+            ViewData["returnUrl"] = returnUrl;
 
             var teacherRequest = await _context.TeacherRequests
                 .Include(t => t.GraduationWork)
                 .Include(t => t.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (teacherRequest == null)
-            {
-                return NotFound();
-            }
 
-            return View(teacherRequest);
+            return PartialView("_Delete", teacherRequest);
         }
 
         // POST: TeacherRequests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl)
         {
             var teacherRequest = await _context.TeacherRequests.FindAsync(id);
             _context.TeacherRequests.Remove(teacherRequest);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction(nameof(Index));
         }
 
         private bool TeacherRequestExists(int id)
