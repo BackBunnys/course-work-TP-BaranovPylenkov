@@ -125,17 +125,28 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(RequestType? requestType, string returnUrl)
         {
-            ViewData["GraduationWorkId"] = new SelectList(_context.GraduationWorks, "Id", "Id");
+            TeacherRequest teacherRequest = new TeacherRequest();
+            teacherRequest.RequestType = requestType;
+            
+            if(User.IsInRole("student"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var graduationWork = await _context.GraduationWorks.FirstOrDefaultAsync(x => x.StudentId == user.SubjectAreaId);
+                teacherRequest.GraduationWorkId = graduationWork.Id;
+            }
+            else
+                ViewData["GraduationWorkId"] = new SelectList(_context.GraduationWorks, "Id", "Id");
             ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FullName");
-            return View();
+            ViewData["returnUrl"] = returnUrl;
+            return PartialView("_Create", teacherRequest);
         }
 
         // POST: TeacherRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest)
+        public async Task<IActionResult> Create([Bind("GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest, string requestUrl)
         {
             if (ModelState.IsValid)
             {
