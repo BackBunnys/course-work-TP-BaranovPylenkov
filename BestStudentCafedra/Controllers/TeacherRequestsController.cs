@@ -117,7 +117,7 @@ namespace BestStudentCafedra.Controllers
 
             var teacherRequest = await _context.TeacherRequests
                 .Include(t => t.GraduationWork)
-                    .ThenInclude(t => t.Student.Group)
+                    .ThenInclude(t => t.Student)
                 .Include(t => t.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
