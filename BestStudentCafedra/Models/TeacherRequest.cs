@@ -40,5 +40,12 @@ namespace BestStudentCafedra.Models
         public virtual Teacher Teacher { get; set; }
         public virtual GraduationWork GraduationWork { get; set; }
     }
-    public enum RequestType { ADVISER, REVIEWER };
+    public enum RequestType
+    {
+        [Display(Name = "Научный руководитель")]
+        ADVISER, 
+        [Display(Name = "Рецензент")]
+        REVIEWER 
+    };
+
 }
