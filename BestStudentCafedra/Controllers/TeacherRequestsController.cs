@@ -7,22 +7,31 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class TeacherRequestsController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public TeacherRequestsController(SubjectAreaDbContext context)
+        public TeacherRequestsController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: TeacherRequests
         public async Task<IActionResult> Index()
         {
-            var subjectAreaDbContext = _context.TeacherRequests.Include(t => t.GraduationWork).Include(t => t.Teacher);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            var subjectAreaDbContext = _context.TeacherRequests
+                .Include(t => t.GraduationWork)
+                    .ThenInclude(x => x.Student)
+                .Include(t => t.Teacher)
+                .Where(t => t.Teacher.Id == user.SubjectAreaId);
             return View(await subjectAreaDbContext.ToListAsync());
         }
 
@@ -55,8 +64,6 @@ namespace BestStudentCafedra.Controllers
         }
 
         // POST: TeacherRequests/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,GraduationWorkId,TeacherId,Motivation,RequestType,Status,RejectReason,CreatingDate,ResponseDate,ResponsePersonName")] TeacherRequest teacherRequest)
@@ -91,8 +98,6 @@ namespace BestStudentCafedra.Controllers
         }
 
         // POST: TeacherRequests/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,GraduationWorkId,TeacherId,Motivation,RequestType,Status,RejectReason,CreatingDate,ResponseDate,ResponsePersonName")] TeacherRequest teacherRequest)
