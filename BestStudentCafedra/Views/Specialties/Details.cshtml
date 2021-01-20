@@ -1,0 +1,40 @@
+﻿@model BestStudentCafedra.Models.Specialty
+
+@{
+    ViewData["Title"] = "Подробности о специальности";
+    var isAccessAllowed = User.IsInRole("methodist");
+}
+
+<h1>Подробности о специальности</h1>
+
+<div>
+    <h4>Специальность</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Code)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Code)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AcademicDegree)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.AcademicDegree)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    @if (isAccessAllowed)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Code">Изменить</a> <span> | </span>
+    }
+    <a asp-action="Index">Вернуться в список специальностей</a>
+</div>

@@ -28,6 +28,11 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                 table: "teacher_disciplines",
                 newName: "discipline_id2");
 
+            migrationBuilder.RenameColumn(
+                name: "discipline_id",
+                table: "activity",
+                newName: "semester_discipline_id");
+
             migrationBuilder.CreateTable(
                 name: "semester_discipline",
                 columns: table => new
@@ -37,7 +42,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     discipline_id = table.Column<int>(type: "int", nullable: false),
                     year = table.Column<int>(type: "int", nullable: false),
                     semester = table.Column<int>(type: "int", nullable: false),
-                    control_type = table.Column<string>(type: "enum('exam','differential credit','credit')", nullable: false, collation: "utf8mb4_0900_ai_ci")
+                    control_type = table.Column<string>(type: "enum('Exam','DifferentialCredit','Credit')", nullable: false, collation: "utf8mb4_0900_ai_ci")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -46,7 +51,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                     table.ForeignKey(
                         name: "semester_discipline_ibfk_1",
                         column: x => x.discipline_id,
-                        principalTable: "discipline",
+                        principalTable: "semester_discipline",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -59,7 +64,7 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
             migrationBuilder.AddForeignKey(
                 name: "activity_ibfk_2",
                 table: "activity",
-                column: "discipline_id",
+                column: "semester_discipline_id",
                 principalTable: "semester_discipline",
                 principalColumn: "id",
                 onDelete: ReferentialAction.Restrict);
@@ -78,6 +83,11 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
                 name: "discipline_id2",
                 table: "teacher_disciplines",
                 newName: "discipline_id1");
+
+            migrationBuilder.RenameIndex(
+                name: "semester_discipline_id1",
+                table: "semester_discipline_id",
+                newName: "discipline_id");
 
             migrationBuilder.AddColumn<string>(
                 name: "control_type",

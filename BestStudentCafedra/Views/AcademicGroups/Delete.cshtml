@@ -1,0 +1,44 @@
+﻿@model BestStudentCafedra.Models.AcademicGroup
+
+@{
+    ViewData["Title"] = "Удаление данных о группе";
+}
+
+<h1>Удаление данных о группе</h1>
+
+<h3>Вы уверены, что хотите удалить данные об этой группе?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SpecialtyId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SpecialtyId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FormationYear)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FormationYear)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
+        <a asp-action="Index">Вернуться в список групп</a>
+    </form>
+</div>

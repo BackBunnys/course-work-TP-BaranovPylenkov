@@ -1,23 +1,19 @@
 ﻿@model BestStudentCafedra.Models.SemesterDiscipline
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Изменение данных о семестровой дисциплине";
 }
 
-<h1>Edit</h1>
+<h1>Изменение данных о семестровой дисциплине</h1>
 
-<h4>SemesterDiscipline</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="DisciplineId" class="control-label"></label>
-                <select asp-for="DisciplineId" class="form-control" asp-items="ViewBag.DisciplineId"></select>
-                <span asp-validation-for="DisciplineId" class="text-danger"></span>
-            </div>
+            <input type="hidden" asp-for="DisciplineId" />
+
             <div class="form-group">
                 <label asp-for="Year" class="control-label"></label>
                 <input asp-for="Year" class="form-control" />
@@ -30,18 +26,25 @@
             </div>
             <div class="form-group">
                 <label asp-for="ControlType" class="control-label"></label>
-                <select asp-for="ControlType" class="form-control"></select>
+                <select asp-items="Html.GetEnumSelectList<ControlType>()" asp-for="ControlType" class="form-control"></select>
                 <span asp-validation-for="ControlType" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    @if (ViewBag.returnUrl != null)
+    {
+        <a href="@ViewBag.returnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-action="Details" asp-route-id="@Model.Id">Вернуться</a>
+    }
 </div>
 
 @section Scripts {

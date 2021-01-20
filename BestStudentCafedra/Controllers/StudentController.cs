@@ -7,27 +7,34 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace BestStudentCafedra.Controllers
 {
     public class StudentController : Controller
     {
         private readonly SubjectAreaDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public StudentController(SubjectAreaDbContext context)
+        public StudentController(SubjectAreaDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Students
-        public async Task<IActionResult> Index()
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Index(string ReturnUrl)
         {
             var subjectAreaDbContext = _context.Students.Include(s => s.Group);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(await subjectAreaDbContext.ToListAsync());
         }
 
         // GET: Students/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [Authorize(Roles = "methodist, teacher")]
+        public async Task<IActionResult> Details(int? id, string ReturnUrl, string From)
         {
             if (id == null)
             {
@@ -37,18 +44,36 @@ namespace BestStudentCafedra.Controllers
             var student = await _context.Students
                 .Include(s => s.Group)
                 .FirstOrDefaultAsync(m => m.GradebookNumber == id);
+
             if (student == null)
             {
                 return NotFound();
             }
 
+            if (User.IsInRole("teacher"))
+            {
+                User user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var teacherDiscplines = _context.TeacherDisciplines
+                    .Include(x => x.Discipline)
+                        .ThenInclude(x => x.GroupDiscipline)
+                            .ThenInclude(x => x.AcademicGroup)
+                    .Where(x => x.TeacherId == user.SubjectAreaId && x.Discipline.GroupDiscipline.Any(y => y.GroupId == student.GroupId))
+                    .ToList();
+                if (teacherDiscplines.Count() == 0) return Redirect("/Account/AccessDenied");
+            }
+
+            ViewData["ReturnUrl"] = ReturnUrl;
+            ViewData["From"] = From;
             return View(student);
         }
 
         // GET: Students/Create
-        public IActionResult Create()
+        [Authorize(Roles = "methodist")]
+        public IActionResult Create(string ReturnUrl, int? ForGroup = null)
         {
-            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name");
+            ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", ForGroup);
+            ViewData["ReturnUrl"] = ReturnUrl;
+            ViewData["ForGroup"] = ForGroup;
             return View();
         }
 
@@ -57,20 +82,26 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Create([Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student, string ReturnUrl)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(student);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    return Redirect(ReturnUrl);
+                else
+                    return RedirectToAction("Details", "AcademicGroups", new { id = student.GroupId });
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
         // GET: Students/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Edit(int? id, string ReturnUrl)
         {
             if (id == null)
             {
@@ -83,6 +114,7 @@ namespace BestStudentCafedra.Controllers
                 return NotFound();
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
@@ -91,7 +123,8 @@ namespace BestStudentCafedra.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Edit(int id, [Bind("GradebookNumber,GroupId,FullName,PhoneNumber")] Student student, string ReturnUrl)
         {
             if (id != student.GradebookNumber)
             {
@@ -116,13 +149,18 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                    return RedirectToAction(nameof(Details), new { id = id, ReturnUrl = ReturnUrl });
+                else
+                    return RedirectToAction(nameof(Details), new { id = id });
             }
             ViewData["GroupId"] = new SelectList(_context.AcademicGroups, "Id", "Name", student.GroupId);
+            ViewData["ReturnUrl"] = ReturnUrl;
             return View(student);
         }
 
         // GET: Students/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -144,6 +182,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Students/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var student = await _context.Students.FindAsync(id);

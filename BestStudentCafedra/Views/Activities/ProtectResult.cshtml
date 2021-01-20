@@ -1,0 +1,65 @@
+﻿@model BestStudentCafedra.Models.Activity
+
+@{
+    ViewData["Title"] = "Подробности о работы";
+}
+
+<h1>Подробности о работе</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Type.Name)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Number)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Number)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.MaxPoints)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.MaxPoints)
+        </dd>
+    </dl>
+</div>
+
+@if (Model.ActivityProtections.Count() > 0)
+{
+    <br />
+    <h4>Результат:</h4>
+    <div>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.ActivityProtections.FirstOrDefault().Points)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.ActivityProtections.FirstOrDefault().Points)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.ActivityProtections.FirstOrDefault().ProtectionDate)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.ActivityProtections.FirstOrDefault().ProtectionDate)
+            </dd>
+        </dl>
+    </div>
+}
+
+<div>
+    <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@Model.SemesterDisciplineId" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-groupId="@ViewBag.groupId">Вернуться</a>
+</div>

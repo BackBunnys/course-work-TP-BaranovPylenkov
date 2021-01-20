@@ -102,6 +102,14 @@ namespace BestStudentCafedra.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        [Route("/Account/AccessDenied")]
+        public IActionResult AccessDenied(string returnUrl = null)
+        {
+            ViewData["returnUrl"] = returnUrl;
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()

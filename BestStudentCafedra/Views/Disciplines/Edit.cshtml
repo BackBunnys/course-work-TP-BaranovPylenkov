@@ -25,9 +25,141 @@
 </div>
 
 <div>
-    <a asp-action="Index">Вернуться</a>
+    <a asp-action="Details" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.returnUrl" asp-route-groupId="@ViewBag.groupId">Вернуться</a>
+</div>
+
+</br>
+<h4>Преподаватели:</h4>
+<p>
+    <a asp-action="AddTeacher" asp-route-id="@Model.Id">Добавить</a>
+</p>
+<table class="table border rounded">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Teacher.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Teacher.Post)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Teacher.AcademicDegree)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.TeacherDisciplines.Count() > 0)
+        {
+            @foreach (var item in Model.TeacherDisciplines)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => item.Teacher.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Teacher.Post)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Teacher.AcademicDegree)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.TeacherId" asp-route-ReturnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
+                            <a href="#" onclick="loadAndShowModal('../DropTeacher/@Model.Id?teacherId=@item.TeacherId')" class="btn btn-outline-danger">&times;</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="4"><p class="text-info text-center">Преподаватели для данной дисциплины ещё не добавлены</p></td></tr>
+        }
+    </tbody>
+</table>
+
+</br>
+<h4>Семестры:</h4>
+<p>Список семестров на которые разделена дисциплина по образовательной программаме</p>
+<p>
+    <a asp-controller="SemesterDisciplines" asp-action="Create" asp-route-id="@Model.Id" asp-route-ReturnUrl="@Context.Request.Path">Добавить</a>
+</p>
+
+<table class="table border rounded" id="semestersTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Year)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().Semester)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SemesterDisciplines.FirstOrDefault().ControlType)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.SemesterDisciplines.Count() > 0)
+        {
+            @foreach (SemesterDiscipline item in Model.SemesterDisciplines)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => model.SemesterDisciplines.FirstOrDefault().Discipline.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Year)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Semester)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ControlType)
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm float-right" role="group">
+                            <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-primary">Подробнее</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Edit" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Изменить</a>
+                            <a asp-controller="SemesterDisciplines" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-danger">&times;</a>
+                        </div>
+
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="5"><p class="text-info text-center">Семестры для данной дисциплины ещё не добавлены</p></td></tr>
+        }
+    </tbody>
+</table>
+
+<div id="modDialog" class="modal modal-removable fade">
+    <div class="spinner-border text-light fixed-top mt-5 mx-auto" style="z-index: -1;" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <div id="dialogContent" class="modal-dialog"></div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script src="~/js/site.js"></script>
+    <script>
+        var table = $('#semestersTable').DataTable({
+            searching: false,
+            paging: false,
+            order: [[1, 'asc'], [2, 'asc']],
+            columnDefs: [{ orderable: false, targets: [-1, 0] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
 }

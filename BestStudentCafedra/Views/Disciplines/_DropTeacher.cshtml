@@ -1,0 +1,48 @@
+﻿@model BestStudentCafedra.Models.TeacherDiscipline
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Убрать преподавателя</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p>Вы действительно хотите убрать преподавателя из данной дисциплины?</p>
+        <br />
+        <dl class="row">
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Teacher.FullName)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Teacher.FullName)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Teacher.Post)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Teacher.Post)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Teacher.AcademicDegree)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Teacher.AcademicDegree)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Discipline.Name)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Discipline.Name)
+            </dd>
+        </dl>
+    </div>
+    <div class="modal-footer">
+        <form asp-action="DropTeacher">
+            <input hidden name="id" value="@Model.Id" />
+            <input type="submit" value="Удалить" class="btn btn-danger" />
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal()">Отмена</button>
+    </div>
+</div>
+

@@ -1,0 +1,68 @@
+﻿@model BestStudentCafedra.Models.GraduationWork
+
+@{ 
+    var isArchived = Model.ArchievedDate != null;
+}
+
+<dl class="row">
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Student)
+    </dt>
+    <dd class="col-sm-10">
+        <a asp-action="Details" asp-controller="Student" asp-route-id="@Model.StudentId">@Model.Student.FullName</a>
+    </dd>
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Theme)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.Theme != null)
+        {
+            @Html.DisplayFor(model => model.Theme)
+        }
+        else
+        {
+            <span>Не назначена</span>
+        }
+    </dd>
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.ScientificAdviserId)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.ScientificAdviserId != null)
+        {
+            <a asp-action="Details" asp-controller="Teacher" asp-route-id="@Model.ScientificAdviserId">@Model.ScientificAdviser.FullName</a>
+        }
+        else
+        {
+            <span>Не назначен</span>
+        }
+    </dd>
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.ReviewerId)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.ReviewerId != null)
+        {
+            <a asp-action="Details" asp-controller="Teacher" asp-route-id="@Model.ReviewerId">@Model.Reviewer.FullName</a>
+        }
+        else
+        {
+            <span>Не назначен</span>
+        }
+    </dd>
+    @if (isArchived)
+    {
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ArchievedDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ArchievedDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Result)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Result)
+        </dd>
+    }
+</dl>
