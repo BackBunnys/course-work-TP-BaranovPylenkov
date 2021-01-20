@@ -28,7 +28,7 @@
                     @Html.DisplayFor(modelItem => item.GraduationWork.Student.Group.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.GraduationWork.Student.FullName)
+                    <a asp-controller="GraduationWorks" asp-action="Details" asp-route-id="@item.GraduationWork.Id">@item.GraduationWork.Student.FullName</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Motivation)

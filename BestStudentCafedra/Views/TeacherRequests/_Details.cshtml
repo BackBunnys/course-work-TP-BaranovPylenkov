@@ -84,13 +84,20 @@
         @if (User.IsInRole("teacher"))
         {
             <div class="btn-group float-right w-100" role="group">
-                <a href="#" class="btn btn-outline-success col" onclick="loadAndShowModal('TeacherRequests/Approve/@Model.Id?returnUrl=@ViewBag.returnUrl')">Принять</a>
-                <a href="#" class="btn btn-outline-danger col" onclick="loadAndShowModal('TeacherRequests/Reject/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отклонить</a>
+                <a href="#" class="btn btn-outline-success col" onclick="loadAndShowModal('/TeacherRequests/Approve/@Model.Id?returnUrl=@ViewBag.returnUrl')">Принять</a>
+                <a href="#" class="btn btn-outline-danger col" onclick="loadAndShowModal('/TeacherRequests/Reject/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отклонить</a>
             </div>
         }
-        else
+        else if (User.IsInRole("student"))
         {
-            <a href="#" class="btn btn-outline-danger w-100" onclick="loadAndShowModal('TeacherRequests/Delete/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отменить</a>
+            if (Model.Status == null)
+            {
+                <a href="#" class="btn btn-outline-danger w-100" onclick="loadAndShowModal('TeacherRequests/Delete/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отменить</a>
+            }
+            else if (Model.Status == Status.REJECTED)
+            {
+                <a href="#" class="btn btn-outline-primary w-100" onclick="loadAndShowModal('TeacherRequests/Create?returnUrl=@ViewBag.returnUrl')">Повторить</a>
+            }
         }
     </div>
 </div>
