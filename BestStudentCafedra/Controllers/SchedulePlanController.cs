@@ -27,6 +27,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SchedulePlan
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Index()
         {
             List<AcademicGroup> academicGroups = await _context.AcademicGroups.Where(x => x.SchedulePlans.Count == 0).ToListAsync();
@@ -37,6 +38,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SchedulePlan/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id))
@@ -44,9 +46,12 @@ namespace BestStudentCafedra.Controllers
 
             var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
-                .Include(s => s.Events)
+                .Include(s => s.Events.OrderBy(x => x.Date == null).ThenBy(x => x.Date))
                 .ThenInclude(s => s.ResponsibleTeacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (!User.IsInRole("methodist") && schedulePlan.ApprovedDate == null)
+                return RedirectToAction("AccessDenied", "Account");
 
             return View(schedulePlan);
         }
@@ -54,6 +59,7 @@ namespace BestStudentCafedra.Controllers
         // POST: SchedulePlan/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("GroupId")] SchedulePlan schedulePlan)
         {
             if (ModelState.IsValid)
@@ -65,6 +71,7 @@ namespace BestStudentCafedra.Controllers
             return await Index();
         }
 
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Fill(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id)) 
@@ -77,6 +84,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Fill(int id)
         {
             if (SchedulePlanExists(id))
@@ -95,6 +103,7 @@ namespace BestStudentCafedra.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Approve(int id, bool students, bool teachers, bool advisers)
         {
             if (SchedulePlanExists(id))
@@ -114,6 +123,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: SchedulePlan/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id))
@@ -139,6 +149,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(List<Event> events, int id, bool students, bool teachers, bool advisers)
         {
             if (SchedulePlanExists(id))
@@ -159,6 +170,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddEvent([Bind("SchedulePlanId,EventDescription")] Event e)
         {
             if (ModelState.IsValid)
@@ -172,6 +184,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteEvent(int eventId)
         {
             var ev = await _context.Events.FindAsync(eventId);
@@ -188,6 +201,7 @@ namespace BestStudentCafedra.Controllers
 
 
         // GET: SchedulePlan/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id))
@@ -205,6 +219,7 @@ namespace BestStudentCafedra.Controllers
         // POST: SchedulePlan/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var schedulePlan = await _context.SchedulePlans.FindAsync(id);
