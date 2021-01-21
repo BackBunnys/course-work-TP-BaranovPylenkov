@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Планы-графики";
     ICollection<SchedulePlan> schedulePlans = ViewBag.SchedulePlanes;
+    var notApproved = schedulePlans.Where(x => x.ApprovedDate == null);
+    var approved = schedulePlans.Where(x => x.ApprovedDate != null);
 }
 
 <h1>Планы-графики</h1>
@@ -19,20 +21,44 @@
     </div>
 </form>
 
-<hr />
-<h2>Неутверждённые</h2>
-<div class="text-center">
-    @foreach (var item in schedulePlans.Where(x => x.ApprovedDate == null))
-    {
-        <a asp-action="Edit" class = "btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br />
-    }
-</div>
+<div id="accordion">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="@(notApproved.Count() == 0 ? "false" : "true")" aria-controls="collapseOne">
+                    Неутверждённые (@notApproved.Count())
+                </button>
+            </h5>
+        </div>
 
-<hr />
-<h2>Утверждённые</h2>
-<div class="text-center">
-    @foreach (var item in schedulePlans.Where(x => x.ApprovedDate != null))
-    {
-        <a asp-action="Details" class = "btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br/>
-    }
+        <div id="collapseOne" class="collapse @(notApproved.Count() == 0 ? "" : "show")" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                <div class="text-center">
+                    @foreach (var item in notApproved)
+                    {
+                        <a asp-action="Edit" class="btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingThree">
+            <h5 class="mb-0">
+                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="@(approved.Count() != 0 ? "false" : "true")" aria-controls="collapseThree">
+                    Утверждённые (@approved.Count())
+                </button>
+            </h5>
+        </div>
+        <div id="collapseThree" class="collapse @(approved.Count() != 0 ? "" : "show")" aria-labelledby="headingThree" data-parent="#accordion">
+            <div class="card-body">
+                <div class="text-center">
+                    @foreach (var item in approved)
+                    {
+                        <a asp-action="Details" class="btn textlink" asp-route-id="@item.Id">@item.Group.Name</a> <br />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
