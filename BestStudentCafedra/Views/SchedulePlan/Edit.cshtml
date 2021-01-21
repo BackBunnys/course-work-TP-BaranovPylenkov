@@ -7,7 +7,7 @@
     bool isApproved = schedulePlan.ApprovedDate != null;
     bool isRemovable = !schedulePlan.Events.Any(x => x.EventLogs.Count > 0);
 
-    ViewData["Title"] = (isApproved? "Изменение" : "Заполнение") + " плана-графика";
+    ViewData["Title"] = (isApproved ? "Изменение" : "Заполнение") + " плана-графика";
 }
 
 <h1>@(isApproved? "Изменение" : "Заполнение") плана-графика для @schedulePlan.Group.Name</h1>
@@ -21,6 +21,7 @@
 <div id="modDialog" class="modal fade">
     <div id="dialogContent" class="modal-dialog"></div>
 </div>
+
 
 <div class="row">
     <div class="col-md-4">
@@ -41,83 +42,161 @@
     </div>
 </div>
 
-<form asp-action="Edit">
-    <input hidden name="SchedulePlanId" class="form-control" value="@Model.SchedulePlanId" />
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.EventDescription)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Date)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Class)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ResponsibleTeacher)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < events.Length; ++i)
-            {
-                bool isMarked = (events[i].EventLogs.Count > 0);
-                <tr class="@(isMarked? "tabledisable" : "")">
-                    <td>
-                        @Html.DisplayFor(modelItem => events[i].EventDescription)
-                        <input hidden name="[@i].Id" class="form-control" value="@events[i].Id" />
-                        <input hidden name="[@i].EventDescription" class="form-control" value="@events[i].EventDescription" />
-                        <input hidden name="[@i].SchedulePlanId" class="form-control" value="@events[i].SchedulePlanId" />
-                    </td>
-                    <td>
-                        <input readonly="@(isMarked)" type="datetime-local" name="[@i].Date" class="form-control" value='@events[i].Date?.ToString("s")' />
-                        <span asp-validation-for="[@i].Date" class="text-danger"></span>
-                    </td>
-                    <td>
-                        <input readonly="@(isMarked)" name="[@i].Class" asp-for="Class" class="form-control" value="@events[i].Class" />
-                        <span asp-validation-for="[@i].Class" class="text-danger"></span>
-                    </td>
-                    <td>
-                        <select readonly="@(isMarked)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'></select>
-                    </td>
-                    <td>
-                        <input disabled="@(isMarked)" asp-action="DeleteEvent" type="submit" asp-route-eventId="@events[i].Id" value="X" class="btn btn-danger" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <span asp-validation-for="EventLogs" class="text-danger"></span>
-    <div class="form-group">
-        <input type="submit" value="Сохранить" class="btn btn-primary" />
-    </div>
-</form>
-
-<hr />
-
-@if (!isApproved)
+@if (events.Length > 0)
 {
-<form asp-action="Approve" class="d-inline">
-    <input hidden name="id" value="@Model.SchedulePlanId" />
-    <input type="submit" value="Утвердить" class="btn btn-success" />
-</form>
+    <form asp-action="Edit">
+        <input hidden name="SchedulePlanId" class="form-control" value="@Model.SchedulePlanId" />
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.EventDescription)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Date)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Class)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ResponsibleTeacher)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < events.Length; ++i)
+                {
+                    bool isMarked = (events[i].EventLogs.Count > 0);
+                    <tr class="@(isMarked ? "tabledisable" : "")">
+                        <td>
+                            @Html.DisplayFor(modelItem => events[i].EventDescription)
+                            <input hidden name="[@i].Id" class="form-control" value="@events[i].Id" />
+                            <input hidden name="[@i].EventDescription" class="form-control" value="@events[i].EventDescription" />
+                            <input hidden name="[@i].SchedulePlanId" class="form-control" value="@events[i].SchedulePlanId" />
+                        </td>
+                        <td>
+                            <input readonly="@(isMarked)" type="datetime-local" name="[@i].Date" class="form-control" value='@events[i].Date?.ToString("s")' />
+                            <span asp-validation-for="[@i].Date" class="text-danger"></span>
+                        </td>
+                        <td>
+                            <input readonly="@(isMarked)" name="[@i].Class" asp-for="Class" class="form-control" value="@events[i].Class" />
+                            <span asp-validation-for="[@i].Class" class="text-danger"></span>
+                        </td>
+                        <td>
+                            <select readonly="@(isMarked)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'></select>
+                        </td>
+                        <td>
+                            <input disabled="@(isMarked)" asp-action="DeleteEvent" type="submit" asp-route-eventId="@events[i].Id" value="&times;" class="btn btn-danger" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <span asp-validation-for="EventLogs" class="text-danger"></span>
+        @if (isApproved)
+        {
+            <div class="btn-group dropdown" role="group">
+                <button type="submit" class="btn btn-success">Сохранить</button>
+                <div class="dropdown-menu checkbox-menu allow-focus p-0 m-0 border-success">
+                    <div class="text-center"><b>Разослать письма:</b></div>
+                    <hr class="dropdown-divider m-0">
+                    <div class="btn-group-vertical w-100" role="group">
+
+                        <label class="btn btn-outline-success m-0 active" for="btncheck1">
+                            <input hidden type="checkbox" class="btn-check" name="students" id="btncheck1" value="true" checked>Cтудентам
+                        </label>
+
+                        <label class="btn btn-outline-success m-0 active" for="btncheck2">
+                            <input hidden type="checkbox" class="btn-check" name="advisers" id="btncheck2" value="true" checked>Научным руководителям
+                        </label>
+
+                        <label class="btn btn-outline-success m-0 active" for="btncheck3">
+                            <input hidden type="checkbox" class="btn-check" name="teachers" id="btncheck3" value="true" checked>Ответственным преподавателям
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-success center" type="button"
+                        id="dropdownMenu1" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383l-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z" />
+                    </svg>
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+        }
+    </form>
+
+
+    <hr />
+
+    @if (!isApproved)
+    {
+        <form asp-action="Approve" class="d-inline float-right ml-1">
+            <input hidden name="id" value="@Model.SchedulePlanId" />
+            <div class="btn-group dropdown" role="group">
+                <button type="submit" class="btn btn-success">Утвердить</button>
+                <div class="dropdown-menu checkbox-menu allow-focus p-0 m-0 border-success">
+                    <div class="text-center"><b>Разослать письма:</b></div>
+                    <hr class="dropdown-divider m-0">
+                    <div class="btn-group-vertical w-100" role="group">
+
+                        <label class="btn btn-outline-success m-0 active" for="btncheck1">
+                            <input hidden type="checkbox" class="btn-check" name="students" id="btncheck1" value="true" checked>Cтудентам
+                        </label>
+
+                        <label class="btn btn-outline-success m-0 active" for="btncheck2">
+                            <input hidden type="checkbox" class="btn-check" name="advisers" id="btncheck2" value="true" checked>Научным руководителям
+                        </label>
+
+                        <label class="btn btn-outline-success m-0 active" for="btncheck3">
+                            <input hidden type="checkbox" class="btn-check" name="teachers" id="btncheck3" value="true" checked>Ответственным преподавателям
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-success center" type="button"
+                        id="dropdownMenu1" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383l-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+    }
 }
 @if (isRemovable)
 {
-<form asp-action="Delete" class="d-inline">
-    <input hidden name="id" value="@Model.SchedulePlanId" />
-    <input type="submit" value="Удалить" class="btn btn-danger" />
-</form>
+<div class="float-right">
+    <form asp-action="Delete" class="d-inline">
+        <input hidden name="id" value="@Model.SchedulePlanId" />
+        <input type="submit" value="Удалить" class="btn btn-danger" />
+    </form>
+</div>
 }
 
-<div>
+<div class="float-left">
     <a asp-action="Index">Вернуться</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/js/site.js"></script>
+    <script>
+        $(".checkbox-menu").on("change", "input[type='checkbox']", function () {
+            $(this).closest("label").toggleClass("active", this.checked);
+        });
+
+        $(document).on('click', '.allow-focus', function (e) {
+            e.stopPropagation();
+        });
+    </script>
 }
