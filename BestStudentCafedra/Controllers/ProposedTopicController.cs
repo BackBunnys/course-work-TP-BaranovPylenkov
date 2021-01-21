@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -20,6 +21,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: ProposedTopic
+        [Authorize]
         public async Task<IActionResult> Index(ProposedTopic topic)
         {
             ViewData["topics"] = await _context.ProposedTopics.ToListAsync();
@@ -28,6 +30,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("Id,Name")] ProposedTopic proposedTopic)
         {
             if (ModelState.IsValid)
@@ -44,6 +47,7 @@ namespace BestStudentCafedra.Controllers
         // POST: ProposedTopic/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var proposedTopic = await _context.ProposedTopics
