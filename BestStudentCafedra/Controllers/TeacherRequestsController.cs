@@ -24,7 +24,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests
-        [Authorize("teacher")]
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -39,7 +39,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Approve
-        [Authorize("teacher")]
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Approve(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -53,7 +53,7 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Approve
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize("teacher")]
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Approve(int id, [Bind("Id")]TeacherRequest teacherRequest, string returnUrl)
         {
             if (id != teacherRequest.Id || !TeacherRequestExists(id))
@@ -69,7 +69,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Reject
-        [Authorize("teacher")]
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Reject(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -83,7 +83,7 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Reject
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize("teacher")]
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Reject(int id, [Bind("Id,RejectReason")] TeacherRequest teacherRequest, string returnUrl)
         {
             if (id != teacherRequest.Id || !TeacherRequestExists(id))
@@ -119,7 +119,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Create
-        [Authorize("student")]
+        [Authorize(Roles = "student")]
         public async Task<IActionResult> Create(RequestType requestType, string returnUrl)
         {
             TeacherRequest teacherRequest = new TeacherRequest();
@@ -137,7 +137,7 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize("student")]
+        [Authorize(Roles = "student")]
         public async Task<IActionResult> Create([Bind("GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest, string returnUrl)
         {
             if (ModelState.IsValid)
@@ -157,7 +157,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Delete/5
-        [Authorize("student")]
+        [Authorize(Roles = "student")]
         public async Task<IActionResult> Delete(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -178,7 +178,7 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize("student")]
+        [Authorize(Roles = "student")]
         public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl)
         {
             var teacherRequest = await _context.TeacherRequests.Include(x => x.GraduationWork).FirstOrDefaultAsync(x => x.Id == id);
