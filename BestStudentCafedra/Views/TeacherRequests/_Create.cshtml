@@ -1,6 +1,6 @@
 ﻿@model BestStudentCafedra.Models.TeacherRequest
 
-<div class="modal-content border-danger">
+<div class="modal-content">
     <div class="modal-header">
         <div>
             <h4>Создание запроса</h4>
@@ -22,7 +22,7 @@
             <input hidden asp-for="RequestType" />
             <div class="form-group">
                 <label asp-for="Motivation" class="control-label"></label>
-                <textarea asp-for="Motivation" class="form-control"></textarea>
+                <textarea asp-for="Motivation" class="form-control" rows="5"></textarea>
                 <span asp-validation-for="Motivation" class="text-danger"></span>
             </div>
             <div class="form-group w-100 mb-0">

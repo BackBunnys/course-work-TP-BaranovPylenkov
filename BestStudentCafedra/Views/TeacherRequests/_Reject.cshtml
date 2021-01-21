@@ -18,7 +18,7 @@
             <div class="mt-2 mb-2">
                 <input required type="hidden" asp-for="Id" />
                 <input hidden name="returnUrl" value="@ViewBag.returnUrl" />
-                <textarea asp-for="RejectReason" class="form-control" placeholder="@Html.DisplayNameFor(x => x.RejectReason)..." ></textarea>
+                <textarea asp-for="RejectReason" class="form-control" rows="5" placeholder="@Html.DisplayNameFor(x => x.RejectReason)..." ></textarea>
             </div>
             <div class="form-group w-100 mb-0">
                 <input type="submit" value="Отклонить" class="btn btn-danger w-100" />
