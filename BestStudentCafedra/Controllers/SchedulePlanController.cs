@@ -9,6 +9,7 @@ using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using BestStudentCafedra.Services.Messages.Email;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -16,11 +17,13 @@ namespace BestStudentCafedra.Controllers
     {
         private readonly SubjectAreaDbContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly EmailSender _emailService;
 
-        public SchedulePlanController(SubjectAreaDbContext context, UserManager<User> userManager)
+        public SchedulePlanController(SubjectAreaDbContext context, UserManager<User> userManager, EmailSender emailService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         // GET: SchedulePlan
@@ -92,9 +95,9 @@ namespace BestStudentCafedra.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Approve(int id)
+        public async Task<IActionResult> Approve(int id, bool students, bool teachers, bool advisers)
         {
-            if (SchedulePlanExists((int)id))
+            if (SchedulePlanExists(id))
             {
                 SchedulePlan schedulePlan = await _context.SchedulePlans.FindAsync(id);
                 String name = User.Identity.Name;
@@ -102,6 +105,9 @@ namespace BestStudentCafedra.Controllers
                 schedulePlan.Approve(user.SecondName + " " + user.FirstName[0] + "." + user.MiddleName?[0] + ".", DateTime.Now);
                 _context.Update(schedulePlan);
                 await _context.SaveChangesAsync();
+
+                await MailingAsync(id, students, teachers, advisers);
+
                 return RedirectToAction(nameof(Index));
             }
             return NotFound();
@@ -133,7 +139,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(List<Event> events, int id)
+        public async Task<IActionResult> Edit(List<Event> events, int id, bool students, bool teachers, bool advisers)
         {
             if (SchedulePlanExists(id))
             {
@@ -143,6 +149,9 @@ namespace BestStudentCafedra.Controllers
                 _context.UpdateRange(events);
                 _context.Update(schedulePlan);
                 await _context.SaveChangesAsync();
+
+                await MailingAsync(id, students, teachers, advisers);
+
                 return RedirectToAction(nameof(Edit), new { id = id });
             }
             return await Edit(id);
@@ -212,6 +221,71 @@ namespace BestStudentCafedra.Controllers
         private bool SchedulePlanExists(int id)
         {
             return _context.SchedulePlans.Any(e => e.Id == id);
+        }
+
+        private async Task MailingAsync(int schedulePlanId, bool sendToStudents, bool sendToResponsibleTeachers, bool sendToScientificAdvisers)
+        {
+            if (sendToStudents) {
+                var studentsId = (await _context.SchedulePlans
+                    .Include(x => x.Group.Students)
+                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId))
+                    .Group.Students.Select(x => x.GradebookNumber)
+                    .Distinct();
+
+                var studentsEmail = (await _userManager.GetUsersInRoleAsync("student"))
+                    .Where(x => x.SubjectAreaId != null && studentsId.Contains((int)x.SubjectAreaId))
+                    .Select(x => x.Email)
+                    .ToList();
+
+                EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график" };
+                if (studentsEmail.Count > 0)
+                {
+                    emailMessage.Content = "План-график на вашу группу был изменён. Для подробностей пройдите по ссылке: " + Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId });
+                    await _emailService.SendAsync(studentsEmail, emailMessage);
+                }
+            }
+            if(sendToResponsibleTeachers)
+            {
+                var teachersId = (await _context.SchedulePlans
+                    .Include(x => x.Events.Where(x => x.ResponsibleTeacherId != null))
+                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId)).Events.Select(x => x.ResponsibleTeacherId)
+                    .Distinct();
+
+                var teachersEmail = (await _userManager.GetUsersInRoleAsync("teacher"))
+                    .Where(x => x.SubjectAreaId != null && teachersId.Contains((int)x.SubjectAreaId))
+                    .Select(x => x.Email)
+                    .ToList();
+
+                EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график" };
+                if (teachersEmail.Count > 0)
+                {
+                    emailMessage.Content = "План-график, в одном или нескольких мероприятиях которого вы являетесь ответственным преподавателем, был изменён. Для подробностей пройдите по ссылке: " + Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId });
+                    await _emailService.SendAsync(teachersEmail, emailMessage);
+                }
+            }
+            if(sendToScientificAdvisers)
+            {
+                var teachersId = (await _context.SchedulePlans
+                    .Include(x => x.Group.Students)
+                        .ThenInclude(x => x.GraduationWorks)
+                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId))
+                    .Group.Students.Where(x => x.GraduationWorks.FirstOrDefault()?.ScientificAdviserId != null)
+                    .Select(x => x.GraduationWorks.FirstOrDefault().ScientificAdviserId)
+                    .Distinct();
+
+                var teachersEmail = (await _userManager.GetUsersInRoleAsync("teacher"))
+                    .Where(x => x.SubjectAreaId != null && teachersId.Contains((int)x.SubjectAreaId))
+                    .Select(x => x.Email)
+                    .ToList();
+
+                EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график" };
+                if (teachersEmail.Count > 0)
+                {
+                    emailMessage.Content = "План-график одной из работ, которыми вы руководите, был изменён. Для подробностей пройдите по ссылке: " + Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId });
+                    await _emailService.SendAsync(teachersEmail, emailMessage);
+                }
+            }
+
         }
     }
 }
