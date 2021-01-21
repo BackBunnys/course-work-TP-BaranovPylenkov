@@ -57,9 +57,10 @@ namespace BestStudentCafedra.Controllers
 
             var graduationWork = await _context.GraduationWorks
                 .Include(g => g.Student)
-                .ThenInclude(g => g.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
-                .ThenInclude(g => g.Events)
-                .ThenInclude(g => g.EventLogs.Where(e => e.GraduationWorkId == id))
+                    .ThenInclude(g => g.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
+                    .ThenInclude(g => g.Events)
+                    .ThenInclude(g => g.EventLogs.Where(e => e.GraduationWorkId == id))
+                .Include(x => x.TeacherRequests)
                 .Include(x => x.Reviewer)
                 .Include(x => x.ScientificAdviser)
                 .FirstOrDefaultAsync(m => m.Id == id);
