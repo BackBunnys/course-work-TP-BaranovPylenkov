@@ -73,14 +73,21 @@
                         @Html.DisplayNameFor(model => model.RejectReason)
                     </dt>
                     <dd class="col-sm-8">
-                        @Html.DisplayFor(model => model.RejectReason)
+                        @if (Model.RejectReason != null)
+                        {
+                            @Html.DisplayFor(model => model.RejectReason)
+                        }
+                        else
+                        {
+                            <span>Не указана</span>
+                        }
                     </dd>
                 }
             </dl>
         </div>
     </div>
     <div class="modal-footer">
-        @if (User.IsInRole("teacher"))
+        @if (User.IsInRole("teacher") && Model.Status == null)
         {
             <div class="btn-group float-right w-100" role="group">
                 <a href="#" class="btn btn-outline-success col" onclick="loadAndShowModal('/TeacherRequests/Approve/@Model.Id?returnUrl=@ViewBag.returnUrl')">Принять</a>
@@ -95,7 +102,7 @@
             }
             else if (Model.Status == Status.REJECTED)
             {
-                <a href="#" class="btn btn-outline-primary w-100" onclick="loadAndShowModal('/TeacherRequests/Create?returnUrl=@ViewBag.returnUrl')">Повторить</a>
+                <a href="#" class="btn btn-outline-primary w-100" onclick="loadAndShowModal('/TeacherRequests/Create?requestType=@Model.RequestType&returnUrl=@ViewBag.returnUrl')">Повторить</a>
             }
         }
     </div>
