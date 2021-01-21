@@ -1,0 +1,45 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.TeacherRequest>
+
+@{
+    ViewData["Title"] = "Запросы";
+    var reviewerRequests = Model.Where(x => x.RequestType == RequestType.REVIEWER).ToList();
+    var adviserRequests = Model.Where(x => x.RequestType == RequestType.ADVISER).ToList();
+}
+
+<h1>Запросы</h1>
+
+<div id="modDialog" class="modal fade modal-removable" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div id="dialogContent" class="modal-dialog modal-dialog-centered" role="document"></div>
+</div>
+
+<div id="accordion">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="@(adviserRequests.Count == 0 ? "false" : "true")" aria-controls="collapseOne">
+                    Научный руководитель (@adviserRequests.Count)
+                </button>
+            </h5>
+        </div>
+
+        <div id="collapseOne" class="collapse @(adviserRequests.Count() == 0 ? "" : "show")" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                @{await Html.RenderPartialAsync("_List", adviserRequests);}
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingThree">
+            <h5 class="mb-0">
+                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="@(reviewerRequests.Count == 0 ? "false" : "true")" aria-controls="collapseThree">
+                    Рецензент (@reviewerRequests.Count)
+                </button>
+            </h5>
+        </div>
+        <div id="collapseThree" class="collapse @(reviewerRequests.Count == 0 ? "" : "show")" aria-labelledby="headingThree" data-parent="#accordion">
+            <div class="card-body">
+                @{await Html.RenderPartialAsync("_List", reviewerRequests);}
+            </div>
+        </div>
+    </div>
+</div>

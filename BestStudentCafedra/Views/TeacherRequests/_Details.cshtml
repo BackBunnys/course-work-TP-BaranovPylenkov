@@ -1,0 +1,102 @@
+﻿@model BestStudentCafedra.Models.TeacherRequest
+
+@{
+    var cl = Model.Status == null? "dark" : Model.Status == Status.APPROVED ? "success" : "danger";
+}
+ 
+
+<div class="modal-content border-@cl">
+    <div class="modal-header">
+        <div>
+            <h4>Запрос</h4>
+
+            <div>
+                @Html.DisplayFor(model => model.GraduationWork.Student.FullName) - @Html.DisplayFor(model => model.CreatingDate)
+            </div>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div>
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.TeacherId)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Teacher.FullName)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.RequestType)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.RequestType)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Motivation)
+                </dt>
+                <dd class="col-sm-8">
+                    @if (Model.Motivation != null)
+                    {
+                        @Html.DisplayFor(model => model.Motivation)
+                    }
+                    else
+                    {
+                        <span>Не указана</span>
+                    }
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Status)
+                </dt>
+                @if (Model.Status == null)
+                {
+                    <dd class="col-sm-8">
+                        <span>На рассмотрении</span>
+                    </dd>
+                }
+                else
+                {
+                    <dd class="col-sm-8">
+                        @Html.DisplayFor(model => model.Status)
+                    </dd>
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.ResponseDate)
+                    </dt>
+                    <dd class="col-sm-8">
+                        @Html.DisplayFor(model => model.ResponseDate)
+                    </dd>
+                }
+                @if (Model.Status == Status.REJECTED)
+                {
+                    <dt class="col-sm-4">
+                        @Html.DisplayNameFor(model => model.RejectReason)
+                    </dt>
+                    <dd class="col-sm-8">
+                        @Html.DisplayFor(model => model.RejectReason)
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+    <div class="modal-footer">
+        @if (User.IsInRole("teacher"))
+        {
+            <div class="btn-group float-right w-100" role="group">
+                <a href="#" class="btn btn-outline-success col" onclick="loadAndShowModal('/TeacherRequests/Approve/@Model.Id?returnUrl=@ViewBag.returnUrl')">Принять</a>
+                <a href="#" class="btn btn-outline-danger col" onclick="loadAndShowModal('/TeacherRequests/Reject/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отклонить</a>
+            </div>
+        }
+        else if (User.IsInRole("student"))
+        {
+            if (Model.Status == null)
+            {
+                <a href="#" class="btn btn-outline-danger w-100" onclick="loadAndShowModal('/TeacherRequests/Delete/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отменить</a>
+            }
+            else if (Model.Status == Status.REJECTED)
+            {
+                <a href="#" class="btn btn-outline-primary w-100" onclick="loadAndShowModal('/TeacherRequests/Create?returnUrl=@ViewBag.returnUrl')">Повторить</a>
+            }
+        }
+    </div>
+</div>
