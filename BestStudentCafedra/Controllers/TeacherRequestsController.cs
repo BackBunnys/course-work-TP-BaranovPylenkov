@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -23,6 +24,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests
+        [Authorize("teacher")]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -37,6 +39,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Approve
+        [Authorize("teacher")]
         public async Task<IActionResult> Approve(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -50,30 +53,23 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Approve
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize("teacher")]
         public async Task<IActionResult> Approve(int id, [Bind("Id")]TeacherRequest teacherRequest, string returnUrl)
         {
             if (id != teacherRequest.Id || !TeacherRequestExists(id))
                 return NotFound();
 
             var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).Include(x => x.Teacher).FirstOrDefaultAsync(x => x.Id == id);
-            tR.ResponseDate = DateTime.Now;
-            tR.ResponsePersonName = tR.Teacher.FullName;
-            tR.Status = Status.APPROVED;
-            if (tR.RequestType == RequestType.ADVISER)
-                tR.GraduationWork.ScientificAdviserId = tR.TeacherId;
-            else if(tR.RequestType == RequestType.REVIEWER)
-                tR.GraduationWork.ReviewerId = tR.TeacherId;
-            _context.Update(tR);
+            tR.Approve(tR.Teacher);
 
+            _context.Update(tR);
             await _context.SaveChangesAsync();
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-            else
-                return RedirectToAction(nameof(Index));
+            return RedirectToUrl(returnUrl);
         }
 
         // GET: TeacherRequests/Reject
+        [Authorize("teacher")]
         public async Task<IActionResult> Reject(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -87,28 +83,23 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Reject
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize("teacher")]
         public async Task<IActionResult> Reject(int id, [Bind("Id,RejectReason")] TeacherRequest teacherRequest, string returnUrl)
         {
             if (id != teacherRequest.Id || !TeacherRequestExists(id))
                 return NotFound();
 
             var tR = await _context.TeacherRequests.Include(x => x.GraduationWork).Include(x => x.Teacher).FirstOrDefaultAsync(x => x.Id == id);
-            tR.ResponseDate = DateTime.Now;
-            tR.ResponsePersonName = tR.Teacher.FullName;
-            tR.Status = Status.REJECTED;
-            tR.RejectReason = teacherRequest.RejectReason;
+            tR.Reject(tR.Teacher, teacherRequest.RejectReason);
             
             _context.Update(tR);
-
             await _context.SaveChangesAsync();
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-            else
-                return RedirectToAction(nameof(Index));
+            return RedirectToUrl(returnUrl);
         }
 
         // GET: TeacherRequests/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -128,6 +119,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Create
+        [Authorize("student")]
         public async Task<IActionResult> Create(RequestType requestType, string returnUrl)
         {
             TeacherRequest teacherRequest = new TeacherRequest();
@@ -145,6 +137,7 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize("student")]
         public async Task<IActionResult> Create([Bind("GraduationWorkId,TeacherId,Motivation,RequestType")] TeacherRequest teacherRequest, string returnUrl)
         {
             if (ModelState.IsValid)
@@ -156,10 +149,7 @@ namespace BestStudentCafedra.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    return Redirect(returnUrl);
-                else
-                    return RedirectToAction(nameof(Index));
+                return RedirectToUrl(returnUrl);
             }
             ViewData["GraduationWorkId"] = new SelectList(_context.GraduationWorks, "Id", "Id", teacherRequest.GraduationWorkId);
             ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FullName", teacherRequest.TeacherId);
@@ -167,6 +157,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: TeacherRequests/Delete/5
+        [Authorize("student")]
         public async Task<IActionResult> Delete(int? id, string returnUrl)
         {
             if (id == null || !TeacherRequestExists((int)id))
@@ -187,21 +178,27 @@ namespace BestStudentCafedra.Controllers
         // POST: TeacherRequests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize("student")]
         public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl)
         {
             var teacherRequest = await _context.TeacherRequests.Include(x => x.GraduationWork).FirstOrDefaultAsync(x => x.Id == id);
             _context.TeacherRequests.Remove(teacherRequest);
             await _context.SaveChangesAsync();
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-            else
-                return RedirectToAction(nameof(Index));
+            return RedirectToUrl(returnUrl);
         }
 
         private bool TeacherRequestExists(int id)
         {
             return _context.TeacherRequests.Any(e => e.Id == id);
+        }
+
+        private IActionResult RedirectToUrl(string url)
+        {
+            if (!string.IsNullOrEmpty(url) && Url.IsLocalUrl(url))
+                return Redirect(url);
+            else
+                return RedirectToAction(nameof(Index));
         }
     }
 }

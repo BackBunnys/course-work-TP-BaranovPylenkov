@@ -11,8 +11,7 @@
             <h4>Запрос</h4>
 
             <div>
-                от @Html.DisplayFor(model => model.GraduationWork.Student.FullName)
-                в @Html.DisplayFor(model => model.CreatingDate)
+                @Html.DisplayFor(model => model.GraduationWork.Student.FullName) - @Html.DisplayFor(model => model.CreatingDate)
             </div>
         </div>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -92,11 +91,11 @@
         {
             if (Model.Status == null)
             {
-                <a href="#" class="btn btn-outline-danger w-100" onclick="loadAndShowModal('TeacherRequests/Delete/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отменить</a>
+                <a href="#" class="btn btn-outline-danger w-100" onclick="loadAndShowModal('/TeacherRequests/Delete/@Model.Id?returnUrl=@ViewBag.returnUrl')">Отменить</a>
             }
             else if (Model.Status == Status.REJECTED)
             {
-                <a href="#" class="btn btn-outline-primary w-100" onclick="loadAndShowModal('TeacherRequests/Create?returnUrl=@ViewBag.returnUrl')">Повторить</a>
+                <a href="#" class="btn btn-outline-primary w-100" onclick="loadAndShowModal('/TeacherRequests/Create?returnUrl=@ViewBag.returnUrl')">Повторить</a>
             }
         }
     </div>

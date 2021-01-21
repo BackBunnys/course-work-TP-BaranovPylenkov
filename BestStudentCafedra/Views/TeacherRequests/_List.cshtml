@@ -38,8 +38,8 @@
                 </td>
                 <td>
                     <div class="btn-group btn-group-sm float-right" role="group">
-                        <a href="#" class="btn btn-outline-success" onclick="loadAndShowModal('@Context.Request.Path/Approve/@item.Id?returnUrl=@Context.Request.Path')">Принять</a>
-                        <a href="#" class="btn btn-outline-danger" onclick="loadAndShowModal('@Context.Request.Path/Reject/@item.Id?returnUrl=@Context.Request.Path')">Отклонить</a>
+                        <a href="#" class="btn btn-outline-success" onclick="loadAndShowModal('/TeacherRequests/Approve/@item.Id?returnUrl=@Context.Request.Path')">Принять</a>
+                        <a href="#" class="btn btn-outline-danger" onclick="loadAndShowModal('/TeacherRequests/Reject/@item.Id?returnUrl=@Context.Request.Path')">Отклонить</a>
                     </div>
                 </td>
             </tr>
