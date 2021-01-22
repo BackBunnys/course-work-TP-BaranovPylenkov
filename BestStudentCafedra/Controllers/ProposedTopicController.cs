@@ -25,7 +25,7 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Index(ProposedTopic topic)
         {
             ViewData["topics"] = await _context.ProposedTopics.ToListAsync();
-            return View(topic == null? new ProposedTopic(): topic);
+            return View(topic ?? new ProposedTopic());
         }
 
         [HttpPost]
