@@ -84,20 +84,7 @@ namespace BestStudentCafedra.Controllers
                     .ToListAsync();
                 if (!teacherDisciplines.Any(x => x.Teacher.Id == teacher.Id)) return Redirect("/Account/AccessDenied");
             }
-            else if (User.IsInRole("student"))
-            {
-                User user = await _userManager.FindByNameAsync(User.Identity.Name);
-                var disciplines = await _context.AcademicGroups
-                    .Include(x => x.GroupDiscipline)
-                        .ThenInclude(y => y.Discipline)
-                            .ThenInclude(z => z.TeacherDisciplines)
-                                .ThenInclude(h => h.Teacher)
-                    .SelectMany(x => x.GroupDiscipline)
-                    .ToListAsync();
 
-                var teacherDisciplines = disciplines.SelectMany(x => x.Discipline.TeacherDisciplines);
-                if (!teacherDisciplines.Any(x => x.Teacher.Id == teacher.Id)) return Redirect("/Account/AccessDenied");
-            }
 
             if (teacher == null)
             {
