@@ -10,80 +10,84 @@
 <div>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ApprovedDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ApprovedDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.LastChangedDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.LastChangedDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ApprovingOfficerName)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ApprovingOfficerName)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Group)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Group.Name)
         </dd>
     </dl>
     <div>
         @if (ev != null)
         {
-        <h4>Содержит следующие мероприятия:</h4>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => ev.EventDescription)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => ev.Date)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => ev.Class)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => ev.ResponsibleTeacher)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Events)
-                {
+            <h4>Содержит следующие мероприятия:</h4>
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.EventDescription)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Date)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Class)
-                        </td>
-                        <td>
-                            <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.ResponsibleTeacherId">@item.ResponsibleTeacher?.FullName</a>
-                        </td>
+                        <th>
+                            @Html.DisplayNameFor(model => ev.EventDescription)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => ev.Date)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => ev.Class)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => ev.ResponsibleTeacher)
+                        </th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
-        } else
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Events)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.EventDescription)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Date)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Class)
+                            </td>
+                            <td>
+                                <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.ResponsibleTeacherId">@item.ResponsibleTeacher?.FullName</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
         {
             <h4>Не содержит мероприятий. <a asp-action="Delete" asp-route-id="@Model.Id">Удалить?</a></h4>
         }
     </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
-    <a asp-action="Index">Вернуться</a>
-</div>
+@if (User.IsInRole("methodist"))
+{
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> |
+        <a asp-action="Index">Вернуться</a>
+    </div>
+}

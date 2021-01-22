@@ -9,6 +9,7 @@ using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using BestStudentCafedra.Services.Messages.Email;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -16,24 +17,27 @@ namespace BestStudentCafedra.Controllers
     {
         private readonly SubjectAreaDbContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly EmailSender _emailService;
 
-        public SchedulePlanController(SubjectAreaDbContext context, UserManager<User> userManager)
+        public SchedulePlanController(SubjectAreaDbContext context, UserManager<User> userManager, EmailSender emailService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         // GET: SchedulePlan
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Index()
         {
             List<AcademicGroup> academicGroups = await _context.AcademicGroups.Where(x => x.SchedulePlans.Count == 0).ToListAsync();
-            academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
             ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
             ViewData["SchedulePlanes"] = await _context.SchedulePlans.Include(x => x.Group).OrderBy(x => x.ApprovedDate).ToListAsync();
             return View("Index");
         }
 
         // GET: SchedulePlan/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id))
@@ -41,9 +45,12 @@ namespace BestStudentCafedra.Controllers
 
             var schedulePlan = await _context.SchedulePlans
                 .Include(s => s.Group)
-                .Include(s => s.Events)
+                .Include(s => s.Events.OrderBy(x => x.Date == null).ThenBy(x => x.Date))
                 .ThenInclude(s => s.ResponsibleTeacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (!User.IsInRole("methodist") && schedulePlan.ApprovedDate == null)
+                return RedirectToAction("AccessDenied", "Account");
 
             return View(schedulePlan);
         }
@@ -51,6 +58,7 @@ namespace BestStudentCafedra.Controllers
         // POST: SchedulePlan/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("GroupId")] SchedulePlan schedulePlan)
         {
             if (ModelState.IsValid)
@@ -62,6 +70,7 @@ namespace BestStudentCafedra.Controllers
             return await Index();
         }
 
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Fill(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id)) 
@@ -74,6 +83,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Fill(int id)
         {
             if (SchedulePlanExists(id))
@@ -84,7 +94,7 @@ namespace BestStudentCafedra.Controllers
                 
                 await _context.AddRangeAsync(events);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Edit), new { id = id });
+                return RedirectToAction(nameof(Edit), new { id });
             }
             return NotFound();
         }
@@ -92,9 +102,10 @@ namespace BestStudentCafedra.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Approve(int id)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Approve(int id, bool students, bool teachers, bool advisers)
         {
-            if (SchedulePlanExists((int)id))
+            if (SchedulePlanExists(id))
             {
                 SchedulePlan schedulePlan = await _context.SchedulePlans.FindAsync(id);
                 String name = User.Identity.Name;
@@ -102,12 +113,16 @@ namespace BestStudentCafedra.Controllers
                 schedulePlan.Approve(user.SecondName + " " + user.FirstName[0] + "." + user.MiddleName?[0] + ".", DateTime.Now);
                 _context.Update(schedulePlan);
                 await _context.SaveChangesAsync();
+
+                await MailingAsync(id, students, teachers, advisers);
+
                 return RedirectToAction(nameof(Index));
             }
             return NotFound();
         }
 
         // GET: SchedulePlan/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id))
@@ -124,7 +139,6 @@ namespace BestStudentCafedra.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             var teachers = await _context.Teachers.OrderBy(x => x.FullName).ToListAsync();
-            teachers.Insert(0, new Teacher { Id = int.MinValue, FullName = "Выберите преподавателя..." });
             ViewData["Teachers"] = teachers;
             schedulePlan.Events = schedulePlan.Events.Where(x => x.Date != null).OrderBy(x => x.Date).Union(schedulePlan.Events.Where(x => x.Date == null)).ToList();
             ViewData["SchedulePlan"] = schedulePlan;
@@ -133,23 +147,27 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(List<Event> events, int id)
+        [Authorize(Roles = "methodist")]
+        public async Task<IActionResult> Edit(List<Event> events, int id, bool students, bool teachers, bool advisers)
         {
             if (SchedulePlanExists(id))
             {
                 var schedulePlan = _context.SchedulePlans.FirstOrDefault(x => x.Id == id);
                 schedulePlan.LastChangedDate = DateTime.Now;
-                events.ForEach(x => x.ResponsibleTeacherId = x.ResponsibleTeacherId == int.MinValue ? null : x.ResponsibleTeacherId);
                 _context.UpdateRange(events);
                 _context.Update(schedulePlan);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Edit), new { id = id });
+
+                await MailingAsync(id, students, teachers, advisers);
+
+                return RedirectToAction(nameof(Edit), new { id });
             }
             return await Edit(id);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddEvent([Bind("SchedulePlanId,EventDescription")] Event e)
         {
             if (ModelState.IsValid)
@@ -163,6 +181,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteEvent(int eventId)
         {
             var ev = await _context.Events.FindAsync(eventId);
@@ -179,6 +198,7 @@ namespace BestStudentCafedra.Controllers
 
 
         // GET: SchedulePlan/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || !SchedulePlanExists((int)id))
@@ -196,6 +216,7 @@ namespace BestStudentCafedra.Controllers
         // POST: SchedulePlan/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var schedulePlan = await _context.SchedulePlans.FindAsync(id);
@@ -212,6 +233,62 @@ namespace BestStudentCafedra.Controllers
         private bool SchedulePlanExists(int id)
         {
             return _context.SchedulePlans.Any(e => e.Id == id);
+        }
+
+        private async Task MailingAsync(int schedulePlanId, bool sendToStudents, bool sendToResponsibleTeachers, bool sendToScientificAdvisers)
+        {
+            if (sendToStudents) {
+                var studentsId = (await _context.SchedulePlans
+                    .Include(x => x.Group.Students)
+                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId))
+                    .Group.Students.Select(x => x.GradebookNumber)
+                    .Distinct();
+
+                await SendMailsAsync(studentsId, "student",
+                    "План-график на вашу группу был изменён. Для подробностей пройдите по ссылке: " +
+                    Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId }));
+            }
+            if(sendToResponsibleTeachers)
+            {
+                var teachersId = (await _context.SchedulePlans
+                    .Include(x => x.Events.Where(x => x.ResponsibleTeacherId != null))
+                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId)).Events.Select(x => (int)x.ResponsibleTeacherId)
+                    .Distinct();
+
+                await SendMailsAsync(teachersId, "teacher",
+                    "План-график, в одном или нескольких мероприятиях которого вы являетесь ответственным преподавателем, был изменён. Для подробностей пройдите по ссылке: " +
+                    Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId }));
+            }
+            if(sendToScientificAdvisers)
+            {
+                var teachersId = (await _context.SchedulePlans
+                    .Include(x => x.Group.Students)
+                        .ThenInclude(x => x.GraduationWorks)
+                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId))
+                    .Group.Students.Where(x => x.GraduationWorks.FirstOrDefault()?.ScientificAdviserId != null)
+                    .Select(x => (int)x.GraduationWorks.FirstOrDefault().ScientificAdviserId)
+                    .Distinct();
+
+                await SendMailsAsync(teachersId, "teacher",
+                    "План-график одной из работ, которыми вы руководите, был изменён. Для подробностей пройдите по ссылке: " +
+                    Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId }));
+            }
+        }
+
+        private async Task SendMailsAsync(IEnumerable<int> ids, string role, string message)
+        {
+            var userEmails = (await _userManager.GetUsersInRoleAsync(role))
+                   .Where(x => x.SubjectAreaId != null && ids.Contains((int)x.SubjectAreaId))
+                   .Select(x => x.Email).Distinct()
+                   .ToList();
+
+            EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график", Content = message};
+            if (userEmails.Count > 0)
+            {
+                try { await _emailService.SendAsync(userEmails, emailMessage); }
+                catch (Exception) { }
+            }
+                
         }
     }
 }
