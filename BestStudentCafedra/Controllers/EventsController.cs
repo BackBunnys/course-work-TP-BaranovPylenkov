@@ -32,8 +32,7 @@ namespace BestStudentCafedra.Controllers
             //Selecting teacher
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            ICollection<Event> events = new List<Event>();
-            events = await getEventsForTeacher(user.SubjectAreaId);
+            var events = await GetEventsForTeacher(user.SubjectAreaId);
 
             return View(events);
         }
@@ -52,6 +51,7 @@ namespace BestStudentCafedra.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "teacher")]
         public async Task<IActionResult> Mark([Bind("GraduationWorkId,EventId,Mark")]EventLog eventLog)
         {
             if (!EventExists(eventLog.EventId))
@@ -105,6 +105,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Events/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("Id,SchedulePlanId,EventDescription,Date,Class,ResponsibleTeacherId")] Event @event)
         {
             if (ModelState.IsValid)
@@ -138,9 +139,9 @@ namespace BestStudentCafedra.Controllers
         }
 
         // POST: Events/Edit/5
-        [Authorize(Roles = "methodist")]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,SchedulePlanId,EventDescription,Date,Class,ResponsibleTeacherId")] Event @event)
         {
             if (id != @event.Id)
@@ -197,6 +198,7 @@ namespace BestStudentCafedra.Controllers
         // POST: Events/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var @event = await _context.Events.FindAsync(id);
@@ -205,7 +207,7 @@ namespace BestStudentCafedra.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<ICollection<Event>> getEventsForTeacher(int? id)
+        private async Task<ICollection<Event>> GetEventsForTeacher(int? id)
         {
             if (id == null) return new List<Event>();
 
