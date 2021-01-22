@@ -1,6 +1,6 @@
 ﻿@model BestStudentCafedra.Models.GraduationWork
 
-@{ 
+@{
     var isArchived = Model.ArchievedDate != null;
     var lastAdviserRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.ADVISER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.ADVISER };
     var lastReviewerRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.REVIEWER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.REVIEWER };
@@ -8,12 +8,15 @@
 }
 
 <dl class="row">
-    <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Student)
-    </dt>
-    <dd class="col-sm-10">
-        <a asp-action="Details" asp-controller="Student" asp-route-id="@Model.StudentId">@Model.Student.FullName</a>
-    </dd>
+    @if (!User.IsInRole("student"))
+    {
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Student)
+        </dt>
+        <dd class="col-sm-10">
+            <a asp-action="Details" asp-controller="Student" asp-route-id="@Model.StudentId">@Model.Student.FullName</a>
+        </dd>
+    }
     <dt class="col-sm-2">
         @Html.DisplayNameFor(model => model.Theme)
     </dt>
@@ -24,7 +27,7 @@
         }
         else
         {
-            <span>Не назначена</span>
+            <span>Не назначена (<a asp-controller="ProposedTopic" asp-action="Index">Список рекомендованных тем</a>)</span>
         }
     </dd>
     <dt class="col-sm-2">
