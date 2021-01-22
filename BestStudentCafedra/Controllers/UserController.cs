@@ -17,9 +17,9 @@ namespace BestStudentCafedra.Controllers
     [Authorize(Roles = "methodist")]
     public class UserController : Controller
     {
-        UserManager<User> _userManager;
-        RoleManager<IdentityRole> _roleManager;
-        SubjectAreaDbContext _subjectAreaContext;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SubjectAreaDbContext _subjectAreaContext;
 
         public UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, 
             SubjectAreaDbContext subjectAreaContext)
