@@ -32,8 +32,7 @@ namespace BestStudentCafedra.Controllers
             //Selecting teacher
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            ICollection<Event> events = new List<Event>();
-            events = await getEventsForTeacher(user.SubjectAreaId);
+            var events = await GetEventsForTeacher(user.SubjectAreaId);
 
             return View(events);
         }
@@ -208,7 +207,7 @@ namespace BestStudentCafedra.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<ICollection<Event>> getEventsForTeacher(int? id)
+        private async Task<ICollection<Event>> GetEventsForTeacher(int? id)
         {
             if (id == null) return new List<Event>();
 
