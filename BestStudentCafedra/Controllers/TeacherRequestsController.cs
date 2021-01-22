@@ -122,9 +122,11 @@ namespace BestStudentCafedra.Controllers
         [Authorize(Roles = "student")]
         public async Task<IActionResult> Create(RequestType requestType, string returnUrl)
         {
-            TeacherRequest teacherRequest = new TeacherRequest();
-            teacherRequest.RequestType = requestType;
-            
+            TeacherRequest teacherRequest = new TeacherRequest
+            {
+                RequestType = requestType
+            };
+
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
             var graduationWork = await _context.GraduationWorks.FirstOrDefaultAsync(x => x.StudentId == user.SubjectAreaId);
             teacherRequest.GraduationWorkId = graduationWork.Id;
