@@ -84,7 +84,9 @@
                             <span asp-validation-for="[@i].Class" class="text-danger"></span>
                         </td>
                         <td>
-                            <select readonly="@(isMarked)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'></select>
+                            <select readonly="@(isMarked)" name="[@i].ResponsibleTeacherId" class="form-control" asp-items='@new SelectList(teachers, "Id", "FullName", events[i].ResponsibleTeacherId)'>
+                                <option selected value="">Выберите преподавателя...</option>
+                            </select>
                         </td>
                         <td>
                             <input disabled="@(isMarked)" asp-action="DeleteEvent" type="submit" asp-route-eventId="@events[i].Id" value="&times;" class="btn btn-danger" />

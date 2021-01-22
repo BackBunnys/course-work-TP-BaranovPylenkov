@@ -15,7 +15,7 @@ namespace BestStudentCafedra.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Выберите группу")]
-        [Range(0, int.MaxValue, ErrorMessage = "Не выбрана группа")]
+        [Range(1, int.MaxValue, ErrorMessage = "Не выбрана группа")]
         [Display(Name = "Группа")]
         public int GroupId { get; set; }
         [Display(Name = "Дата утвреждения")]

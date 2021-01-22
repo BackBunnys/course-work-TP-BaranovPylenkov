@@ -31,7 +31,6 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Index()
         {
             List<AcademicGroup> academicGroups = await _context.AcademicGroups.Where(x => x.SchedulePlans.Count == 0).ToListAsync();
-            academicGroups.Insert(0, new AcademicGroup { Id = int.MinValue, Name = "Выберите группу..." });
             ViewData["GroupId"] = new SelectList(academicGroups, "Id", "Name");
             ViewData["SchedulePlanes"] = await _context.SchedulePlans.Include(x => x.Group).OrderBy(x => x.ApprovedDate).ToListAsync();
             return View("Index");
@@ -140,7 +139,6 @@ namespace BestStudentCafedra.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             var teachers = await _context.Teachers.OrderBy(x => x.FullName).ToListAsync();
-            teachers.Insert(0, new Teacher { Id = int.MinValue, FullName = "Выберите преподавателя..." });
             ViewData["Teachers"] = teachers;
             schedulePlan.Events = schedulePlan.Events.Where(x => x.Date != null).OrderBy(x => x.Date).Union(schedulePlan.Events.Where(x => x.Date == null)).ToList();
             ViewData["SchedulePlan"] = schedulePlan;
@@ -156,7 +154,6 @@ namespace BestStudentCafedra.Controllers
             {
                 var schedulePlan = _context.SchedulePlans.FirstOrDefault(x => x.Id == id);
                 schedulePlan.LastChangedDate = DateTime.Now;
-                events.ForEach(x => x.ResponsibleTeacherId = x.ResponsibleTeacherId == int.MinValue ? null : x.ResponsibleTeacherId);
                 _context.UpdateRange(events);
                 _context.Update(schedulePlan);
                 await _context.SaveChangesAsync();
