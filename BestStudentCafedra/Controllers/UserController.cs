@@ -1,6 +1,7 @@
 ﻿using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using BestStudentCafedra.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace BestStudentCafedra.Controllers
 {
+    [Authorize(Roles = "methodist")]
     public class UserController : Controller
     {
         UserManager<User> _userManager;
@@ -29,23 +31,21 @@ namespace BestStudentCafedra.Controllers
 
         public async Task<IActionResult> Index(bool onlyUnconfirmed = false)
         {
-            List<User> users;
             List<UserViewModel> userViewModels = new List<UserViewModel>();
+
+            var users = _userManager.Users;
             if (onlyUnconfirmed)
             {
                 ViewData["type"] = "Неподтверждённые пользователи";
-                users = _userManager.Users.Where(u => !u.IsConfirmed).OrderBy(u => u.SecondName).ToList();
-            }
-            else
-            {
-                users = _userManager.Users.OrderBy(u => u.SecondName).ToList();
+                users = users.Where(u => !u.IsConfirmed);
             }
 
             foreach (User user in users)
                 userViewModels.Add(new UserViewModel(user, (await _userManager.GetRolesAsync(user)).ToList()));
 
-            return View(userViewModels);
+            return View(userViewModels.OrderBy(x => x.FullName));
         }
+
         [HttpGet]
         public async Task<IActionResult> Edit(string email) 
         {
@@ -68,7 +68,7 @@ namespace BestStudentCafedra.Controllers
             {
                 if (viewModel.Roles.Contains("teacher"))
                 {
-                    if (_subjectAreaContext.Teachers.FirstOrDefault(t => t.Id == viewModel.SubjectAreaId) == null)
+                    if (!_subjectAreaContext.Teachers.Any(t => t.Id == viewModel.SubjectAreaId))
                     {
                         ModelState.AddModelError("", "Преподавателя с таким id нет в системе");
                         isSubjectExists = false;
@@ -76,7 +76,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 if (viewModel.Roles.Contains("student"))
                 {
-                    if (_subjectAreaContext.Students.FirstOrDefault(s => s.GradebookNumber == viewModel.SubjectAreaId) == null)
+                    if (!_subjectAreaContext.Students.Any(s => s.GradebookNumber == viewModel.SubjectAreaId))
                     {
                         ModelState.AddModelError("", "Студента с таким id нет в системе");
                         isSubjectExists = false;
@@ -130,14 +130,14 @@ namespace BestStudentCafedra.Controllers
         public IActionResult TeacherSelect()
         {
             List<Teacher> teachers = _subjectAreaContext.Teachers.OrderBy(t => t.FullName).ToList();
-            teachers.Insert(0, new Teacher { Id =  int.MinValue, FullName = "Выберите преподавателя..."});
+            ViewData["Type"] = "преподавателя";
             ViewData["SubjectId"] = new SelectList(teachers, "Id", "FullName");
             return PartialView("_ChooseView");
         }
         public IActionResult StudentSelect()
         {
             List<Student> students = _subjectAreaContext.Students.OrderBy(s => s.FullName).ToList();
-            students.Insert(0, new Student { GradebookNumber = int.MinValue, FullName = "Выберите студента..." });
+            ViewData["Type"] = "студента";
             ViewData["SubjectId"] = new SelectList(students, "GradebookNumber", "FullName");
             return PartialView("_ChooseView");
         }
