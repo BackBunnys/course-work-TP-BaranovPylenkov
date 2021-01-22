@@ -25,7 +25,7 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Index(EventTemplate eventTemplate = null)
         {
             ViewData["Events"] = await _context.EventTemplates.OrderBy(x => x.SequentialNumber).ToListAsync();
-            return View("Index", eventTemplate == null? new EventTemplate() : eventTemplate);
+            return View("Index", eventTemplate ?? new EventTemplate());
         }
 
         // POST: EventTemplate/Create
