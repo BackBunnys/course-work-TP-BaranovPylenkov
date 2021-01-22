@@ -9,6 +9,7 @@ using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
 using Microsoft.AspNetCore.Identity;
 using BestStudentCafedra.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
@@ -24,6 +25,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: GraduationWorks
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             User user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -48,6 +50,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: GraduationWorks/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || !GraduationWorkExists((int)id))
@@ -57,17 +60,26 @@ namespace BestStudentCafedra.Controllers
 
             var graduationWork = await _context.GraduationWorks
                 .Include(g => g.Student)
-                .ThenInclude(g => g.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
-                .ThenInclude(g => g.Events)
-                .ThenInclude(g => g.EventLogs.Where(e => e.GraduationWorkId == id))
+                    .ThenInclude(g => g.Group.SchedulePlans.Where(x => x.ApprovedDate != null))
+                    .ThenInclude(g => g.Events)
+                    .ThenInclude(g => g.EventLogs.Where(e => e.GraduationWorkId == id))
+                .Include(x => x.TeacherRequests)
                 .Include(x => x.Reviewer)
                 .Include(x => x.ScientificAdviser)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (User.IsInRole("student"))
+            {
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                if (graduationWork.StudentId != user.SubjectAreaId)
+                    return RedirectToAction("AccessDenied", "Account");
+            }
 
             return View("Details", graduationWork);
         }
 
         // GET: GraduationWorks/Create
+        [Authorize(Roles = "methodist")]
         public IActionResult Create()
         {
             ViewData["StudentId"] = new SelectList(_context.Students.Include(x => x.GraduationWorks).Where(x => x.GraduationWorks.Count == 0), "GradebookNumber", "FullName");
@@ -79,6 +91,7 @@ namespace BestStudentCafedra.Controllers
         // POST: GraduationWorks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Create([Bind("StudentId, Theme, ScientificAdviserId, ReviewerId")]GraduationWork graduationWork)
         {
             if (ModelState.IsValid)
@@ -94,6 +107,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: GraduationWorks/Edit/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || !GraduationWorkExists((int)id))
@@ -110,6 +124,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // POST: GraduationWorks/Edit/5
+        [Authorize(Roles = "methodist")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,StudentId,Theme,ScientificAdviserId,ReviewerId")]GraduationWork graduationWork)
@@ -133,6 +148,7 @@ namespace BestStudentCafedra.Controllers
         }
 
         // GET: GraduationWorks/Archive/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Archive(int? id, string returnUrl)
         {
             if (id == null || !GraduationWorkExists((int)id))
@@ -154,6 +170,7 @@ namespace BestStudentCafedra.Controllers
         // POST: GraduationWorks/Archive/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Archive(int id, [Bind("GraduationWorkId,ArchievedDate,Result")]ArchiveWorkViewModel archiveViewModel, string returnUrl)
         {
             if (id != archiveViewModel.GraduationWorkId || !GraduationWorkExists(id))
@@ -179,13 +196,14 @@ namespace BestStudentCafedra.Controllers
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
                 else
-                    return RedirectToAction(nameof(Details), new { id = id });
+                    return RedirectToAction(nameof(Details), new { id });
             }
 
             return await Details(id);
         }
 
         // GET: GraduationWorks/Unarchive/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Unarchive(int? id)
         {
             if (id == null || !GraduationWorkExists((int)id))
@@ -206,6 +224,7 @@ namespace BestStudentCafedra.Controllers
         // POST: GraduationWorks/Unarchive/5
         [HttpPost, ActionName("Unarchive")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> UnarchiveConfirmed(int id)
         {
             if (!GraduationWorkExists(id))
@@ -222,10 +241,11 @@ namespace BestStudentCafedra.Controllers
             _context.Update(gw);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Details), new { id = id });
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: GraduationWorks/Delete/5
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || !GraduationWorkExists((int)id))
@@ -245,6 +265,7 @@ namespace BestStudentCafedra.Controllers
         // POST: GraduationWorks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "methodist")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var graduationWork = await _context.GraduationWorks.FindAsync(id);
