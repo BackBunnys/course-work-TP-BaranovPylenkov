@@ -1,12 +1,12 @@
 ﻿@model IEnumerable<BestStudentCafedra.Models.Event>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Мероприятия";
     ICollection<Event> events = Model.OrderBy(x => x.Date).ToList();
     ICollection<Event> comingEvents = events.Where(x => x.Date > DateTime.Now).ToList();
     ICollection<Event> waitingEvents = events.Where(x => x.Date <= DateTime.Now && x.SchedulePlan.Group.Students.Any(y => y.GraduationWorks
         .Any(z => !z.HasMarkForEvent(x)))).ToList();
-    ICollection<Event> otherEvents = events.Except(comingEvents).Except(waitingEvents).OrderByDescending(x => x.Date).ToList();
+    ICollection<Event> otherEvents = events.Except(comingEvents).Except(waitingEvents).ToList();
 }
 
 <h1>Ваши мероприятия</h1>
@@ -52,9 +52,23 @@
             </h5>
         </div>
         <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-            <div class="card-body">
+            <div class="card-body" id="old">
                 @{await Html.RenderPartialAsync("_List", otherEvents);}
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var oldTable = $('#old').children('table').DataTable({
+            order: [[1, "desc"]],
+            info: false,
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}
