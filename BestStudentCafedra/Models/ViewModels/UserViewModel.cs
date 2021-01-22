@@ -17,7 +17,7 @@ namespace BestStudentCafedra.Models.ViewModels
         [Display(Name = "Роли")]
         [RolesValidation("student", ErrorMessage = "Студент не может содержать больше ролей")]
         [MinLength(1, ErrorMessage = "Укажите роли")]
-        public List<string> Roles { get; set; } = new List<string>();
+        public IEnumerable<string> Roles { get; set; } = new List<string>();
 
         [Display(Name = "Имя")]
         public string FullName { get; set; }
@@ -26,7 +26,7 @@ namespace BestStudentCafedra.Models.ViewModels
         public int? SubjectAreaId { get; set; }
 
         public UserViewModel() { }
-        public UserViewModel(User user, List<String> roles)
+        public UserViewModel(User user, IEnumerable<string> roles)
         {
             Email = user.Email;
             FullName = user.SecondName + " " + user.FirstName + " " + user.MiddleName;
