@@ -94,7 +94,7 @@ namespace BestStudentCafedra.Controllers
                 
                 await _context.AddRangeAsync(events);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Edit), new { id = id });
+                return RedirectToAction(nameof(Edit), new { id });
             }
             return NotFound();
         }
@@ -160,7 +160,7 @@ namespace BestStudentCafedra.Controllers
 
                 await MailingAsync(id, students, teachers, advisers);
 
-                return RedirectToAction(nameof(Edit), new { id = id });
+                return RedirectToAction(nameof(Edit), new { id });
             }
             return await Edit(id);
         }
@@ -244,36 +244,20 @@ namespace BestStudentCafedra.Controllers
                     .Group.Students.Select(x => x.GradebookNumber)
                     .Distinct();
 
-                var studentsEmail = (await _userManager.GetUsersInRoleAsync("student"))
-                    .Where(x => x.SubjectAreaId != null && studentsId.Contains((int)x.SubjectAreaId))
-                    .Select(x => x.Email)
-                    .ToList();
-
-                EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график" };
-                if (studentsEmail.Count > 0)
-                {
-                    emailMessage.Content = "План-график на вашу группу был изменён. Для подробностей пройдите по ссылке: " + Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId });
-                    await _emailService.SendAsync(studentsEmail, emailMessage);
-                }
+                await SendMailsAsync(studentsId, "student",
+                    "План-график на вашу группу был изменён. Для подробностей пройдите по ссылке: " +
+                    Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId }));
             }
             if(sendToResponsibleTeachers)
             {
                 var teachersId = (await _context.SchedulePlans
                     .Include(x => x.Events.Where(x => x.ResponsibleTeacherId != null))
-                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId)).Events.Select(x => x.ResponsibleTeacherId)
+                    .FirstOrDefaultAsync(x => x.Id == schedulePlanId)).Events.Select(x => (int)x.ResponsibleTeacherId)
                     .Distinct();
 
-                var teachersEmail = (await _userManager.GetUsersInRoleAsync("teacher"))
-                    .Where(x => x.SubjectAreaId != null && teachersId.Contains((int)x.SubjectAreaId))
-                    .Select(x => x.Email)
-                    .ToList();
-
-                EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график" };
-                if (teachersEmail.Count > 0)
-                {
-                    emailMessage.Content = "План-график, в одном или нескольких мероприятиях которого вы являетесь ответственным преподавателем, был изменён. Для подробностей пройдите по ссылке: " + Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId });
-                    await _emailService.SendAsync(teachersEmail, emailMessage);
-                }
+                await SendMailsAsync(teachersId, "teacher",
+                    "План-график, в одном или нескольких мероприятиях которого вы являетесь ответственным преподавателем, был изменён. Для подробностей пройдите по ссылке: " +
+                    Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId }));
             }
             if(sendToScientificAdvisers)
             {
@@ -282,22 +266,29 @@ namespace BestStudentCafedra.Controllers
                         .ThenInclude(x => x.GraduationWorks)
                     .FirstOrDefaultAsync(x => x.Id == schedulePlanId))
                     .Group.Students.Where(x => x.GraduationWorks.FirstOrDefault()?.ScientificAdviserId != null)
-                    .Select(x => x.GraduationWorks.FirstOrDefault().ScientificAdviserId)
+                    .Select(x => (int)x.GraduationWorks.FirstOrDefault().ScientificAdviserId)
                     .Distinct();
 
-                var teachersEmail = (await _userManager.GetUsersInRoleAsync("teacher"))
-                    .Where(x => x.SubjectAreaId != null && teachersId.Contains((int)x.SubjectAreaId))
-                    .Select(x => x.Email)
-                    .ToList();
-
-                EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график" };
-                if (teachersEmail.Count > 0)
-                {
-                    emailMessage.Content = "План-график одной из работ, которыми вы руководите, был изменён. Для подробностей пройдите по ссылке: " + Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId });
-                    await _emailService.SendAsync(teachersEmail, emailMessage);
-                }
+                await SendMailsAsync(teachersId, "teacher",
+                    "План-график одной из работ, которыми вы руководите, был изменён. Для подробностей пройдите по ссылке: " +
+                    Url.ActionLink("Details", "SchedulePlan", new { id = schedulePlanId }));
             }
+        }
 
+        private async Task SendMailsAsync(IEnumerable<int> ids, string role, string message)
+        {
+            var userEmails = (await _userManager.GetUsersInRoleAsync(role))
+                   .Where(x => x.SubjectAreaId != null && ids.Contains((int)x.SubjectAreaId))
+                   .Select(x => x.Email).Distinct()
+                   .ToList();
+
+            EmailMessage emailMessage = new EmailMessage { Subject = "ВКР - план-график", Content = message};
+            if (userEmails.Count > 0)
+            {
+                try { await _emailService.SendAsync(userEmails, emailMessage); }
+                catch (Exception) { }
+            }
+                
         }
     }
 }
