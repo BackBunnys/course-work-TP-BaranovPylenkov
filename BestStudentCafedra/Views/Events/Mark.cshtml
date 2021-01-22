@@ -33,7 +33,7 @@
         <tbody>
             @foreach (var item in students)
             {
-                var isMarked = item.GraduationWorks.Any(x => x.hasMarkForEvent(Model));
+                var isMarked = item.GraduationWorks.Any(x => x.HasMarkForEvent(Model));
                 <tr class='@(isMarked ? "tabledisable" : "")'>
                     <td class="align-middle">
                         @Html.DisplayFor(modelItem => item.FullName)

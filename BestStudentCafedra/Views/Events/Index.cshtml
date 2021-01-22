@@ -5,7 +5,7 @@
     ICollection<Event> events = Model.OrderBy(x => x.Date).ToList();
     ICollection<Event> comingEvents = events.Where(x => x.Date > DateTime.Now).ToList();
     ICollection<Event> waitingEvents = events.Where(x => x.Date <= DateTime.Now && x.SchedulePlan.Group.Students.Any(y => y.GraduationWorks
-        .Any(z => !z.hasMarkForEvent(x)))).ToList();
+        .Any(z => !z.HasMarkForEvent(x)))).ToList();
     ICollection<Event> otherEvents = events.Except(comingEvents).Except(waitingEvents).OrderByDescending(x => x.Date).ToList();
 }
 

@@ -58,10 +58,10 @@ namespace BestStudentCafedra.Models
             if (events == null)
                 events = Student?.Group?.SchedulePlans?.FirstOrDefault()?.Events;
             if (events == null) return 0;
-            return events.Where(x => this.hasMarkForEvent(x)).Count();
+            return events.Where(x => this.HasMarkForEvent(x)).Count();
         }
 
-        public bool hasMarkForEvent(Event @event)
+        public bool HasMarkForEvent(Event @event)
         {
             return EventLogs.Any(x => x.EventId == @event.Id);
         }

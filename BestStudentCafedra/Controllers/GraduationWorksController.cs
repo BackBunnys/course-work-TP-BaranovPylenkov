@@ -196,7 +196,7 @@ namespace BestStudentCafedra.Controllers
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
                 else
-                    return RedirectToAction(nameof(Details), new { id = id });
+                    return RedirectToAction(nameof(Details), new { id });
             }
 
             return await Details(id);
@@ -241,7 +241,7 @@ namespace BestStudentCafedra.Controllers
             _context.Update(gw);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Details), new { id = id });
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: GraduationWorks/Delete/5
