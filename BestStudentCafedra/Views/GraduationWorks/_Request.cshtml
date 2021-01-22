@@ -8,7 +8,14 @@
     }
     else
     {
+        if (Model.ResponseDate == null)
+        {
+            <span>Не назначен</span>
+        }
+        else
+        {
         <a href="#" onclick="loadAndShowModal('/TeacherRequests/Details/@(Model.Id)?returnUrl=@Context.Request.Path')">(Запрос принят)</a>
+        }
     }
 }
 else

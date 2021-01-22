@@ -2,8 +2,8 @@
 
 @{
     var isArchived = Model.ArchievedDate != null;
-    var lastAdviserRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.ADVISER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.ADVISER };
-    var lastReviewerRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.REVIEWER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.REVIEWER };
+    var lastAdviserRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.ADVISER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.ADVISER, Status = Status.APPROVED };
+    var lastReviewerRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.REVIEWER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.REVIEWER, Status = Status.APPROVED };
 
 }
 
