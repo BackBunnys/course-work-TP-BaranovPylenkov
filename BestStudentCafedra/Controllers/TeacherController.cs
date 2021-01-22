@@ -120,19 +120,21 @@ namespace BestStudentCafedra.Controllers
         [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int id, int DisciplineId, string ReturnUrl)
         {
-            if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Count() > 0)
+            if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Any())
             {
                 return Conflict();
             }
 
-            var newTeacherDisp = new TeacherDiscipline();
-            newTeacherDisp.TeacherId = (int)id;
-            newTeacherDisp.DisciplineId = DisciplineId;
+            var newTeacherDisp = new TeacherDiscipline
+            {
+                TeacherId = (int)id,
+                DisciplineId = DisciplineId
+            };
 
             _context.Add(newTeacherDisp);
             await _context.SaveChangesAsync();
             ViewData["ReturnUrl"] = ReturnUrl;
-            return RedirectToAction(nameof(Edit), new { id = id, ReturnUrl = ReturnUrl });
+            return RedirectToAction(nameof(Edit), new { id, ReturnUrl });
         }
 
         [Authorize(Roles = "methodist")]
@@ -167,7 +169,7 @@ namespace BestStudentCafedra.Controllers
             var teacherId = teacherDiscipline.TeacherId;
             _context.TeacherDisciplines.Remove(teacherDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Edit), new { id = teacherId, ReturnUrl = ReturnUrl });
+            return RedirectToAction(nameof(Edit), new { id = teacherId, ReturnUrl });
         }
 
         // GET: Teachers/Create
@@ -246,7 +248,7 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Details), new { id = id, ReturnUrl = ReturnUrl });
+                return RedirectToAction(nameof(Details), new { id, ReturnUrl });
             }
             ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
