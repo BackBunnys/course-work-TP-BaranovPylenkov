@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BestStudentCafedra.Data;
 using BestStudentCafedra.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BestStudentCafedra.Controllers
 {
+    [Authorize(Roles = "methodist")]
     public class EventTemplateController : Controller
     {
         private readonly SubjectAreaDbContext _context;
@@ -23,7 +25,7 @@ namespace BestStudentCafedra.Controllers
         public async Task<IActionResult> Index(EventTemplate eventTemplate = null)
         {
             ViewData["Events"] = await _context.EventTemplates.OrderBy(x => x.SequentialNumber).ToListAsync();
-            return View("Index", eventTemplate == null? new EventTemplate() : eventTemplate);
+            return View("Index", eventTemplate ?? new EventTemplate());
         }
 
         // POST: EventTemplate/Create
