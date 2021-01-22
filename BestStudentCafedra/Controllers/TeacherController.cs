@@ -84,20 +84,7 @@ namespace BestStudentCafedra.Controllers
                     .ToListAsync();
                 if (!teacherDisciplines.Any(x => x.Teacher.Id == teacher.Id)) return Redirect("/Account/AccessDenied");
             }
-            else if (User.IsInRole("student"))
-            {
-                User user = await _userManager.FindByNameAsync(User.Identity.Name);
-                var disciplines = await _context.AcademicGroups
-                    .Include(x => x.GroupDiscipline)
-                        .ThenInclude(y => y.Discipline)
-                            .ThenInclude(z => z.TeacherDisciplines)
-                                .ThenInclude(h => h.Teacher)
-                    .SelectMany(x => x.GroupDiscipline)
-                    .ToListAsync();
 
-                var teacherDisciplines = disciplines.SelectMany(x => x.Discipline.TeacherDisciplines);
-                if (!teacherDisciplines.Any(x => x.Teacher.Id == teacher.Id)) return Redirect("/Account/AccessDenied");
-            }
 
             if (teacher == null)
             {
@@ -133,19 +120,21 @@ namespace BestStudentCafedra.Controllers
         [Authorize(Roles = "methodist")]
         public async Task<IActionResult> AddDiscipline(int id, int DisciplineId, string ReturnUrl)
         {
-            if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Count() > 0)
+            if(_context.TeacherDisciplines.Where(x => x.TeacherId == id && x.DisciplineId == DisciplineId).Any())
             {
                 return Conflict();
             }
 
-            var newTeacherDisp = new TeacherDiscipline();
-            newTeacherDisp.TeacherId = (int)id;
-            newTeacherDisp.DisciplineId = DisciplineId;
+            var newTeacherDisp = new TeacherDiscipline
+            {
+                TeacherId = (int)id,
+                DisciplineId = DisciplineId
+            };
 
             _context.Add(newTeacherDisp);
             await _context.SaveChangesAsync();
             ViewData["ReturnUrl"] = ReturnUrl;
-            return RedirectToAction(nameof(Edit), new { id = id, ReturnUrl = ReturnUrl });
+            return RedirectToAction(nameof(Edit), new { id, ReturnUrl });
         }
 
         [Authorize(Roles = "methodist")]
@@ -180,7 +169,7 @@ namespace BestStudentCafedra.Controllers
             var teacherId = teacherDiscipline.TeacherId;
             _context.TeacherDisciplines.Remove(teacherDiscipline);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Edit), new { id = teacherId, ReturnUrl = ReturnUrl });
+            return RedirectToAction(nameof(Edit), new { id = teacherId, ReturnUrl });
         }
 
         // GET: Teachers/Create
@@ -259,7 +248,7 @@ namespace BestStudentCafedra.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Details), new { id = id, ReturnUrl = ReturnUrl });
+                return RedirectToAction(nameof(Details), new { id, ReturnUrl });
             }
             ViewData["ReturnUrl"] = ReturnUrl;
             return View(teacher);
