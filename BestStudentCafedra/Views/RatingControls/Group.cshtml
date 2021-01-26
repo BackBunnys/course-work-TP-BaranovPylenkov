@@ -86,7 +86,7 @@
         </div>
         <div class="col-sm">
             <div>
-                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@Model.SemesterDiscipline.Id">Подробнее</a> |
+                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@Model.SemesterDiscipline.Id" asp-route-ReturnUrl="@Context.Request.Path?disciplineId=@Model.SemesterDiscipline.Id" asp-route-groupId="@Model.Group.Id">Подробнее</a> |
                 <a asp-controller="Disciplines" asp-action="Index">Список дисциплин</a>
             </div>
         </div>
