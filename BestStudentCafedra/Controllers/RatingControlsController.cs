@@ -88,7 +88,7 @@ namespace BestStudentCafedra.Controllers
 
                     if (exam != null)
                     {
-                        examMultiplier = (float)(40 / exam.MaxPoints);
+                        examMultiplier = (float)(40f / exam.MaxPoints);
 
                         groupRating.SemesterDiscipline.Activities =
                             groupRating.SemesterDiscipline.Activities
@@ -215,7 +215,7 @@ namespace BestStudentCafedra.Controllers
                 .AsNoTracking()
                 .AsEnumerable();
 
-            var pointMultiplier = 0;
+            var pointMultiplier = 1f;
             if (_context.SemesterDiscipline.Find(disciplineId).ControlType == ControlType.Exam)
             {
                 var exam = activities.FirstOrDefault(x => x.Type.Name == EXAMTYPENAME);
@@ -223,11 +223,11 @@ namespace BestStudentCafedra.Controllers
                 {
                     activities.ToList().Remove(exam);
                 }
-                pointMultiplier = (int)(60 / activities.Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(60f / activities.Select(x => x.MaxPoints).Sum()));
             }
             else
             {
-                pointMultiplier = (int)(100 / activities.Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(100f / activities.Select(x => x.MaxPoints).Sum()));
             }
 
             var students = _context.AcademicGroups
@@ -235,6 +235,7 @@ namespace BestStudentCafedra.Controllers
                     .ThenInclude(x => x.ActivityProtections
                         .Where(y => activities
                             .Any(z => y.ActivityId == z.Id)))
+                .Where(x => x.Id == groupId)
                 .SelectMany(x => x.Students);
 
             var studentsRating = new List<StudentRating>();
@@ -443,18 +444,18 @@ namespace BestStudentCafedra.Controllers
                 .Include(x => x.Discipline)
                     .ThenInclude(y => y.TeacherDisciplines)
                         .ThenInclude(z => z.Teacher)
-                .Include(x => x.Activities)
+                .Include(x => x.Activities.OrderBy(x => x.Type).ThenBy(x => x.Number))
                     .ThenInclude(y => y.Type)
                 .FirstOrDefaultAsync(x => x.Id == disciplineId);
 
-            var pointMultiplier = 0;
+            var pointMultiplier = 1f;
             if (semesterDiscipline.ControlType == ControlType.Exam)
             {
-                pointMultiplier = (int)(60 / semesterDiscipline.Activities.Where(x => x.Type.Name != EXAMTYPENAME).Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(60f / semesterDiscipline.Activities.Where(x => x.Type.Name != EXAMTYPENAME).Select(x => x.MaxPoints).Sum()));
             }
             else
             {
-                pointMultiplier = (int)(100 / semesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(100f / semesterDiscipline.Activities.Select(x => x.MaxPoints).Sum()));
             }
 
             using (var workbook = new XLWorkbook())
