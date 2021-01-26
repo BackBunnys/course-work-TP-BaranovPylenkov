@@ -192,11 +192,8 @@ namespace BestStudentCafedra.Controllers
             }
 
             var lastNumber = 0;
-            if (_context.RatingControls.Count() > 0)
-            {
-                var groupRatingControls = _context.RatingControls.Where(x => x.GroupId == groupId && x.SemesterDisciplineId == disciplineId);
-                if (groupRatingControls != null) lastNumber = groupRatingControls.OrderByDescending(x => x.Number).FirstOrDefault().Number;
-            }
+            var groupRatingControls = _context.RatingControls.Where(x => x.GroupId == groupId && x.SemesterDisciplineId == disciplineId);
+            if (groupRatingControls.Any()) lastNumber = groupRatingControls.OrderByDescending(x => x.Number).FirstOrDefault().Number;
 
             var newRatingControl = new RatingControl();
             newRatingControl.Number = lastNumber + 1;
