@@ -167,7 +167,7 @@
 </div>
 <p>Уровень знаний студентов на данный момент по лекциям, лабораторным, практическим и самостоятельным работам</p>
 
-<table class="table table-sm table-bordered rounded" id="ratingTable">
+<table class="table table-responsive table-sm table-bordered rounded" id="ratingTable" style="width: 100%;">
     <thead>
         <tr>
             <th rowspan="2">#</th>
@@ -266,6 +266,7 @@
         }
     </tbody>
 </table>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
