@@ -227,7 +227,7 @@
                     }
                 </td>
             }
-            <td>@total.ToString(new CultureInfo("en-US"))</td>
+        <td>@(((float)(Math.Round(total, 1))).ToString(new CultureInfo("en-US")))</td>
             @foreach (var item in Model.RatingControls)
             {
                 <td>
