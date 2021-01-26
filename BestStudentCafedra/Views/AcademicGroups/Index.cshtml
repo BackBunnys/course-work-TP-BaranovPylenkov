@@ -1,0 +1,90 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.AcademicGroup>
+
+@{
+    ViewData["Title"] = "Академические группы";
+    var isAccessAllowed = User.IsInRole("methodist");
+}
+
+<h1>Академические группы</h1>
+
+<p>
+    @if (isAccessAllowed)
+    {
+        <a asp-action="Create">Добавить</a> <span> | </span>
+    }
+    <a asp-controller="Specialties" asp-action="Index">Специальности</a>
+</p>
+
+
+<form asp-action="Index" method="get">
+    <div class="input-group mb-3" style="max-width: 300px">
+        <select class="custom-select" name="formYear" asp-items="ViewBag.formYears">
+            <option selected>Все года</option>
+        </select>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Отобразить</button>
+        </div>
+    </div>
+</form>
+
+<table class="table border rounded" id="groupTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Specialty.Code)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Specialty.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FormationYear)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Specialty.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Specialty.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FormationYear)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">Подробнее</a>
+                        @if (isAccessAllowed)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#groupTable').DataTable({
+            filter: false,
+            order: [[2, "desc"], [1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

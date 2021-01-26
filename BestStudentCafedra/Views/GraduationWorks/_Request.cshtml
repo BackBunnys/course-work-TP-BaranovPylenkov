@@ -1,0 +1,26 @@
+﻿@model BestStudentCafedra.Models.TeacherRequest
+
+@if (Model.Status == Status.APPROVED)
+{
+    if (User.IsInRole("student"))
+    {
+        <a href="#" onclick="loadAndShowModal('/TeacherRequests/Create?requestType=@(Model.RequestType)&returnUrl=@Context.Request.Path')">(Создать новый запрос)</a>
+    }
+    else
+    {
+        if (Model.ResponseDate == null)
+        {
+            <span>Не назначен</span>
+        }
+        else
+        {
+        <a href="#" onclick="loadAndShowModal('/TeacherRequests/Details/@(Model.Id)?returnUrl=@Context.Request.Path')">(Запрос принят)</a>
+        }
+    }
+}
+else
+{
+    <a href="#" onclick="loadAndShowModal('/TeacherRequests/Details/@(Model.Id)?returnUrl=@Context.Request.Path')">
+        @(Model.Status == null? "(Запрос на рассмотрении)" : "(Запрос отклонён)")
+    </a>
+}

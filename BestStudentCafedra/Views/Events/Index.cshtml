@@ -1,0 +1,74 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.Event>
+
+@{
+    ViewData["Title"] = "Мероприятия";
+    ICollection<Event> events = Model.OrderBy(x => x.Date).ToList();
+    ICollection<Event> comingEvents = events.Where(x => x.Date > DateTime.Now).ToList();
+    ICollection<Event> waitingEvents = events.Where(x => x.Date <= DateTime.Now && x.SchedulePlan.Group.Students.Any(y => y.GraduationWorks
+        .Any(z => !z.HasMarkForEvent(x)))).ToList();
+    ICollection<Event> otherEvents = events.Except(comingEvents).Except(waitingEvents).ToList();
+}
+
+<h1>Ваши мероприятия</h1>
+<div id="accordion">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="@(waitingEvents.Count > 0 ? "false" : "true")" aria-controls="collapseOne">
+                    Предстоящие (@comingEvents.Count)
+                </button>
+            </h5>
+        </div>
+
+        <div id="collapseOne" class="collapse @(waitingEvents.Count > 0 ? "" : "show")" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                @{await Html.RenderPartialAsync("_List", comingEvents);}
+            </div>
+        </div>
+    </div>
+    @if (User.IsInRole("teacher"))
+    {
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h5 class="mb-0">
+                    <button class="btn btn-light w-100" data-toggle="collapse" data-target="#collapseTwo" aria-expanded='@(waitingEvents.Count > 0 ? "true" : "false")' aria-controls="collapseTwo">
+                        Ожидают оценки (@waitingEvents.Count)
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse @(waitingEvents.Count > 0 ? "show" : "")" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                    @{await Html.RenderPartialAsync("_List", waitingEvents);}
+                </div>
+            </div>
+        </div>
+    }
+    <div class="card">
+        <div class="card-header" id="headingThree">
+            <h5 class="mb-0">
+                <button class="btn btn-light w-100 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    Прошедшие (@otherEvents.Count)
+                </button>
+            </h5>
+        </div>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+            <div class="card-body" id="old">
+                @{await Html.RenderPartialAsync("_List", otherEvents);}
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var oldTable = $('#old').children('table').DataTable({
+            order: [[1, "desc"]],
+            info: false,
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

@@ -1,11 +1,11 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BestStudentCafedra</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="/css/site.css" />
 </head>
 <body>
     <header>
@@ -20,8 +20,49 @@
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="AcademicGroups" asp-action="Index">Группы</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Disciplines" asp-action="Index">Дисциплины</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Teacher" asp-action="Index">Преподаватели</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Пользователи</a>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                @if (User.IsInRole("student"))
+                                {
+                                    <a class="nav-link text-dark" asp-controller="GraduationWorks" asp-action="Index">ВКР</a>
+                                }
+                                else
+                                {
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        ВКР
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        @if (User.IsInRole("teacher"))
+                                        {
+                                            <a class="dropdown-item nav-link text-dark" asp-controller="GraduationWorks" asp-action="Index">Мои работы</a>
+                                            <a class="dropdown-item nav-link text-dark" asp-controller="Events" asp-action="Index">Мероприятия</a>
+                                            <a class="dropdown-item nav-link text-dark" asp-controller="TeacherRequests" asp-action="Index">Запросы</a>
+                                        }
+                                        @if (User.IsInRole("methodist"))
+                                        {
+                                            <a class="dropdown-item nav-link text-dark" asp-controller="GraduationWorks" asp-action="Index">Cписок работ</a>
+                                            <a class="dropdown-item nav-link text-dark" asp-controller="ProposedTopic" asp-action="Index">Рекомендованные темы</a>
+                                            <a class="dropdown-item nav-link text-dark" asp-controller="SchedulePlan" asp-action="Index">Планы-графики</a>
+                                        }
+                                    </div>
+                                }
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

@@ -21,6 +21,12 @@ namespace BestStudentCafedra.Controllers
         }
 
         [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
@@ -94,6 +100,14 @@ namespace BestStudentCafedra.Controllers
                 }
             }
             return View(model);
+        }
+
+        [HttpGet]
+        [Route("/Account/AccessDenied")]
+        public IActionResult AccessDenied(string returnUrl = null)
+        {
+            ViewData["returnUrl"] = returnUrl;
+            return View();
         }
 
         [HttpPost]

@@ -1,0 +1,58 @@
+﻿@model BestStudentCafedra.Models.Student
+
+@{
+    ViewData["Title"] = "Добавление студента";
+}
+
+<h1>Добавление студента</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input hidden name="ReturnUrl" value="@ViewBag.ReturnUrl" />
+            <div class="form-group">
+                <label asp-for="GradebookNumber" class="control-label"></label>
+                <input asp-for="GradebookNumber" class="form-control" />
+                <span asp-validation-for="GradebookNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GroupId" class="control-label"></label>
+                <select asp-for="GroupId" class="form-control" asp-items="ViewBag.GroupId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="FullName" class="control-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Добавить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @if (ViewBag.ForGroup != null)
+    {
+        <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@ViewBag.ForGroup">Вернуться</a>
+    }
+    else if (ViewBag.ReturnUrl != null)
+    {
+        <a href="@ViewBag.ReturnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-action="Index">Вернуться</a>
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

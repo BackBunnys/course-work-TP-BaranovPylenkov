@@ -1,0 +1,95 @@
+﻿@model BestStudentCafedra.Models.Teacher
+
+@{
+    ViewData["Title"] = "Изменение данных преподавателя";
+}
+
+<h1>Изменение данных преподавателя</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" value="@ViewBag.ReturnUrl" name="ReturnUrl" />
+            <div class="form-group">
+                <label asp-for="FullName" class="control-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Post" class="control-label"></label>
+                <input asp-for="Post" class="form-control" />
+                <span asp-validation-for="Post" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AcademicDegree" class="control-label"></label>
+                <input asp-for="AcademicDegree" class="form-control" />
+                <span asp-validation-for="AcademicDegree" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Details" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Вернуться</a>
+</div>
+
+</br>
+<h4>Дисциплины:</h4>
+<p>Список дисциплин, которые ведет преподаватель по основным образовательным программам</p>
+<p>
+    <a asp-action="AddDiscipline" asp-route-id="@Model.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl">Добавить</a>
+</p>
+
+<table class="table border rounded" id="disciplinesTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TeacherDisciplines.FirstOrDefault().Discipline.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (TeacherDiscipline item in Model.TeacherDisciplines)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discipline.Name)
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@item.DisciplineId" asp-route-returnUrl="@Context.Request.Path" class="btn btn-outline-secondary">Подробнее</a>
+                        <a href="#" onclick="loadAndShowModal('../DropDiscipline/@item.Id?ReturnUrl=@ViewBag.ReturnUrl')" class="btn btn-outline-danger">&times;</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="modDialog" class="modal modal-removable fade">
+    <div class="spinner-border text-light fixed-top mt-5 mx-auto" style="z-index: -1;" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script src="~/js/site.js"></script>
+    <script>
+        var table = $('#disciplinesTable').DataTable({
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

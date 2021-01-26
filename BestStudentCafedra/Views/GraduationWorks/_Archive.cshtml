@@ -1,0 +1,37 @@
+﻿@model BestStudentCafedra.Models.ViewModels.ArchiveWorkViewModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <div>
+            <h4>Результат работы</h4>
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form asp-action="Archive">
+            <div class="form-row mb-3">
+                <input required type="hidden" asp-for="GraduationWorkId" />
+                <input hidden name="returnUrl" value="@ViewBag.returnUrl" />
+                <div class="col">
+                    <label asp-for="ArchievedDate" class="control-label"></label>
+                    <input class="form-control" required asp-for="ArchievedDate" />
+                </div>
+                <div class="col">
+                    <label asp-for="Result" class="control-label"></label>
+                    <select class="form-control custom-select" required asp-for="Result">
+                        <option selected disabled value="">Выберите отметку...</option>
+                        <option value="2">Не удовлетворительно</option>
+                        <option value="3">Удовлетворительно</option>
+                        <option value="4">Хорошо</option>
+                        <option value="5">Отлично</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group w-100 mb-0">
+                <input type="submit" value="В архив" class="btn btn-primary w-100" />
+            </div>
+        </form>
+    </div>
+</div>

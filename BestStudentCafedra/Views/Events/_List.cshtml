@@ -1,0 +1,77 @@
+﻿@model IEnumerable<BestStudentCafedra.Models.Event>
+
+@{ 
+    bool isWaiting = Model.Any(x => x.Date < DateTime.Now && x.SchedulePlan.Group.Students.Any(y => y.GraduationWorks.Any(z => !z.HasMarkForEvent(x))));
+}
+
+@if (Model.Count() > 0)
+{
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.EventDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Class)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SchedulePlan.Group)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ResponsibleTeacher)
+            </th>
+            @if(isWaiting)
+            {
+                <th>Оценено</th>
+            }
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.EventDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Class)
+            </td>
+            <td>
+                <a asp-controller="AcademicGroups" asp-action="Details" asp-route-id="@item.SchedulePlan.GroupId">@item.SchedulePlan.Group.Name</a>
+            </td>
+            <td>
+                <a asp-controller="Teacher" asp-action="Details" asp-route-id="@item.ResponsibleTeacherId">@item.ResponsibleTeacher?.FullName</a>
+            </td>
+            @if (isWaiting)
+            {
+            <td>
+                @item.SchedulePlan.Group.Students.Where(x => x.GraduationWorks.Any(x => x.HasMarkForEvent(item))).Count()/@item.SchedulePlan.Group.Students.Count
+            </td>
+            }
+            <td>
+                @if (isWaiting)
+                {
+                    <a asp-action="Mark" asp-route-id="@item.Id">Оценить</a>
+                }
+                else
+                {
+                    <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+                }
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
+else
+{
+    <span>Отсутствуют.</span>
+}

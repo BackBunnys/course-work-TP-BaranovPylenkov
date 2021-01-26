@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Доступ запрещен";
+}
+
+<div class="text-center">
+    <h4>Доступ запрещен!</h4>
+    <p>Доступ к запрашиваемому ресурсу запрещен, выполните вход с другого аккаунта или покиньте данную страницу.</p>
+    @if (ViewBag.returnUrl != null)
+    {
+        <a href="@ViewBag.returnUrl" class="btn btn-outline-primary">Вернуться</a>
+    }
+    else
+    {
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">Вернуться</a>
+    }
+</div>

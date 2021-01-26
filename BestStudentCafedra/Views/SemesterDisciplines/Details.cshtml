@@ -1,0 +1,127 @@
+﻿@model BestStudentCafedra.Models.SemesterDiscipline
+
+@{
+    ViewData["Title"] = "Данные о дисциплине определенного семестра";
+    var isAccessAllowed = User.IsInRole("methodist") || User.IsInRole("teacher");
+}
+
+<h1>Данные о дисциплине опредленного сесметра</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Discipline)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Discipline.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Year)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Year)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Semester)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Semester)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ControlType)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ControlType)
+        </dd>
+    </dl>
+</div>
+<div>
+    @if (User.IsInRole("methodist"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Изменить</a> <span> | </span>
+    }
+
+    @if (ViewBag.ReturnUrl != null)
+    {
+        <a href="@ViewBag.ReturnUrl">Вернуться</a>
+    }
+    else
+    {
+        <a asp-controller="Disciplines" asp-action="Details" asp-route-id="@Model.DisciplineId" asp-route-groupId="@ViewBag.groupId">Вернуться</a>
+    }
+</div>
+
+<br />
+<h4>Работы:</h4>
+<p>Список учебных деятельностей на которые разделена дисциплина по образовательной программаме</p>
+
+<p>
+    @if (isAccessAllowed)
+    {
+        <a asp-controller="Activities" asp-action="Create" asp-route-SemesterDisciplineId="@Model.Id">Добавить</a> <span> | </span>
+    }
+    @if (ViewBag.groupId != null)
+    {
+        <a asp-controller="RatingControls" asp-action="Group" asp-route-id="@ViewBag.groupId" asp-route-disciplineId="@Model.Id" asp-route-ReturnUrl="@Context.Request.Path@Context.Request.QueryString">Рейтинг</a>
+    }
+    else
+    {
+        <a asp-controller="RatingControls" asp-action="Index" asp-route-disciplineId="@Model.Id">Рейтинг</a>
+    }
+</p>
+
+<table class="table border rounded" id="activitiesTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Activities.FirstOrDefault().Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Activities.FirstOrDefault().Number)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Activities.FirstOrDefault().Title)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Activities)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Number)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm float-right" role="group">
+                    <a asp-controller="Activities" asp-action="Protect" asp-route-id="@item.Id" asp-route-ReturnUrl="@ViewBag.ReturnUrl" asp-route-groupId="@ViewBag.groupId" class="btn btn-outline-primary">Перейти</a>
+                    @if (isAccessAllowed)
+                    {
+                        <a asp-controller="Activities" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">&times;</a>
+                    }
+                </div>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}
+    <script>
+        var table = $('#activitiesTable').DataTable({
+            order: [[0, "asc"], [1, "asc"]],
+            columnDefs: [{ orderable: false, targets: [-1] }],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.22/i18n/Russian.json'
+            }
+        });
+    </script>
+}

@@ -1,0 +1,68 @@
+﻿@model BestStudentCafedra.Models.GraduationWork
+
+@{
+    var isArchived = Model.ArchievedDate != null;
+    var lastAdviserRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.ADVISER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.ADVISER, Status = Status.APPROVED };
+    var lastReviewerRequest = Model.TeacherRequests.Where(x => x.RequestType == RequestType.REVIEWER).OrderByDescending(x => x.CreatingDate).FirstOrDefault() ?? new TeacherRequest { RequestType = RequestType.REVIEWER, Status = Status.APPROVED };
+
+}
+
+<dl class="row">
+    @if (!User.IsInRole("student"))
+    {
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Student)
+        </dt>
+        <dd class="col-sm-10">
+            <a asp-action="Details" asp-controller="Student" asp-route-id="@Model.StudentId">@Model.Student.FullName</a>
+        </dd>
+    }
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Theme)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.Theme != null)
+        {
+            @Html.DisplayFor(model => model.Theme)
+        }
+        else
+        {
+            <span>Не назначена (<a asp-controller="ProposedTopic" asp-action="Index">Список рекомендованных тем</a>)</span>
+        }
+    </dd>
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.ScientificAdviserId)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.ScientificAdviserId != null)
+        {
+            <a asp-action="Details" asp-controller="Teacher" asp-route-id="@Model.ScientificAdviserId">@Model.ScientificAdviser.FullName</a>
+        }
+        @{await Html.RenderPartialAsync("_Request", lastAdviserRequest); }
+    </dd>
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.ReviewerId)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.ReviewerId != null)
+        {
+            <a asp-action="Details" asp-controller="Teacher" asp-route-id="@Model.ReviewerId">@Model.Reviewer.FullName</a>
+        }
+        @{await Html.RenderPartialAsync("_Request", lastReviewerRequest); }
+    </dd>
+    @if (isArchived)
+    {
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ArchievedDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ArchievedDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Result)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Result)
+        </dd>
+    }
+</dl>

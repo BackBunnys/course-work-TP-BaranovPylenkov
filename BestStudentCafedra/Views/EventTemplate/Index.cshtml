@@ -1,0 +1,47 @@
+﻿@model BestStudentCafedra.Models.EventTemplate
+
+@{
+    ViewData["Title"] = "Шаблон мероприятий";
+    ICollection<EventTemplate> events = ViewBag.Events;
+    int maxSN = events.Count > 0 ? events.Max(x => x.SequentialNumber) : 0,
+        minSN = events.Count > 0 ? events.Min(x => x.SequentialNumber) : 0;
+    int insertIndex = maxSN + 1;
+    EventTemplate template = new EventTemplate { SequentialNumber = insertIndex };
+    events.Add(template);
+    SelectList selectList = new SelectList(events.ToList(), "SequentialNumber", "SequentialNumber", insertIndex);
+    events.Remove(template);
+}
+
+<h1>Шаблон мероприятий</h1>
+
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="form-group col-sm-1">
+            <label asp-for="SequentialNumber"></label>
+            <select name="SequentialNumber" class="form-control" asp-items='selectList'></select>
+        </div>
+        <div class="form-group col-sm-11">
+            <label asp-for="Description"></label>
+            <input asp-for="Description" class="form-control" value="@Model.Description" />
+        </div>
+    </div>
+    <div class="form-group" style="text-align:right">
+        <input type="submit" value="Добавить" class="btn btn-primary" />
+    </div>
+</form>
+
+<hr />
+
+@foreach (EventTemplate item in ViewBag.Events)
+{
+<div class="text-center justify-content-between">
+    <form method="post">
+        <input type="hidden" asp-for="Id" class="form-control" value="@item.Id" />
+        <input class="btn textstr col-md-10" asp-action="Delete" type="submit" value="@item.SequentialNumber. @item.Description" />
+        <input disabled='@(item.SequentialNumber==minSN)' class="btn btn-light col-md-auto" asp-action="Up" type="submit" value="↑" route />
+        <input disabled='@(item.SequentialNumber==maxSN)' class="btn btn-light col-md-auto" asp-action="Down" type="submit" value="↓" />
+    </form>
+</div>
+<hr />
+}

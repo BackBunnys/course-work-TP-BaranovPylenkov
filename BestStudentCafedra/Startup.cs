@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BestStudentCafedra.Models;
+using BestStudentCafedra.Services.Messages.Email;
+using BestStudentCafedra.Services.Messages;
 
 namespace BestStudentCafedra
 {
@@ -28,11 +30,18 @@ namespace BestStudentCafedra
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<EmailOptions>(
+             Configuration.GetSection(EmailOptions.Email));
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<SubjectAreaDbContext>(options => 
+                options.UseMySql(
+                    Configuration.GetConnectionString("SubjectAreaConnection"), ServerVersion.FromString("8.0.22-mysql")));
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddTransient<EmailSender, EmailService>();
             services.AddControllersWithViews();
         }
 
@@ -42,7 +51,6 @@ namespace BestStudentCafedra
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
