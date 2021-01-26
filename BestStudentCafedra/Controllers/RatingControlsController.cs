@@ -244,9 +244,10 @@ namespace BestStudentCafedra.Controllers
                 var studentRating = new StudentRating();
                 studentRating.RatingId = newRatingControl.Id;
                 studentRating.StudentId = student.GradebookNumber;
-                studentRating.Points = student.ActivityProtections
-                    .Select(x => x.Points)
-                    .Sum() * pointMultiplier;
+                studentRating.Points = (float)(Math.Round(student.ActivityProtections
+                        .Select(x => x.Points)
+                        .Sum() * pointMultiplier
+                    , 1));
 
                 studentsRating.Add(studentRating);
             }
