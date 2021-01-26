@@ -86,7 +86,7 @@
         </div>
         <div class="col-sm">
             <div>
-                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@Model.SemesterDiscipline.Id">Подробнее</a> |
+                <a asp-controller="SemesterDisciplines" asp-action="Details" asp-route-id="@Model.SemesterDiscipline.Id" asp-route-ReturnUrl="@Context.Request.Path?disciplineId=@Model.SemesterDiscipline.Id" asp-route-groupId="@Model.Group.Id">Подробнее</a> |
                 <a asp-controller="Disciplines" asp-action="Index">Список дисциплин</a>
             </div>
         </div>
@@ -167,7 +167,7 @@
 </div>
 <p>Уровень знаний студентов на данный момент по лекциям, лабораторным, практическим и самостоятельным работам</p>
 
-<table class="table table-sm table-bordered rounded" id="ratingTable">
+<table class="table table-responsive table-sm table-bordered rounded" id="ratingTable" style="width: 100%;">
     <thead>
         <tr>
             <th rowspan="2">#</th>
@@ -227,7 +227,7 @@
                     }
                 </td>
             }
-            <td>@total.ToString(new CultureInfo("en-US"))</td>
+        <td>@(((float)(Math.Round(total, 1))).ToString(new CultureInfo("en-US")))</td>
             @foreach (var item in Model.RatingControls)
             {
                 <td>
@@ -266,6 +266,7 @@
         }
     </tbody>
 </table>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_DataTableScriptsPartial");}

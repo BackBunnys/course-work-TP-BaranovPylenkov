@@ -88,7 +88,7 @@ namespace BestStudentCafedra.Controllers
 
                     if (exam != null)
                     {
-                        examMultiplier = (float)(40 / exam.MaxPoints);
+                        examMultiplier = (float)(40f / exam.MaxPoints);
 
                         groupRating.SemesterDiscipline.Activities =
                             groupRating.SemesterDiscipline.Activities
@@ -192,11 +192,8 @@ namespace BestStudentCafedra.Controllers
             }
 
             var lastNumber = 0;
-            if (_context.RatingControls.Count() > 0)
-            {
-                var groupRatingControls = _context.RatingControls.Where(x => x.GroupId == groupId && x.SemesterDisciplineId == disciplineId);
-                if (groupRatingControls != null) lastNumber = groupRatingControls.OrderByDescending(x => x.Number).FirstOrDefault().Number;
-            }
+            var groupRatingControls = _context.RatingControls.Where(x => x.GroupId == groupId && x.SemesterDisciplineId == disciplineId);
+            if (groupRatingControls.Any()) lastNumber = groupRatingControls.OrderByDescending(x => x.Number).FirstOrDefault().Number;
 
             var newRatingControl = new RatingControl();
             newRatingControl.Number = lastNumber + 1;
@@ -215,7 +212,7 @@ namespace BestStudentCafedra.Controllers
                 .AsNoTracking()
                 .AsEnumerable();
 
-            var pointMultiplier = 0;
+            var pointMultiplier = 1f;
             if (_context.SemesterDiscipline.Find(disciplineId).ControlType == ControlType.Exam)
             {
                 var exam = activities.FirstOrDefault(x => x.Type.Name == EXAMTYPENAME);
@@ -223,11 +220,11 @@ namespace BestStudentCafedra.Controllers
                 {
                     activities.ToList().Remove(exam);
                 }
-                pointMultiplier = (int)(60 / activities.Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(60f / activities.Select(x => x.MaxPoints).Sum()));
             }
             else
             {
-                pointMultiplier = (int)(100 / activities.Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(100f / activities.Select(x => x.MaxPoints).Sum()));
             }
 
             var students = _context.AcademicGroups
@@ -235,6 +232,7 @@ namespace BestStudentCafedra.Controllers
                     .ThenInclude(x => x.ActivityProtections
                         .Where(y => activities
                             .Any(z => y.ActivityId == z.Id)))
+                .Where(x => x.Id == groupId)
                 .SelectMany(x => x.Students);
 
             var studentsRating = new List<StudentRating>();
@@ -243,9 +241,10 @@ namespace BestStudentCafedra.Controllers
                 var studentRating = new StudentRating();
                 studentRating.RatingId = newRatingControl.Id;
                 studentRating.StudentId = student.GradebookNumber;
-                studentRating.Points = student.ActivityProtections
-                    .Select(x => x.Points)
-                    .Sum() * pointMultiplier;
+                studentRating.Points = (float)(Math.Round(student.ActivityProtections
+                        .Select(x => x.Points)
+                        .Sum() * pointMultiplier
+                    , 1));
 
                 studentsRating.Add(studentRating);
             }
@@ -350,6 +349,7 @@ namespace BestStudentCafedra.Controllers
                     .ThenInclude(y => y.Student)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
+            //нерасширяемо, лучше сделать шаблоны
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Ведомость");
@@ -443,22 +443,39 @@ namespace BestStudentCafedra.Controllers
                 .Include(x => x.Discipline)
                     .ThenInclude(y => y.TeacherDisciplines)
                         .ThenInclude(z => z.Teacher)
-                .Include(x => x.Activities)
+                .Include(x => x.Activities.OrderBy(x => x.Type).ThenBy(x => x.Number))
                     .ThenInclude(y => y.Type)
                 .FirstOrDefaultAsync(x => x.Id == disciplineId);
 
-            var pointMultiplier = 0;
+            var studentsCount = group.Students.Count();
+            var activitiesCount = semesterDiscipline.Activities.Count();
+
+            var pointMultiplier = 1f;
+            var examMultiplier = 1f;
+            Activity exam = null;
+
+            var bodyRow = 5;
+            var footerRow = bodyRow + studentsCount;
+            var multiplierCol = 12; var multiplierRow = footerRow + 2;
+
             if (semesterDiscipline.ControlType == ControlType.Exam)
             {
-                pointMultiplier = (int)(60 / semesterDiscipline.Activities.Where(x => x.Type.Name != EXAMTYPENAME).Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(60f / semesterDiscipline.Activities.Where(x => x.Type.Name != EXAMTYPENAME).Select(x => x.MaxPoints).Sum()));
+                exam = semesterDiscipline.Activities.FirstOrDefault(x => x.Type.Name == EXAMTYPENAME);
+                examMultiplier = (float)(40f / exam.MaxPoints);
             }
             else
             {
-                pointMultiplier = (int)(100 / semesterDiscipline.Activities.Select(x => x.MaxPoints).Sum());
+                pointMultiplier = ((float)(100f / semesterDiscipline.Activities.Select(x => x.MaxPoints).Sum()));
             }
 
+            //нерасширяемо, лучше сделать шаблоны
             using (var workbook = new XLWorkbook())
             {
+                //
+                //  TABLE HEADER
+                //
+
                 var worksheet = workbook.Worksheets.Add("Текущий рейтинг контроль");
                 var currentRow = 1;
 
@@ -466,8 +483,11 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, 2).Value = group.Name; worksheet.Cell(currentRow, 2).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
                 worksheet.Cell(currentRow, 2).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, 3).Value = "Расчетная ведомость рейтинга:";
-                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 5)).Merge();
-                worksheet.Cell(currentRow, 3 + 5 + 1).Value = semesterDiscipline.Discipline.Name;
+                worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 6)).Merge();
+
+                worksheet.Range(worksheet.Cell(currentRow, 3 + 6 + 1), worksheet.Cell(currentRow, 3 + 6 + 1 + 7)).Merge();
+                worksheet.Range(worksheet.Cell(currentRow, 3 + 6 + 1), worksheet.Cell(currentRow, 3 + 6 + 1 + 7)).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
+                worksheet.Cell(currentRow, 3 + 6 + 1).Value = semesterDiscipline.Discipline.Name;
                 currentRow++;
 
                 worksheet.Cell(currentRow, 1).Value = "сп.";
@@ -488,15 +508,7 @@ namespace BestStudentCafedra.Controllers
                 }
                 currentRow++;
 
-                currentCol = 3;
-                foreach (var item in semesterDiscipline.Activities)
-                {
-                    worksheet.Cell(currentRow, currentCol).Value = $"№{item.Number}";
-                    worksheet.Cell(currentRow + 1, currentCol).Value = item.MaxPoints * pointMultiplier;
-                    worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                    worksheet.Column(currentCol).Width = 4;
-                    currentCol++;
-                }
+                currentCol = 3 + semesterDiscipline.Activities.Count();
 
                 worksheet.Cell(currentRow, currentCol).Value = "Итого";
 
@@ -532,25 +544,22 @@ namespace BestStudentCafedra.Controllers
                     currentCol++;
                 }
 
-                if (semesterDiscipline.ControlType == ControlType.Exam)
+                if(exam != null)
                 {
-                    if (semesterDiscipline.Activities.FirstOrDefault(x => x.Type.Name == EXAMTYPENAME) != null)
-                    {
-                        worksheet.Cell(currentRow, currentCol).Value = EXAMTYPENAME;
-                        worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
-                        worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                        worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                        worksheet.Cell(currentRow, currentCol).Style.Font.FontSize = 9;
-                        worksheet.Cell(currentRow, currentCol).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
+                    worksheet.Cell(currentRow, currentCol).Value = exam.Type.Name;
+                    worksheet.Cell(currentRow, currentCol).Style.Alignment.TextRotation = 90;
+                    worksheet.Cell(currentRow, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(currentRow, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(currentRow, currentCol).Style.Font.FontSize = 9;
+                    worksheet.Cell(currentRow, currentCol).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
 
-                        worksheet.Cell(currentRow + 1, currentCol).Value = "ЭКЗ";
-                        worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                        worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                        worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    worksheet.Cell(currentRow + 1, currentCol).Value = "ЭКЗ";
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(currentRow + 1, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
 
-                        worksheet.Column(currentCol).Width = 5;
-                        currentCol++;
-                    }
+                    worksheet.Column(currentCol).Width = 5;
+                    currentCol++;
                 }
 
                 worksheet.Cell(currentRow, currentCol).Value = "Оценка";
@@ -585,7 +594,7 @@ namespace BestStudentCafedra.Controllers
                 currentCol++;
 
                 currentCol++; 
-                var startCol = currentCol;  currentRow--;
+                var startFactPointsCol = currentCol;  currentRow--;
                 foreach (var activityType in semesterDiscipline.Activities.Select(x => x.Type).Distinct())
                 {
                     var length = semesterDiscipline.Activities.Where(x => x.TypeId == activityType.Id).Count() - 1;
@@ -597,8 +606,22 @@ namespace BestStudentCafedra.Controllers
                     worksheet.Range(worksheet.Cell(currentRow + 1, currentCol), worksheet.Cell(currentRow + 2 + group.Students.Count(), currentCol + length)).Style.Fill.BackgroundColor = XLColor.FromArgb(100 + r.Next(155), 100 + r.Next(155), 100 + r.Next(155));
                     currentCol += length + 1;
                 }
-                currentRow++;  currentCol = startCol;
 
+                currentCol = 3;
+                foreach (var activity in semesterDiscipline.Activities)
+                {
+                    worksheet.Cell(currentRow + 1, currentCol).Value = $"№{activity.Number}";
+                    if(activity.Id == exam.Id)
+                        worksheet.Cell(currentRow + 2, currentCol).FormulaA1 = $"{worksheet.Cell(currentRow + 2, startFactPointsCol + currentCol - 3).Address}*{worksheet.Cell(multiplierRow + 1, multiplierCol).Address}";
+                    else
+                        worksheet.Cell(currentRow + 2, currentCol).FormulaA1 = $"{worksheet.Cell(currentRow + 2, startFactPointsCol + currentCol - 3).Address}*{worksheet.Cell(multiplierRow, multiplierCol).Address}";
+                    worksheet.Cell(currentRow + 2, currentCol).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    worksheet.Column(currentCol).Width = 4;
+                    currentCol++;
+                }
+                currentRow++;
+
+                currentCol = startFactPointsCol;
                 foreach (var item in semesterDiscipline.Activities)
                 {
                     worksheet.Cell(currentRow, currentCol).Value = $"№{item.Number}";
@@ -614,9 +637,14 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, 1).Value = "№"; worksheet.Cell(currentRow, 1).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 worksheet.Cell(currentRow, 2).Value = "Ф.И.О. студента"; worksheet.Cell(currentRow, 2).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 worksheet.Row(currentRow).Height = 20;
-                currentRow++;
 
+                //
+                //  TABLE BODY
+                //
+
+                currentRow = bodyRow;
                 var i = 1;
+                var factPointsOffset = startFactPointsCol - 3;
                 foreach (var student in group.Students)
                 {
                     worksheet.Cell(currentRow, 1).Value = i++;
@@ -626,16 +654,15 @@ namespace BestStudentCafedra.Controllers
                     currentCol = 3;
                     foreach (var activity in semesterDiscipline.Activities)
                     {
-                        ActivityProtection activityProtection = student.ActivityProtections.FirstOrDefault(x => x.Activity == activity);
-                        if (activityProtection != null)
-                        {
-                            if (activityProtection.Activity.Type.Name == EXAMTYPENAME)
-                                worksheet.Cell(currentRow, currentCol).Value = (40 / activityProtection.Activity.MaxPoints) * activityProtection.Points;
-                            else
-                                worksheet.Cell(currentRow, currentCol).Value = activityProtection.Points * pointMultiplier;
-                        }
+                        if (activity.Type.Name == EXAMTYPENAME)
+                            worksheet.Cell(currentRow, currentCol).FormulaA1 = $"{worksheet.Cell(currentRow, currentCol + factPointsOffset).Address}*{worksheet.Cell(multiplierRow + 1, multiplierCol).Address}";
+                        else
+                            worksheet.Cell(currentRow, currentCol).FormulaA1 = $"{worksheet.Cell(currentRow, currentCol + factPointsOffset).Address}*{worksheet.Cell(multiplierRow, multiplierCol).Address}";
+
                         currentCol++;
                     }
+
+                    currentCol = 3 + semesterDiscipline.Activities.Count();
 
                     worksheet.Cell(currentRow, currentCol).FormulaA1 = $"SUM({worksheet.Cell(currentRow, currentCol - 1).Address}:{worksheet.Cell(currentRow, currentCol - semesterDiscipline.Activities.Count).Address})";
                     worksheet.Cell(currentRow, currentCol).Style.Border.LeftBorder = XLBorderStyleValues.Thin;
@@ -649,7 +676,7 @@ namespace BestStudentCafedra.Controllers
                         StudentRating studentRating = ratingControl.StudentRatings.FirstOrDefault(x => x.StudentId == student.GradebookNumber);
                         if (studentRating != null)
                         {
-                            worksheet.Cell(currentRow, currentCol).Value = studentRating.Points * pointMultiplier;
+                            worksheet.Cell(currentRow, currentCol).Value = studentRating.Points;
                             worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                         }
                         currentCol++;
@@ -657,8 +684,8 @@ namespace BestStudentCafedra.Controllers
 
                     if (semesterDiscipline.ControlType == ControlType.Exam)
                     {
-                        var exam = student.ActivityProtections.OrderBy(x => x.Points).Where(x => x.Activity.Type.Name == EXAMTYPENAME).FirstOrDefault();
-                        worksheet.Cell(currentRow, currentCol).Value = (exam != null) ? (40 / exam.Activity.MaxPoints) * exam.Points : 0;
+                        var examProtection = student.ActivityProtections.Where(x => x.Activity.Id == exam.Id).FirstOrDefault();
+                        worksheet.Cell(currentRow, currentCol).FormulaA1 = $"{worksheet.Cell(currentRow, startFactPointsCol + activitiesCount - 1).Address}*{worksheet.Cell(multiplierRow + 1, multiplierCol).Address}";
                         worksheet.Cell(currentRow, currentCol).Style.Font.Bold = true;
                         currentCol++;
                     }
@@ -688,6 +715,11 @@ namespace BestStudentCafedra.Controllers
                     currentRow++;
                 }
 
+                //
+                //  TABLE FOOTER
+                //
+
+                currentRow = footerRow;
                 worksheet.Row(currentRow).Style.Fill.BackgroundColor = XLColor.FromArgb(51, 51, 51); currentRow++;
                 currentRow++;
 
@@ -695,6 +727,13 @@ namespace BestStudentCafedra.Controllers
                 worksheet.Cell(currentRow, 3).Value = semesterDiscipline.Discipline.TeacherDisciplines.FirstOrDefault(x => x.DisciplineId == semesterDiscipline.DisciplineId).Teacher.FullName;
                 worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 6)).Merge();
                 worksheet.Range(worksheet.Cell(currentRow, 3), worksheet.Cell(currentRow, 3 + 6)).Style.Fill.BackgroundColor = XLColor.FromArgb(254, 0, 254);
+
+
+                worksheet.Cell(multiplierRow, multiplierCol - 1).Value = "МР"; worksheet.Cell(multiplierRow, multiplierCol).Value = pointMultiplier;
+                if (semesterDiscipline.ControlType == ControlType.Exam)
+                {
+                    worksheet.Cell(multiplierRow + 1, multiplierCol - 1).Value = "МЭ"; worksheet.Cell(multiplierRow + 1, multiplierCol).Value = examMultiplier;
+                }
 
                 worksheet.Column(1).AdjustToContents();
                 worksheet.Column(2).AdjustToContents();
@@ -720,58 +759,6 @@ namespace BestStudentCafedra.Controllers
                 }
             }
             return builder.ToString();
-        }
-
-        public string GetDisplayName(object obj, string propertyName)
-        {
-            if (obj == null) return null;
-            return GetDisplayName(obj.GetType(), propertyName);
-
-        }
-
-        public string GetDisplayName(Type type, string propertyName)
-        {
-            var property = type.GetProperty(propertyName);
-            if (property == null) return null;
-
-            return GetDisplayName(property);
-        }
-
-        public string GetDisplayName(PropertyInfo property)
-        {
-            var attrName = GetAttributeDisplayName(property);
-            if (!string.IsNullOrEmpty(attrName))
-                return attrName;
-
-            var metaName = GetMetaDisplayName(property);
-            if (!string.IsNullOrEmpty(metaName))
-                return metaName;
-
-            return property.Name.ToString();
-        }
-
-        private string GetAttributeDisplayName(PropertyInfo property)
-        {
-            var atts = property.GetCustomAttributes(
-                typeof(DisplayNameAttribute), true);
-            if (atts.Length == 0)
-                return null;
-            return (atts[0] as DisplayNameAttribute).DisplayName;
-        }
-
-        private string GetMetaDisplayName(PropertyInfo property)
-        {
-            var atts = property.DeclaringType.GetCustomAttributes(
-                typeof(MetadataTypeAttribute), true);
-            if (atts.Length == 0)
-                return null;
-
-            var metaAttr = atts[0] as MetadataTypeAttribute;
-            var metaProperty =
-                metaAttr.MetadataClassType.GetProperty(property.Name);
-            if (metaProperty == null)
-                return null;
-            return GetAttributeDisplayName(metaProperty);
         }
 
         private bool RatingControlExists(int id)
