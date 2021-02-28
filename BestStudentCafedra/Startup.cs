@@ -41,12 +41,14 @@ namespace BestStudentCafedra
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddTransient<ApplicationDbContextDataSeeding>();
+
             services.AddTransient<EmailSender, EmailService>();
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContextDataSeeding seeder)
         {
             if (env.IsDevelopment())
             {
@@ -65,6 +67,8 @@ namespace BestStudentCafedra
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            seeder.Seed();
 
             app.UseEndpoints(endpoints =>
             {
