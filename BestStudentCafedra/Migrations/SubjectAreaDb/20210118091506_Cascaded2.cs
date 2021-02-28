@@ -6,6 +6,49 @@ namespace BestStudentCafedra.Migrations.SubjectAreaDb
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "activity_ibfk_2",
+                table: "activity");
+
+            migrationBuilder.DropForeignKey(
+                name: "activity_protection_ibfk_1",
+                table: "activity_protection");
+
+            migrationBuilder.DropForeignKey(
+                name: "activity_protection_ibfk_2",
+                table: "activity_protection");
+
+            migrationBuilder.DropForeignKey(
+                name: "group_discipline_ibfk_1",
+                table: "group_disciplines");
+
+            migrationBuilder.DropForeignKey(
+                name: "group_discipline_ibfk_2",
+                table: "group_disciplines");
+
+            migrationBuilder.DropForeignKey(
+                name: "rating_control_ibfk_2",
+                table: "rating_control");
+
+            migrationBuilder.DropForeignKey(
+                name: "rating_control_ibfk_3",
+                table: "rating_control");
+
+            migrationBuilder.DropForeignKey(
+                name: "student_rating_ibfk_1",
+                table: "student_rating");
+
+            migrationBuilder.DropForeignKey(
+                name: "student_rating_ibfk_2",
+                table: "student_rating");
+
+            migrationBuilder.DropForeignKey(
+                name: "teacher_discipline_ibfk_1",
+                table: "teacher_disciplines");
+
+            migrationBuilder.DropForeignKey(
+                name: "teacher_discipline_ibfk_2",
+                table: "teacher_disciplines");
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
